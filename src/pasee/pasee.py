@@ -19,24 +19,24 @@ def load_conf(
     port: int = None,
     identity_backend_class: str = None,
 ) -> Dict:
-    """Search for a settings.yaml file and load it.
+    """Search for a settings.toml file and load it.
     """
     candidates: tuple
     if settings_path:
         candidates = (
             settings_path,
             os.path.join(os.getcwd(), settings_path),
-            os.path.join(os.getcwd(), "settings.yaml"),
-            os.path.expanduser("~/settings.yaml"),
+            os.path.join(os.getcwd(), "settings.toml"),
+            os.path.expanduser("~/settings.toml"),
             os.path.expanduser(os.path.join("~/", settings_path)),
-            "/etc/settings.yaml",
+            "/etc/settings.toml",
             os.path.join("/etc/", settings_path),
         )
     else:
         candidates = (
-            os.path.join(os.getcwd(), "settings.yaml"),
-            os.path.expanduser("~/settings.yaml"),
-            "/etc/settings.yaml",
+            os.path.join(os.getcwd(), "settings.toml"),
+            os.path.expanduser("~/settings.toml"),
+            "/etc/settings.toml",
         )
     for candidate in candidates:
         if os.path.exists(candidate):
@@ -50,15 +50,9 @@ def load_conf(
         settings["port"] = port
     if "port" not in settings:
         settings["port"] = 8140
-    if "identity_backend" not in settings:
-        settings["identity_backend"] = {}
-    if identity_backend_class:
-        settings["identity_backend"]["class"] = identity_backend_class
-    if "class" not in settings["identity_backend"]:
-        raise MissingSettings(
-            "No identity provider, please provide one"
-            " (via parameters, cli or settings.yml)"
-        )
+    for mandatory_setting in {"private_key", "public_key", "identity_providers"}:
+        if mandatory_setting not in settings:
+            raise MissingSettings(f"No {mandatory_setting} in settings, see README.md")
     return settings
 
 
