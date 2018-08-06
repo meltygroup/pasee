@@ -21,6 +21,7 @@ def load_conf(
 ) -> Dict:
     """Search for a settings.toml file and load it.
     """
+    del identity_backend_class
     candidates: tuple
     if settings_path:
         candidates = (
