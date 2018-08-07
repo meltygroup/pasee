@@ -5,7 +5,10 @@ import os
 from typing import Dict, Optional
 
 from aiohttp import web
-import toml
+import pytoml as toml
+
+from pasee import views
+from pasee.middlewares import verify_input_body_is_json
 
 
 class MissingSettings(ValueError):
@@ -54,6 +57,7 @@ def load_conf(
     for mandatory_setting in {"private_key", "public_key", "identity_providers"}:
         if mandatory_setting not in settings:
             raise MissingSettings(f"No {mandatory_setting} in settings, see README.md")
+    settings["idps"] = {idp["name"]: idp for idp in settings["identity_providers"]}
     return settings
 
 
@@ -65,18 +69,15 @@ def identification_app(
 ):
     """Identification provider entry point: builds and run a webserver.
     """
-    app = web.Application()
+    app = web.Application(middlewares=[verify_input_body_is_json])
     app.settings = load_conf(settings_file, host, port, identity_backend_class)
 
-    async def on_startup_wrapper(app):
-        await app.identity_backend.__aenter__()
-
-    async def on_cleanup_wrapper(app):
-        await app.identity_backend.__aexit__()
-
-    app.on_startup.append(on_startup_wrapper)
-    app.on_cleanup.append(on_cleanup_wrapper)
-
-    app.add_routes([])
+    app.add_routes(
+        [
+            web.get("/", views.get_root),
+            web.get("/token/", views.get_tokens),
+            web.post("/token/", views.post_token),
+        ]
+    )
 
     return app

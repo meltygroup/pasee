@@ -32,7 +32,7 @@ def setup_package():
             'coreapi>=2.3.3,<3',
             'cryptography>=2.2.2,<3',
             'pyjwt>=1.6.3,<2',
-            'toml',
+            'pytoml',
             'shortuuid>=0.5.0',
         ],
         entry_points={
