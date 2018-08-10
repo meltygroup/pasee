@@ -7,8 +7,11 @@ from typing import Dict, Optional
 from aiohttp import web
 import pytoml as toml
 
-from pasee import views
 from pasee.middlewares import verify_input_body_is_json
+from pasee import views
+from pasee.groups import views as group_views
+from pasee.tokens import views as token_views
+from pasee.groups.backend import import_authorization_backend
 
 
 class MissingSettings(ValueError):
@@ -71,12 +74,29 @@ def identification_app(
     """
     app = web.Application(middlewares=[verify_input_body_is_json])
     app.settings = load_conf(settings_file, host, port, identity_backend_class)
+    app.authorization_backend = import_authorization_backend(
+        app.settings["authorization_backend"]["class"]
+    )(app.settings["authorization_backend"]["options"])
+
+    async def on_startup_wrapper(app):
+        """Wrapper to call __aenter__.
+        """
+        await app.authorization_backend.__aenter__()
+
+    async def on_cleanup_wrapper(app):
+        """Wrapper to call __exit__.
+        """
+        await app.authorization_backend.__aexit__(None, None, None)
+
+    app.on_startup.append(on_startup_wrapper)
+    app.on_cleanup.append(on_cleanup_wrapper)
 
     app.add_routes(
         [
             web.get("/", views.get_root),
-            web.get("/token/", views.get_tokens),
-            web.post("/token/", views.post_token),
+            web.get("/tokens/", token_views.get_tokens),
+            web.post("/tokens/", token_views.post_token),
+            web.get("/groups/", group_views.get_groups),
         ]
     )
 

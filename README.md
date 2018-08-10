@@ -161,7 +161,7 @@ command-line using:
 The API exposes the following resources:
 
 - A home on `/` (GET).
-- JSON web tokens on `/jwt/` (GET, POST).
+- JSON web tokens on `/tokens/` (GET, POST).
 - Groups handling on `/groups/`.
 
 
