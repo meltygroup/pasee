@@ -37,7 +37,7 @@ def setup_package():
         ],
         entry_points={
             'console_scripts': [
-                'kisee = pasee.__main__:main',
+                'pasee = pasee.__main__:main',
             ]
         },
         extras_require={
