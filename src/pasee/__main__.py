@@ -16,7 +16,7 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
         description="Pasee Identity Manager",
         epilog="All options, if given, take precedence over settings file.",
     )
-    parser.add_argument("--settings-file", default="settings.yaml")
+    parser.add_argument("--settings-file", default="settings.toml")
     parser.add_argument("--host", help="Hostname to bind to.")
     parser.add_argument("--port", help="Port to bind to.")
     return parser
