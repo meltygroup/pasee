@@ -2,7 +2,7 @@
 """
 
 
-def identify_to_kisee(url, data):
+def identify_to_kisee(self, data):
     return {
         "_type": "document",
         "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
@@ -22,7 +22,7 @@ def identify_to_kisee(url, data):
     }
 
 
-def decode_token(token, public_keys):
+def decode_token(self, token):
     return {
         "iss": "example.com",
         "sub": "toto",

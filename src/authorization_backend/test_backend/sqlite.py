@@ -12,8 +12,9 @@ class TestSqliteStorage(AuthorizationBackend):
     """
 
     def __init__(self, options: dict, **kwargs) -> None:
-        super().__init__(options, **kwargs)
+        super().__init__(options, **kwargs)  # type: ignore
         self.file = options["file"]
+        self.connection = None
 
     async def __aenter__(self):
         self.connection = sqlite3.connect(self.file)
@@ -21,7 +22,13 @@ class TestSqliteStorage(AuthorizationBackend):
         cursor.execute("CREATE TABLE IF NOT EXISTS identity(name TEXT PRIMARY KEY);")
         cursor.execute("CREATE TABLE IF NOT EXISTS groups(name TEXT PRIMARY KEY);")
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS identity_in_group(id INTEGER PRIMARY KEY, identity TEXT, groups TEXT);"
+            """
+            CREATE TABLE IF NOT EXISTS identity_in_group(
+                id INTEGER PRIMARY KEY,
+                identity TEXT,
+                groups TEXT
+            );
+            """
         )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
@@ -33,9 +40,13 @@ class TestSqliteStorage(AuthorizationBackend):
         We suppose db schema to be created like this:
         $>CREATE TABLE identity(name TEXT PRIMARY KEY);
         $>CREATE TABLE groups(name TEXT PRIMARY KEY);
-        $>CREATE TABLE identity_in_group (id INTEGER PRIMARY KEY, identity TEXT, groups TEXT);"
+        $>CREATE TABLE identity_in_group (
+            id INTEGER PRIMARY KEY,
+            identity TEXT,
+            groups TEXT
+        );"
         """
-        cursor = self.connection.cursor()
+        cursor = self.connection.cursor()  # type: ignore
         results = cursor.execute(
             "SELECT groups FROM identity_in_group WHERE identity = :identity",
             {"identity": identity},
