@@ -20,6 +20,23 @@ class AuthorizationBackend(ABC, AsyncContextManager):  # pragma: no cover
         """get list the list of group a user identity belongs to
         """
 
+    @abstractmethod
+    async def staff_creates_group(self, staff, group_name) -> bool:
+        """Add group
+        """
+
+    # @abstractmethod
+    # async def staff_adds_member_to_group(self, staff, member, group_name) -> bool:
+    #     """
+    #     staff adds member to group
+    #     """
+    #
+    # @abstractmethod
+    # async def staff_adds_member_to_group_staff(self, staff, member, group_name) -> bool:
+    #     """
+    #     staff adds member to group staff
+    #     """
+
 
 def import_authorization_backend(dotted_path: str) -> Type[AuthorizationBackend]:
     """Import a dotted module path and return the attribute/class

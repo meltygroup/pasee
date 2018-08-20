@@ -29,3 +29,8 @@ class TestDictionaryStorage(AuthorizationBackend):
         """Claim list of groups an user belongs to
         """
         return self.storage.get(identity, [])
+
+    async def add_group(self, user, group_name) -> bool:
+        """
+        """
+        return True
