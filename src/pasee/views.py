@@ -27,7 +27,14 @@ async def get_root(request: web.Request) -> web.Response:
                 },
                 "resources": {
                     "tokens": {"hints": {"allow": ["GET", "POST"]}, "href": "/tokens/"},
-                    "groups": {"href": "/groups/"},
+                    "groups": {"href": "/groups/", "hints": {"allow": ["GET", "POST"]}},
+                    "group": {
+                        "hrefTemplate": "/groups/{group_uid}",
+                        "hrefVars": {
+                            "group_uid": "doc_to_what_group_uid_means.that.com"
+                        },
+                        "hints": {"allow": ["GET", "PUT", "DELETE"]},
+                    },
                 },
             }
         ),

@@ -21,60 +21,58 @@ class TestSqliteStorage(AuthorizationBackend):
         cursor = self.connection.cursor()
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS identity(
-                name TEXT PRIMARY KEY,
-                staff BOOLEAN DEFAULT false
+            CREATE TABLE IF NOT EXISTS users(
+                name TEXT PRIMARY KEY
             );
             """
         )
         cursor.execute("CREATE TABLE IF NOT EXISTS groups(name TEXT PRIMARY KEY);")
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS identity_in_group(
+            CREATE TABLE IF NOT EXISTS user_in_group(
                 id INTEGER PRIMARY KEY,
-                identity TEXT,
-                groups TEXT
+                user TEXT,
+                group_name TEXT
             );
             """
         )
         cursor.execute(
             """
-            INSERT INTO identity(
-                name, staff
+            INSERT INTO users(
+                name
             ) VALUES (
-                "kisee-toto", 1
+                "kisee-toto"
             )
         """
         )
-        cursor.execute("INSERT INTO groups(name) VALUES ('superusers')")
+        cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
         cursor.execute(
             """
-            INSERT INTO identity_in_group(
-                identity, groups
+            INSERT INTO user_in_group(
+                user, group_name
             ) VALUES (
-                "kisee-toto", "superusers"
+                "kisee-toto", "staff"
             )"""
         )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.connection.close()
 
-    async def get_authorizations_for_user(self, identity: str) -> List[str]:
+    async def get_authorizations_for_user(self, user: str) -> List[str]:
         """Claim list of groups an user belongs to
 
         We suppose db schema to be created like this:
-        $>CREATE TABLE identity(name TEXT PRIMARY KEY);
+        $>CREATE TABLE users(name TEXT PRIMARY KEY);
         $>CREATE TABLE groups(name TEXT PRIMARY KEY);
-        $>CREATE TABLE identity_in_group (
+        $>CREATE TABLE user_in_group (
             id INTEGER PRIMARY KEY,
-            identity TEXT,
-            groups TEXT
+            user TEXT,
+            group_name TEXT
         );"
         """
         cursor = self.connection.cursor()  # type: ignore
         results = cursor.execute(
-            "SELECT groups FROM identity_in_group WHERE identity = :identity",
-            {"identity": identity},
+            "SELECT group_name FROM user_in_group WHERE user = :user", {"user": user}
         )
         return [elem[0] for elem in results]
 
@@ -82,19 +80,13 @@ class TestSqliteStorage(AuthorizationBackend):
         """Staff member adds group method
         """
         cursor = self.connection.cursor()  # type: ignore
-        # verify user is staff
-        result = cursor.execute(
-            "SELECT * FROM identity WHERE name = :staff AND staff = 1", {"staff": staff}
-        )
-        if not result.fetchone():
-            return False
 
         cursor.execute(
             "INSERT INTO groups (name) VALUES (:group_name)", {"group_name": group_name}
         )
         cursor.execute(
-            """INSERT INTO identity_in_group(
-                identity, groups
+            """INSERT INTO user_in_group(
+                user, group_name
             ) VALUES (
                 :user, :group_name
             )
@@ -102,22 +94,45 @@ class TestSqliteStorage(AuthorizationBackend):
             {"user": staff, "group_name": group_name},
         )
 
-        # add staff to group with user inside
         group_name_staff = group_name + ".staff"
         cursor.execute(
             "INSERT INTO groups (name) VALUES (:group_name)",
             {"group_name": group_name_staff},
         )
         cursor.execute(
-            "INSERT INTO identity_in_group(identity, groups) VALUES (:user, :group_name)",
+            "INSERT INTO user_in_group(user, group_name) VALUES (:user, :group_name)",
             {"user": staff, "group_name": group_name_staff},
         )
-        # returns status
         return True
 
-    async def get_groups(self):
+    async def get_groups(self) -> List[str]:
+        """Get all groups
+        """
         cursor = self.connection.cursor()
-        results = cursor.execute("SELECT * FROM groups")
+        results = cursor.execute("SELECT name FROM groups")
         groups = results.fetchall()
         cursor.close()
         return groups
+
+    async def get_members_of_group(self, group: str) -> List[str]:
+        """Get members of group
+        """
+        cursor = self.connection.cursor()  # type: ignore
+
+        query_result = cursor.execute(
+            """
+            SELECT user
+            FROM user_in_group
+            WHERE group_name = :group
+        """,
+            {"group": group},
+        )
+        return query_result.fetchall()
+
+    async def group_exists(self, group: str) -> bool:
+        cursor = self.connection.cursor()  # type: ignore
+        result = cursor.execute(
+            "SELECT 1 FROM groups WHERE name = :group", {"group": group}
+        ).fetchone()
+        print(result)
+        return True if result else False

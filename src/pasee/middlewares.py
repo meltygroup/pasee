@@ -36,6 +36,9 @@ def claim_user_authorization(urls, public_key, algorithm):
             if request.method not in methods:
                 break
 
+            if not request.headers.get("Authorization"):
+                raise web.HTTPBadRequest(reason="missing_authorization_header")
+
             try:
                 scheme, token = request.headers.get("Authorization").strip().split(" ")
             except ValueError:
@@ -46,6 +49,8 @@ def claim_user_authorization(urls, public_key, algorithm):
                 decoded = jwt.decode(token, public_key, algorithm)
                 request.user = decoded["sub"]
                 request.groups = decoded["groups"]
+            except jwt.exceptions.ExpiredSignatureError:
+                raise web.HTTPUnauthorized(reason="expired_signature")
             except ValueError:
                 raise web.HTTPUnauthorized()
 

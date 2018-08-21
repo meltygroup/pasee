@@ -73,7 +73,7 @@ def identification_app(
 ):
     """Identification provider entry point: builds and run a webserver.
     """
-    auth_endpoints = [("/groups/", ("POST",))]
+    auth_endpoints = [("/groups/", ("GET", "POST"))]
 
     settings = load_conf(settings_file, host, port, identity_backend_class)
     app = web.Application(
@@ -111,6 +111,7 @@ def identification_app(
             web.post("/tokens/", token_views.post_token),
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
+            web.get("/groups/{group_uid}/", group_views.get_group),
         ]
     )
 

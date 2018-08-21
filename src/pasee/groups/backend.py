@@ -16,7 +16,7 @@ class AuthorizationBackend(ABC, AsyncContextManager):  # pragma: no cover
         super().__init__()
 
     @abstractmethod
-    async def get_authorizations_for_user(self, identity) -> List[str]:
+    async def get_authorizations_for_user(self, user) -> List[str]:
         """get list the list of group a user identity belongs to
         """
 
@@ -25,12 +25,27 @@ class AuthorizationBackend(ABC, AsyncContextManager):  # pragma: no cover
         """Add group
         """
 
+    @abstractmethod
+    async def get_groups(self) -> List[str]:
+        """Get all groups
+        """
+
+    @abstractmethod
+    async def get_members_of_group(self, group) -> List[str]:
+        """Get members of group
+        """
+
+    @abstractmethod
+    async def group_exists(self, group) -> bool:
+        """Group exists
+        """
+
     # @abstractmethod
     # async def staff_adds_member_to_group(self, staff, member, group_name) -> bool:
     #     """
     #     staff adds member to group
     #     """
-    #
+
     # @abstractmethod
     # async def staff_adds_member_to_group_staff(self, staff, member, group_name) -> bool:
     #     """
