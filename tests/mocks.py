@@ -29,3 +29,9 @@ def decode_token(self, token):
         "exp": 1534173723,
         "jti": "j2CMReXSUwcnvPfhqq7cSg"
     }
+
+
+async def is_claim_user_authorization(urls, public_key, algorithm, request):
+    request.user = "kisee-toto"
+    request.group = "my_group"
+    return True

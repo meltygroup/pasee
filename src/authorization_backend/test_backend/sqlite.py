@@ -36,24 +36,26 @@ class TestSqliteStorage(AuthorizationBackend):
             );
             """
         )
-        cursor.execute(
-            """
-            INSERT INTO users(
-                name
-            ) VALUES (
-                "kisee-toto"
-            )
-        """
-        )
-        cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
-        cursor.execute(
-            """
-            INSERT INTO user_in_group(
-                user, group_name
-            ) VALUES (
-                "kisee-toto", "staff"
-            )"""
-        )
+        #
+        # if self.options["file"] == ":memory:":
+        #     cursor.execute(
+        #         """
+        #         INSERT INTO users(
+        #             name
+        #         ) VALUES (
+        #             "kisee-toto"
+        #         )
+        #     """
+        #     )
+        #     cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
+        #     cursor.execute(
+        #         """
+        #         INSERT INTO user_in_group(
+        #             user, group_name
+        #         ) VALUES (
+        #             "kisee-toto", "staff"
+        #         )"""
+        #     )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.connection.close()
@@ -108,9 +110,9 @@ class TestSqliteStorage(AuthorizationBackend):
     async def get_groups(self) -> List[str]:
         """Get all groups
         """
-        cursor = self.connection.cursor()
+        cursor = self.connection.cursor()  # type: ignore
         results = cursor.execute("SELECT name FROM groups")
-        groups = results.fetchall()
+        groups = [group[0] for group in results]
         cursor.close()
         return groups
 
@@ -127,12 +129,35 @@ class TestSqliteStorage(AuthorizationBackend):
         """,
             {"group": group},
         )
-        return query_result.fetchall()
+        members = [member[0] for member in query_result]
+        return members
 
     async def group_exists(self, group: str) -> bool:
         cursor = self.connection.cursor()  # type: ignore
         result = cursor.execute(
             "SELECT 1 FROM groups WHERE name = :group", {"group": group}
         ).fetchone()
-        print(result)
+
         return True if result else False
+
+    async def user_exists(self, user: str) -> bool:
+        cursor = self.connection.cursor()  # type: ignore
+        result = cursor.execute(
+            "SELECT 1 FROM users WHERE name = :user", {"user": user}
+        ).fetchone()
+        return True if result else False
+
+    async def add_member_to_group(self, member, group):
+        """Staff adds member to group
+        """
+        cursor = self.connection.cursor()  # type: ignore
+        cursor.execute(
+            """
+            INSERT INTO user_in_group(
+                user, group
+            ) VALUES (
+                :user, :group
+            )
+            """,
+            {"user": member, "group": group},
+        )

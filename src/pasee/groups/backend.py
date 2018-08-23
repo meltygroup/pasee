@@ -37,20 +37,19 @@ class AuthorizationBackend(ABC, AsyncContextManager):  # pragma: no cover
 
     @abstractmethod
     async def group_exists(self, group) -> bool:
-        """Group exists
+        """Assert group exists
         """
 
-    # @abstractmethod
-    # async def staff_adds_member_to_group(self, staff, member, group_name) -> bool:
-    #     """
-    #     staff adds member to group
-    #     """
+    @abstractmethod
+    async def user_exists(self, user) -> bool:
+        """Assert user exists
+        """
 
-    # @abstractmethod
-    # async def staff_adds_member_to_group_staff(self, staff, member, group_name) -> bool:
-    #     """
-    #     staff adds member to group staff
-    #     """
+    @abstractmethod
+    async def add_member_to_group(self, member, group) -> bool:
+        """
+        staff adds member to group
+        """
 
 
 def import_authorization_backend(dotted_path: str) -> Type[AuthorizationBackend]:

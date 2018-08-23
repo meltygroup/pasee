@@ -2,10 +2,11 @@
 """
 
 import logging
-import json
 
+from typing import List
 import coreapi
 from aiohttp import web
+
 
 from pasee.serializers import serialize
 
@@ -13,11 +14,19 @@ from pasee.serializers import serialize
 logger = logging.getLogger(__name__)
 
 
+def is_authorized(authorized_group: str, groups: List[str]) -> bool:
+    """Check if authorized group is in user group collection
+    Written as a standalone function for easy mocking in pytest
+    """
+    return authorized_group in groups
+
+
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
     authorization_backend = request.app.authorization_backend
     groups = await authorization_backend.get_groups()
+    print(groups)
     return serialize(
         request,
         coreapi.Document(
@@ -37,7 +46,7 @@ async def get_groups(request: web.Request) -> web.Response:
 
 
 async def post_groups(request: web.Request) -> web.Response:
-    """Handlers for POST /groups/
+    """Handler for POST /groups/
     """
     if "group" not in request.data:
         raise web.HTTPUnprocessableEntity(reason="Missing group")
@@ -47,7 +56,6 @@ async def post_groups(request: web.Request) -> web.Response:
     group_name_root_staff = (
         (group_name_splited[0] + ".staff") if len(group_name_splited) > 2 else "staff"
     )
-    print(group_name_root_staff)
 
     if group_name_root_staff not in request.groups:
         raise web.HTTPUnauthorized(reason="restricted_to_staff")
@@ -55,17 +63,58 @@ async def post_groups(request: web.Request) -> web.Response:
     authorization_backend = request.app.authorization_backend
     await authorization_backend.staff_creates_group(request.user, group_name)
     location = f"/groups/{group_name}/"
-    print(await authorization_backend.get_groups())
     return web.Response(status=201, headers={"Location": location})
 
 
 async def get_group(request: web.Request) -> web.Response:
-    """Handlers for GET /groups/{group_uid}
+    """Handler for GET /groups/{group_uid}
     """
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]
+
     if not await authorization_backend.group_exists(group):
-        return web.HTTPNotFound(reason="group_does_not_exist")
-    members = await authorization_backend.get_members_of_group(group)
-    response = {"members": members}
-    return web.Response(status=200, body=json.dumps(response))
+        raise web.HTTPNotFound(reason="group_does_not_exist")
+
+    if is_authorized("staff", request.groups) or is_authorized(group, request.groups):
+        members = await authorization_backend.get_members_of_group(group)
+        return serialize(
+            request,
+            coreapi.Document(
+                url=f"/groups/{group}/",
+                title=f"{group} group management interface",
+                content={
+                    "members": members,
+                    "add_member": coreapi.Link(
+                        action="post",
+                        title="Add a member to group",
+                        description="A method to add a member to group",
+                        fields=[coreapi.Field(name="member", required=True)],
+                    ),
+                },
+            ),
+        )
+
+    raise web.HTTPUnauthorized(reason="not_authorized_to_view_members")
+
+
+async def post_group(request: web.Request) -> web.Response:
+    """Handler for POST /groups/{group_id}/
+    add a user to {group_id}
+    """
+    authorization_backend = request.app.authorization_backend
+    group = request.match_info["group_uid"]
+
+    if not await authorization_backend.group_exists(group):
+        raise web.HTTPNotFound(reason="group_does_not_exist")
+
+    if "member" not in request.data:
+        raise web.HTTPUnprocessableEntity(reason="missing_member_in_request_body")
+    member = request.data["member"]
+    if not await authorization_backend.user_exists(member):
+        raise web.HTTPNotFound(reason="member_to_add_does_not_exist")
+
+    if is_authorized("staff", request.groups) or is_authorized(
+        f"{group}.staff", request.groups
+    ):
+        authorization_backend.add_member_to_group(member, group)
+    raise web.HTTPUnauthorized(reason="not_authorized_to_add_member")
