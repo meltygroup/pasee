@@ -38,7 +38,7 @@ async def get_root(request: web.Request) -> web.Response:
                 },
             }
         ),
-        content_type="application/json-home",
+        content_type="application/json-home+json",
     )
 
 

@@ -1,7 +1,8 @@
 """Some functions not directly linked with the core of pasee but still usefull.
 """
+from typing import Mapping, Any
+
 from importlib import import_module
-from typing import List, Tuple
 
 import jwt
 from aiohttp import web
@@ -28,7 +29,7 @@ def import_class(dotted_path: str) -> type:
         ) from err
 
 
-def enforce_authorization(request: web.Request) -> Tuple[str, List[str]]:
+def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
     """claim user authorization middleware handler written as a standalone
     function to allow easier mocking for test
     """
@@ -52,10 +53,9 @@ def enforce_authorization(request: web.Request) -> Tuple[str, List[str]]:
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
-        decoded = jwt.decode(
+        return jwt.decode(
             token, request.app.settings["public_key"], request.app.settings["algorithm"]
         )
-        return decoded["sub"], decoded["groups"]
     except jwt.ExpiredSignatureError:
         raise web.HTTPBadRequest(
             reason="expired_signature", headers={"WWW-Authenticate": "Bearer"}
