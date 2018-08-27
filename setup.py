@@ -34,6 +34,7 @@ def setup_package():
             "pyjwt>=1.6.3,<2",
             "pytoml",
             "shortuuid>=0.5.0",
+            'asyncpg',
         ],
         entry_points={"console_scripts": ["pasee = pasee.__main__:main"]},
         extras_require={
