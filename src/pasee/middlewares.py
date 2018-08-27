@@ -35,22 +35,35 @@ def is_claim_user_authorization(urls, public_key, algorithm, request):
             break
 
         if not request.headers.get("Authorization"):
-            raise web.HTTPBadRequest(reason="missing_authorization_header")
+            raise web.HTTPBadRequest(
+                reason="missing_authorization_header",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         try:
             scheme, token = request.headers.get("Authorization").strip().split(" ")
         except ValueError:
-            raise web.HTTPForbidden(reason="invalid_authorization_header")
+            raise web.HTTPBadRequest(
+                reason="unable_to_retrieve_scheme_and_token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         if scheme != "Bearer":
-            raise web.HTTPForbidden(reason="invalid_authorization_header")
+            raise web.HTTPBadRequest(
+                reason="invalid_authorization_scheme",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         try:
             decoded = jwt.decode(token, public_key, algorithm)
             request.user = decoded["sub"]
             request.groups = decoded["groups"]
         except jwt.exceptions.ExpiredSignatureError:
-            raise web.HTTPUnauthorized(reason="expired_signature")
+            raise web.HTTPBadRequest(
+                reason="expired_signature", headers={"WWW-Authenticate": "Bearer"}
+            )
         except ValueError:
-            raise web.HTTPUnauthorized()
+            raise web.HTTPBadRequest(
+                reason="unable_to_decode_token", headers={"WWW-Authenticate": "Bearer"}
+            )
 
         return True
     return False

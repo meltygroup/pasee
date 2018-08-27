@@ -26,7 +26,6 @@ async def get_groups(request: web.Request) -> web.Response:
     """
     authorization_backend = request.app.authorization_backend
     groups = await authorization_backend.get_groups()
-    print(groups)
     return serialize(
         request,
         coreapi.Document(
@@ -58,7 +57,7 @@ async def post_groups(request: web.Request) -> web.Response:
     )
 
     if group_name_root_staff not in request.groups:
-        raise web.HTTPUnauthorized(reason="restricted_to_staff")
+        raise web.HTTPForbidden(reason="restricted_to_staff")
 
     authorization_backend = request.app.authorization_backend
     await authorization_backend.staff_creates_group(request.user, group_name)
@@ -94,7 +93,7 @@ async def get_group(request: web.Request) -> web.Response:
             ),
         )
 
-    raise web.HTTPUnauthorized(reason="not_authorized_to_view_members")
+    raise web.HTTPForbidden(reason="not_authorized_to_view_members")
 
 
 async def post_group(request: web.Request) -> web.Response:
@@ -116,5 +115,6 @@ async def post_group(request: web.Request) -> web.Response:
     if is_authorized("staff", request.groups) or is_authorized(
         f"{group}.staff", request.groups
     ):
-        authorization_backend.add_member_to_group(member, group)
-    raise web.HTTPUnauthorized(reason="not_authorized_to_add_member")
+        await authorization_backend.add_member_to_group(member, group)
+        return web.Response(status=201)
+    raise web.HTTPForbidden(reason="not_authorized_to_add_member")

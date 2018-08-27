@@ -19,6 +19,7 @@ class TestSqliteStorage(AuthorizationBackend):
     async def __aenter__(self):
         self.connection = sqlite3.connect(self.file)
         cursor = self.connection.cursor()
+
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS users(
@@ -154,7 +155,7 @@ class TestSqliteStorage(AuthorizationBackend):
         cursor.execute(
             """
             INSERT INTO user_in_group(
-                user, group
+                user, group_name
             ) VALUES (
                 :user, :group
             )
