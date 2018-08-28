@@ -124,4 +124,3 @@ async def post_group(request: web.Request) -> web.Response:
         await authorization_backend.add_member_to_group(member, group)
         return web.Response(status=201)
     raise web.HTTPForbidden(reason="not_authorized_to_add_member")
-

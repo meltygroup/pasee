@@ -40,3 +40,14 @@ async def get_root(request: web.Request) -> web.Response:
         ),
         content_type="application/json-home",
     )
+
+
+async def get_public_key(request: web.Request) -> web.Response:
+    """Get public key
+    """
+    public_key = request.app.settings["public_key"]
+    algorithm = request.app.settings["algorithm"]
+    return web.Response(
+        body=json.dumps({"public_key": public_key, "algorithm": algorithm}),
+        content_type="application/json",
+    )
