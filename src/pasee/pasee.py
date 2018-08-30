@@ -88,8 +88,8 @@ def identification_app(
     )
     app.settings = settings
     app.authorization_backend = import_authorization_backend(
-        app.settings["authorization_backend"]["class"]
-    )(app.settings["authorization_backend"]["options"])
+        settings["authorization_backend"]["class"]
+    )(settings["authorization_backend"]["options"])
 
     async def on_startup_wrapper(app):
         """Wrapper to call __aenter__.

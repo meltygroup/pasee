@@ -1,5 +1,5 @@
 import os
-from unittest import mock
+import json
 
 import pytest
 import asynctest
@@ -43,7 +43,7 @@ def db():
         ), (
             "kisee-guytoadd"
         )
-    """
+        """
     )
     cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
     cursor.execute(
@@ -100,7 +100,6 @@ async def test_get_tokens(client):
     response = await client.get("/tokens/")
     assert response.status == 200
 
-import json
 
 @asynctest.patch(
     "identity_providers.kisee.KiseeIdentityProvider._decode_token",

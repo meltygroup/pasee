@@ -44,28 +44,29 @@ async def get_tokens(request: web.Request) -> web.Response:
 async def post_token(request: web.Request) -> web.Response:
     """Post to IDP to create a jwt token
     """
-    if "identity_provider" not in request.data:
+    input_data = request.data  # type: ignore
+    if "identity_provider" not in input_data:
         raise web.HTTPUnprocessableEntity(reason="Missing identity_provider")
-    if "data" not in request.data:
+    if "data" not in input_data:
         raise web.HTTPUnprocessableEntity(reason="Missing identity provider input data")
 
-    if request.data["identity_provider"] != "kisee":
+    if input_data["identity_provider"] != "kisee":
         raise web.HTTPUnprocessableEntity(reason="Identity provider not implemented")
 
     identity_provider_path = identity_providers.BACKENDS[
-        request.data["identity_provider"]
+        input_data["identity_provider"]
     ]
     identity_provider_settings = request.app.settings["idps"][
-        request.data["identity_provider"]
+        input_data["identity_provider"]
     ]
     identity_provider = import_identity_provider_backend(identity_provider_path)(
         identity_provider_settings
     )
 
-    decoded = await identity_provider.authenticate_user(request.data["data"])
+    decoded = await identity_provider.authenticate_user(input_data["data"])
     decoded[  # type: ignore
         "sub"
-    ] = f"{request.data['identity_provider']}-{decoded['sub']}"
+    ] = f"{input_data['identity_provider']}-{decoded['sub']}"
     decoded[  # type: ignore
         "groups"
     ] = await request.app.authorization_backend.get_authorizations_for_user(
