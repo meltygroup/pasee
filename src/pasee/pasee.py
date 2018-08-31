@@ -107,6 +107,7 @@ def identification_app(
     app.add_routes(
         [
             web.get("/", views.get_root),
+            web.get("/public-key/", views.get_public_key),
             web.get("/tokens/", token_views.get_tokens),
             web.post("/tokens/", token_views.post_token),
             web.get("/groups/", group_views.get_groups),

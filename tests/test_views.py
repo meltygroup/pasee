@@ -282,3 +282,4 @@ async def test_post_group__raises_not_authorized(client):
         json={"member": "kisee-guytoadd"}
     )
     assert  response.status == 403
+
