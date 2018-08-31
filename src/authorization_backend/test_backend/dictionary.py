@@ -10,7 +10,7 @@ class TestDictionaryStorage(AuthorizationBackend):
     """
 
     def __init__(self, options: dict, **kwargs) -> None:
-        super().__init__(options, **kwargs)
+        super().__init__(options, **kwargs)  # type: ignore
         self.storage = {
             "kisee-toto": [
                 "articles.writers",

@@ -24,10 +24,13 @@ async def test_get_tokens(client):
 
 
 @asynctest.patch(
-    "pasee.tokens.views.identify_to_kisee",
+    "identity_providers.kisee.KiseeIdentityProvider._identify_to_kisee",
     asynctest.CoroutineMock(side_effect=mocks.identify_to_kisee),
 )
-@mock.patch("pasee.tokens.views.decode_token", mocks.decode_token)
+@mock.patch(
+    "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+    mocks.decode_token
+)
 async def test_post_tokens(client):
     response = await client.post(
         "/tokens/",
