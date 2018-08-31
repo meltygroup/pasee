@@ -29,3 +29,15 @@ def decode_token(self, token):
         "exp": 1534173723,
         "jti": "j2CMReXSUwcnvPfhqq7cSg"
     }
+
+
+def is_claim_user_authorization(urls, public_key, algorithm, request):
+    request.user = "kisee-toto"
+    request.groups = ["my_group", "my_group.staff", "staff"]
+    return True
+
+
+def is_claim_user_authorization__non_staff(urls, public_key, algorithm, request):
+    request.user = "kisee-toto"
+    request.groups = ["non-staff"]
+    return True

@@ -49,6 +49,7 @@ def setup_package():
                 "pytest-aiohttp==0.3.0",
                 'pytest',
                 'pytest-cov',
+                'aioresponses',
                 'detox',
                 'bandit',
                 'black',

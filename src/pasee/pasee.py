@@ -8,6 +8,7 @@ from aiohttp import web
 import pytoml as toml
 
 from pasee.middlewares import verify_input_body_is_json
+from pasee.middlewares import claim_user_authorization
 from pasee import views
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
@@ -72,11 +73,23 @@ def identification_app(
 ):
     """Identification provider entry point: builds and run a webserver.
     """
-    app = web.Application(middlewares=[verify_input_body_is_json])
-    app.settings = load_conf(settings_file, host, port, identity_backend_class)
+    auth_endpoints = [("/groups/", ("GET", "POST"))]
+
+    settings = load_conf(settings_file, host, port, identity_backend_class)
+    app = web.Application(
+        middlewares=[
+            verify_input_body_is_json,
+            claim_user_authorization(
+                urls=auth_endpoints,
+                public_key=settings["public_key"],
+                algorithm=settings["algorithm"],
+            ),
+        ]
+    )
+    app.settings = settings
     app.authorization_backend = import_authorization_backend(
-        app.settings["authorization_backend"]["class"]
-    )(app.settings["authorization_backend"]["options"])
+        settings["authorization_backend"]["class"]
+    )(settings["authorization_backend"]["options"])
 
     async def on_startup_wrapper(app):
         """Wrapper to call __aenter__.
@@ -97,6 +110,9 @@ def identification_app(
             web.get("/tokens/", token_views.get_tokens),
             web.post("/tokens/", token_views.post_token),
             web.get("/groups/", group_views.get_groups),
+            web.post("/groups/", group_views.post_groups),
+            web.get("/groups/{group_uid}/", group_views.get_group),
+            web.post("/groups/{group_uid}/", group_views.post_group),
         ]
     )
 

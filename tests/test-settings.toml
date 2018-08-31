@@ -25,14 +25,14 @@ algorithm = "ES256"
     class = "authorization_backend.test_backend.sqlite.TestSqliteStorage"
     [authorization_backend.options]
         foo = "bar"
-        file = ":memory:"
+        file = "tmp_test.db"
 
 [jwt]
     iss = "pasee.meltylab.fr"
 
 [[identity_providers]]
 name = "kisee"
-endpoint = "http://127.0.0.1:8140/jwt/"
+endpoint = "http://dump-kisee-endpoint/jwt/"
 protocol = "kisee"
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----
