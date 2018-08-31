@@ -7,6 +7,7 @@
 import json
 import logging
 
+from typing import List
 import coreapi
 import aiohttp
 from aiohttp import web
@@ -43,6 +44,29 @@ async def get_tokens(request: web.Request) -> web.Response:
     )
 
 
+async def identify_to_kisee(url, data):
+    """Async request to identify to kisee"""
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url, headers={"Content-Type": "application/json"}, json=data
+        ) as response:
+            kisee_response = await response.text()
+            kisee_response = json.loads(kisee_response)
+    return kisee_response
+
+
+def decode_token(token: str, public_keys: List[str]):
+    """Decode token with public keys
+    """
+    for public_key in public_keys:
+        try:
+            decoded = jwt.decode(token, public_key)
+            return decoded
+        except ValueError:
+            pass
+    raise web.HTTPInternalServerError()
+
+
 async def post_token(request: web.Request) -> web.Response:
     """Post to IDP to create a jwt token
     """
@@ -59,12 +83,7 @@ async def post_token(request: web.Request) -> web.Response:
     url = kisee_settings["endpoint"]
 
     logger.debug("Trying to identify user %s", request.data["login"])
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            url, headers={"Content-Type": "application/json"}, json=request.data
-        ) as response:
-            kisee_response = await response.text()
-            kisee_response = json.loads(kisee_response)
+    kisee_response = await identify_to_kisee(url, request.data)
 
     # TODO use header location instead to retrieve token
     # kisee_headers = response.headers
@@ -72,15 +91,7 @@ async def post_token(request: web.Request) -> web.Response:
 
     token = kisee_response["tokens"][0]
 
-    decoded = None
-    for public_key in kisee_public_keys:
-        try:
-            decoded = jwt.decode(token, public_key)
-        except ValueError:
-            pass
-    if not decoded:
-        raise web.HTTPInternalServerError()
-
+    decoded = decode_token(token, kisee_public_keys)
     decoded[  # type: ignore
         "sub"
     ] = f"{request.data['identity_provider']}-{decoded['sub']}"

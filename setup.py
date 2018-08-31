@@ -45,6 +45,8 @@ def setup_package():
                 'flake8',
                 'pylint==2.0.0.dev',  # Don't work on py37 without v2
                 'astroid==2.0.0.dev',  # Don't work on py37 without v2
+                'asynctest',
+                "pytest-aiohttp==0.3.0",
                 'pytest',
                 'pytest-cov',
                 'detox',

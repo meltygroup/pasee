@@ -22,7 +22,7 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main():
+def main():  # pragma: no cover
     """Command line entry point.
     """
     parser = pasee_arg_parser()
@@ -35,5 +35,5 @@ def main():
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
