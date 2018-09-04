@@ -7,7 +7,10 @@ from importlib import import_module
 from typing import AsyncContextManager, List, Type
 
 
-class AuthorizationBackend(AsyncContextManager):  # pragma: no cover
+class AuthorizationBackend(
+    AsyncContextManager
+):  # pragma: no cover pylint: disable=inherit-non-class
+    # (see https://github.com/PyCQA/pylint/issues/2472)
     """Abstract class for representing an Authorization backend
     """
 
