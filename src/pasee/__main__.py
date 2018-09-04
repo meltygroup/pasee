@@ -35,5 +35,5 @@ def main():  # pragma: no cover
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()
