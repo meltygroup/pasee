@@ -10,7 +10,7 @@ from typing import Type
 BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
 
 
-class IdentityProviderBackend(ABC):  # pragma: no cover
+class IdentityProviderBackend(ABC):
     """Abstract class for representing an Identity provider backend
     """
 
