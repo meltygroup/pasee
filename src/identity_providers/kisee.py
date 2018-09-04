@@ -14,7 +14,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
     """
 
     def __init__(self, settings, **kwargs) -> None:
-        super().__init__(settings, **kwargs)  # type: ignore
+        super().__init__(settings, **kwargs)
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
 
