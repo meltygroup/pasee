@@ -3,7 +3,7 @@
 
 
 from abc import abstractmethod
-from typing import AsyncContextManager, List
+from typing import AsyncContextManager, List, Any
 
 
 class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
@@ -11,9 +11,9 @@ class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-
     """Abstract class for representing an Authorization backend
     """
 
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict, **kwargs: Any) -> None:
         self.options = options
-        super().__init__()
+        super().__init__(**kwargs)  # type: ignore # mypy issue 4335
 
     @abstractmethod
     async def get_authorizations_for_user(self, user) -> List[str]:

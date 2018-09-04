@@ -12,7 +12,7 @@ class TestSqliteStorage(AuthorizationBackend):
     """
 
     def __init__(self, options: dict, **kwargs) -> None:
-        super().__init__(options, **kwargs)  # type: ignore
+        super().__init__(options, **kwargs)
         self.file = options["file"]
         self.connection = None
 
@@ -73,7 +73,9 @@ class TestSqliteStorage(AuthorizationBackend):
             group_name TEXT
         );"
         """
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
         results = cursor.execute(
             "SELECT group_name FROM user_in_group WHERE user = :user", {"user": user}
         )
@@ -82,7 +84,9 @@ class TestSqliteStorage(AuthorizationBackend):
     async def staff_creates_group(self, staff, group_name) -> bool:
         """Staff member adds group method
         """
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
 
         cursor.execute(
             "INSERT INTO groups (name) VALUES (:group_name)", {"group_name": group_name}
@@ -111,7 +115,9 @@ class TestSqliteStorage(AuthorizationBackend):
     async def get_groups(self) -> List[str]:
         """Get all groups
         """
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
         results = cursor.execute("SELECT name FROM groups")
         groups = [group[0] for group in results]
         cursor.close()
@@ -120,7 +126,9 @@ class TestSqliteStorage(AuthorizationBackend):
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
         """
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
 
         query_result = cursor.execute(
             """
@@ -134,7 +142,9 @@ class TestSqliteStorage(AuthorizationBackend):
         return members
 
     async def group_exists(self, group: str) -> bool:
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
         result = cursor.execute(
             "SELECT 1 FROM groups WHERE name = :group", {"group": group}
         ).fetchone()
@@ -142,7 +152,9 @@ class TestSqliteStorage(AuthorizationBackend):
         return True if result else False
 
     async def user_exists(self, user: str) -> bool:
-        cursor = self.connection.cursor()  # type: ignore
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
         result = cursor.execute(
             "SELECT 1 FROM users WHERE name = :user", {"user": user}
         ).fetchone()
@@ -151,7 +163,7 @@ class TestSqliteStorage(AuthorizationBackend):
     async def add_member_to_group(self, member, group):
         """Staff adds member to group
         """
-        cursor = self.connection.cursor()  # type: ignore
+        cursor = self.connection.cursor()
         cursor.execute(
             """
             INSERT INTO user_in_group(
