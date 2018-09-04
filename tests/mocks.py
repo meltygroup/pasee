@@ -27,7 +27,7 @@ def decode_token(self, token):
         "iss": "example.com",
         "sub": "toto",
         "exp": 1534173723,
-        "jti": "j2CMReXSUwcnvPfhqq7cSg"
+        "jti": "j2CMReXSUwcnvPfhqq7cSg",
     }
 
 
