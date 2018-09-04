@@ -31,13 +31,9 @@ def decode_token(self, token):
     }
 
 
-def is_claim_user_authorization(urls, public_key, algorithm, request):
-    request.user = "kisee-toto"
-    request.groups = ["my_group", "my_group.staff", "staff"]
-    return True
+def enforce_authorization(request):
+    return "kisee-toto", ["my_group", "my_group.staff", "staff"]
 
 
-def is_claim_user_authorization__non_staff(urls, public_key, algorithm, request):
-    request.user = "kisee-toto"
-    request.groups = ["non-staff"]
-    return True
+def enforce_authorization__non_staff(request):
+    return "kisee-toto", ["non-staff"]

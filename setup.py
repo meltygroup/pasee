@@ -41,7 +41,6 @@ def setup_package():
                 "flake8",
                 "pylint",
                 "astroid",
-                "asynctest",
                 "pytest-aiohttp",
                 "pytest",
                 "pytest-cov",

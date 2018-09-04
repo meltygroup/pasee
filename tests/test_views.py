@@ -2,7 +2,6 @@ import os
 import json
 
 import pytest
-import asynctest
 import sqlite3
 from aioresponses import aioresponses
 
@@ -95,10 +94,11 @@ async def test_get_tokens(client):
     assert response.status == 200
 
 
-@asynctest.patch(
-    "identity_providers.kisee.KiseeIdentityProvider._decode_token", mocks.decode_token
-)
-async def test_post_tokens(client):
+async def test_post_tokens(client, monkeypatch):
+    monkeypatch.setattr(
+        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        mocks.decode_token,
+    )
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
 
         mocked.post(
@@ -139,18 +139,18 @@ async def test_post_tokens(client):
         assert response.status == 422
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_get_groups(client):
+async def test_get_groups(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.get("/groups/")
     assert response.status == 200
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_post_groups(client):
+async def test_post_groups(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.post(
         "/groups/",
         json={"group": "my_group"},
@@ -164,11 +164,10 @@ async def test_post_groups(client):
     assert response.status == 422
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization",
-    mocks.is_claim_user_authorization__non_staff,
-)
-async def test_post_groups__non_staff(client):
+async def test_post_groups__non_staff(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
     response = await client.post(
         "/groups/",
         json={"group": "my_group"},
@@ -177,10 +176,10 @@ async def test_post_groups__non_staff(client):
     assert response.status == 403
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_get_group(client):
+async def test_get_group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.get(
         "/groups/get_group/", headers={"Authorization": "Bearer somefaketoken"}
     )
@@ -193,21 +192,20 @@ async def test_get_group(client):
     assert response.status == 404
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization",
-    mocks.is_claim_user_authorization__non_staff,
-)
-async def test_get_group__raises_not_authorized(client):
+async def test_get_group__raises_not_authorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
     response = await client.get(
         "/groups/get_group/", headers={"Authorization": "Bearer somefaketoken"}
     )
     assert response.status == 403
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_post_group__success(client):
+async def test_post_group__success(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
@@ -216,10 +214,10 @@ async def test_post_group__success(client):
     assert response.status == 201
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_post_group__raises_not_found_group(client):
+async def test_post_group__raises_not_found_group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.post(
         "/groups/unknown_group/",
         headers={"Authorization": "Bearer somefaketoken"},
@@ -228,10 +226,10 @@ async def test_post_group__raises_not_found_group(client):
     assert response.status == 404
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_post_group__raises_not_found_user(client):
+async def test_post_group__raises_not_found_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
@@ -240,10 +238,10 @@ async def test_post_group__raises_not_found_user(client):
     assert response.status == 404
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization", mocks.is_claim_user_authorization
-)
-async def test_post_group__raises_unprocessable_entity(client):
+async def test_post_group__raises_unprocessable_entity(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
@@ -252,11 +250,10 @@ async def test_post_group__raises_unprocessable_entity(client):
     assert response.status == 422
 
 
-@asynctest.patch(
-    "pasee.middlewares.is_claim_user_authorization",
-    mocks.is_claim_user_authorization__non_staff,
-)
-async def test_post_group__raises_not_authorized(client):
+async def test_post_group__raises_not_authorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},

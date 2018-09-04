@@ -2,14 +2,13 @@
 """
 
 import logging
-
 from typing import List
+
 import coreapi
 from aiohttp import web
 
-
+from pasee import utils
 from pasee.serializers import serialize
-
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,7 @@ def is_authorized(authorized_group: str, groups: List[str]) -> bool:
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
+    _, _ = utils.enforce_authorization(request)
     authorization_backend = request.app.authorization_backend
     groups = await authorization_backend.get_groups()
     return serialize(
@@ -47,6 +47,7 @@ async def get_groups(request: web.Request) -> web.Response:
 async def post_groups(request: web.Request) -> web.Response:
     """Handler for POST /groups/
     """
+    user, user_groups = utils.enforce_authorization(request)
     input_data = await request.json()
     if "group" not in input_data:
         raise web.HTTPUnprocessableEntity(reason="Missing group")
@@ -57,13 +58,11 @@ async def post_groups(request: web.Request) -> web.Response:
         (group_name_splited[0] + ".staff") if len(group_name_splited) > 2 else "staff"
     )
 
-    if group_name_root_staff not in request.groups:  # type: ignore
+    if group_name_root_staff not in user_groups:
         raise web.HTTPForbidden(reason="restricted_to_staff")
 
     authorization_backend = request.app.authorization_backend
-    await authorization_backend.staff_creates_group(
-        request.user, group_name  # type: ignore
-    )
+    await authorization_backend.staff_creates_group(user, group_name)  # type: ignore
     location = f"/groups/{group_name}/"
     return web.Response(status=201, headers={"Location": location})
 
@@ -71,7 +70,7 @@ async def post_groups(request: web.Request) -> web.Response:
 async def get_group(request: web.Request) -> web.Response:
     """Handler for GET /groups/{group_uid}
     """
-    user_groups = request.groups  # type: ignore
+    _, user_groups = utils.enforce_authorization(request)
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]
 
@@ -104,7 +103,7 @@ async def post_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    user_groups = request.groups  # type: ignore
+    _, user_groups = utils.enforce_authorization(request)
     input_data = await request.json()
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]

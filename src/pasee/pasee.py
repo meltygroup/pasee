@@ -8,7 +8,6 @@ from aiohttp import web
 import pytoml as toml
 
 from pasee.middlewares import verify_input_body_is_json
-from pasee.middlewares import claim_user_authorization
 from pasee import views
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
@@ -73,19 +72,8 @@ def identification_app(
 ):
     """Identification provider entry point: builds and run a webserver.
     """
-    auth_endpoints = [("/groups/", ("GET", "POST"))]
-
     settings = load_conf(settings_file, host, port, identity_backend_class)
-    app = web.Application(
-        middlewares=[
-            verify_input_body_is_json,
-            claim_user_authorization(
-                urls=auth_endpoints,
-                public_key=settings["public_key"],
-                algorithm=settings["algorithm"],
-            ),
-        ]
-    )
+    app = web.Application(middlewares=[verify_input_body_is_json])
     app.settings = settings
     app.authorization_backend = import_class(
         settings["authorization_backend"]["class"]
