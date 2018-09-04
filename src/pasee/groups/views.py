@@ -47,7 +47,7 @@ async def get_groups(request: web.Request) -> web.Response:
 async def post_groups(request: web.Request) -> web.Response:
     """Handler for POST /groups/
     """
-    input_data = request.data  # type: ignore
+    input_data = await request.json()
     if "group" not in input_data:
         raise web.HTTPUnprocessableEntity(reason="Missing group")
 
@@ -105,7 +105,7 @@ async def post_group(request: web.Request) -> web.Response:
     add a user to {group_id}
     """
     user_groups = request.groups  # type: ignore
-    input_data = request.data  # type: ignore
+    input_data = await request.json()
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]
 
