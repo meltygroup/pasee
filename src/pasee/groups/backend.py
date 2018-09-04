@@ -3,8 +3,7 @@
 
 
 from abc import abstractmethod
-from importlib import import_module
-from typing import AsyncContextManager, List, Type
+from typing import AsyncContextManager, List
 
 
 class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
@@ -51,24 +50,3 @@ class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-
         """
         staff adds member to group
         """
-
-
-def import_authorization_backend(dotted_path: str) -> Type[AuthorizationBackend]:
-    """Import a dotted module path and return the attribute/class
-    designated by the last name in the path. Raise ImportError if the
-    import failed.
-    """
-    try:
-        module_path, class_name = dotted_path.rsplit(".", 1)
-    except ValueError as err:
-        raise ImportError("%s doesn't look like a module path" % dotted_path) from err
-
-    module = import_module(module_path)
-
-    try:
-        return getattr(module, class_name)
-    except AttributeError as err:
-        raise ImportError(
-            'Module "%s" does not define a "%s" attribute/class'
-            % (module_path, class_name)
-        ) from err

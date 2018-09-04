@@ -12,7 +12,7 @@ from pasee.middlewares import claim_user_authorization
 from pasee import views
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
-from pasee.groups.backend import import_authorization_backend
+from pasee.utils import import_class
 
 
 class MissingSettings(ValueError):
@@ -87,7 +87,7 @@ def identification_app(
         ]
     )
     app.settings = settings
-    app.authorization_backend = import_authorization_backend(
+    app.authorization_backend = import_class(
         settings["authorization_backend"]["class"]
     )(settings["authorization_backend"]["options"])
 

@@ -11,7 +11,7 @@ import jwt
 
 from pasee.serializers import serialize
 from pasee.identity_providers import backend as identity_providers
-from pasee.identity_providers.backend import import_identity_provider_backend
+from pasee.utils import import_class
 
 
 logger = logging.getLogger(__name__)
@@ -59,9 +59,7 @@ async def post_token(request: web.Request) -> web.Response:
     identity_provider_settings = request.app.settings["idps"][
         input_data["identity_provider"]
     ]
-    identity_provider = import_identity_provider_backend(identity_provider_path)(
-        identity_provider_settings
-    )
+    identity_provider = import_class(identity_provider_path)(identity_provider_settings)
 
     decoded = await identity_provider.authenticate_user(input_data["data"])
     decoded[  # type: ignore
