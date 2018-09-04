@@ -12,7 +12,7 @@ from tests import mocks
 
 @pytest.fixture(scope="module")
 def db():
-    connection = sqlite3.connect("tmp_test.db")
+    connection = sqlite3.connect(":memory:")
     cursor = connection.cursor()
     cursor.execute(
         """
