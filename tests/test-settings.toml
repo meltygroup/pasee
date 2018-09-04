@@ -24,8 +24,7 @@ algorithm = "ES256"
     #class = "authorization_backend.test_backend.dictionary.TestDictionaryStorage"
     class = "authorization_backend.test_backend.sqlite.TestSqliteStorage"
     [authorization_backend.options]
-        foo = "bar"
-        file = "tmp_test.db"
+        file = ":memory:"
 
 [jwt]
     iss = "pasee.meltylab.fr"
