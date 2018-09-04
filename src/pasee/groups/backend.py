@@ -2,12 +2,12 @@
 """
 
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from importlib import import_module
 from typing import AsyncContextManager, List, Type
 
 
-class AuthorizationBackend(ABC, AsyncContextManager):  # pragma: no cover
+class AuthorizationBackend(AsyncContextManager):  # pragma: no cover
     """Abstract class for representing an Authorization backend
     """
 
