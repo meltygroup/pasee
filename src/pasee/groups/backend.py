@@ -21,7 +21,7 @@ class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-
         """
 
     @abstractmethod
-    async def staff_creates_group(self, staff, group_name) -> bool:
+    async def create_group(self, group_name):
         """Add group
         """
 
