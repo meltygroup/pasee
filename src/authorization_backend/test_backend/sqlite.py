@@ -81,7 +81,7 @@ class TestSqliteStorage(AuthorizationBackend):
         )
         return [elem[0] for elem in results]
 
-    async def staff_creates_group(self, staff, group_name) -> bool:
+    async def create_group(self, group_name):
         """Staff member adds group method
         """
         if self.connection is None:
@@ -91,26 +91,6 @@ class TestSqliteStorage(AuthorizationBackend):
         cursor.execute(
             "INSERT INTO groups (name) VALUES (:group_name)", {"group_name": group_name}
         )
-        cursor.execute(
-            """INSERT INTO user_in_group(
-                user, group_name
-            ) VALUES (
-                :user, :group_name
-            )
-            """,
-            {"user": staff, "group_name": group_name},
-        )
-
-        group_name_staff = group_name + ".staff"
-        cursor.execute(
-            "INSERT INTO groups (name) VALUES (:group_name)",
-            {"group_name": group_name_staff},
-        )
-        cursor.execute(
-            "INSERT INTO user_in_group(user, group_name) VALUES (:user, :group_name)",
-            {"user": staff, "group_name": group_name_staff},
-        )
-        return True
 
     async def get_groups(self) -> List[str]:
         """Get all groups

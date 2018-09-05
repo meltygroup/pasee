@@ -62,7 +62,11 @@ async def post_groups(request: web.Request) -> web.Response:
         raise web.HTTPForbidden(reason="restricted_to_staff")
 
     authorization_backend = request.app.authorization_backend
-    await authorization_backend.staff_creates_group(user, group_name)
+    staff_group_name = f"{group_name}.staff"
+    await authorization_backend.create_group(group_name)
+    await authorization_backend.create_group(staff_group_name)
+    await authorization_backend.add_member_to_group(user, group_name)
+    await authorization_backend.add_member_to_group(user, staff_group_name)
     location = f"/groups/{group_name}/"
     return web.Response(status=201, headers={"Location": location})
 
