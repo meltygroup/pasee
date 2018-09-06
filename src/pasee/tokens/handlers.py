@@ -38,9 +38,9 @@ async def generate_claims_with_identity_provider(request: web.Request) -> dict:
     """
     input_data = await request.json()
     if not all(key in input_data.keys() for key in ["data", "identity_provider"]):
-        raise web.HTTPUnprocessableEntity(reason="missing_required_input_fields")
+        raise web.HTTPBadRequest(reason="missing_required_input_fields")
     if input_data["identity_provider"] not in identity_providers.BACKENDS:
-        raise web.HTTPUnprocessableEntity(reason="Identity provider not implemented")
+        raise web.HTTPBadRequest(reason="Identity provider not implemented")
 
     identity_provider_path = identity_providers.BACKENDS[
         input_data["identity_provider"]

@@ -50,7 +50,7 @@ async def post_groups(request: web.Request) -> web.Response:
     claims = utils.enforce_authorization(request)
     input_data = await request.json()
     if "group" not in input_data:
-        raise web.HTTPUnprocessableEntity(reason="Missing group")
+        raise web.HTTPBadRequest(reason="Missing group")
 
     group_name = input_data["group"]
     group_name_splited = group_name.rsplit(".", 1)
@@ -119,7 +119,7 @@ async def post_group(request: web.Request) -> web.Response:
         raise web.HTTPNotFound(reason="group_does_not_exist")
 
     if "member" not in input_data:
-        raise web.HTTPUnprocessableEntity(reason="missing_member_in_request_body")
+        raise web.HTTPBadRequest(reason="missing_member_in_request_body")
     member = input_data["member"]
     if not await authorization_backend.user_exists(member):
         raise web.HTTPNotFound(reason="member_to_add_does_not_exist")

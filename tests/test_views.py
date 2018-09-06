@@ -140,7 +140,7 @@ async def test_post_tokens(client, monkeypatch):
         response = await client.post(
             "/tokens/", json={"login": "toto@localhost.com", "password": "toto"}
         )
-        assert response.status == 422
+        assert response.status == 400
 
 
 async def test_post_tokens__refresh_token(client, monkeypatch):
@@ -176,7 +176,7 @@ async def test_post_groups(client, monkeypatch):
     response = await client.post(
         "/groups/", json={}, headers={"Authorization": "Bearer somefaketoken"}
     )
-    assert response.status == 422
+    assert response.status == 400
 
 
 async def test_post_groups__non_staff(client, monkeypatch):
@@ -262,7 +262,7 @@ async def test_post_group__raises_unprocessable_entity(client, monkeypatch):
         headers={"Authorization": "Bearer somefaketoken"},
         json={"wrong-member-fieldname": "kisee-guytoadd"},
     )
-    assert response.status == 422
+    assert response.status == 400
 
 
 async def test_post_group__raises_not_authorized(client, monkeypatch):

@@ -18,5 +18,5 @@ async def verify_input_body_is_json(
         try:
             await request.json()
         except json.decoder.JSONDecodeError:
-            raise web.HTTPUnprocessableEntity(reason="Malformed JSON.")
+            raise web.HTTPBadRequest(reason="Malformed JSON.")
     return await handler(request)
