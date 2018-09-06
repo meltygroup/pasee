@@ -6,9 +6,7 @@ def identify_to_kisee(self, data):
     return {
         "_type": "document",
         "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
-        "tokens": [
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmNvbSIsInN1YiI6InRvdG8iLCJleHAiOjE1MzQxNzM3MjMsImp0aSI6ImoyQ01SZVhTVXdjbnZQZmhxcTdjU2cifQ.Gy_ooIE-Bx85elJWXcRmZEtOT4Bbqg3TqSu23F3cHVWrhihm_kwTG1ICVXSGxLkl1AJR1QIwcvosA70CZSnOaQ"
-        ],
+        "tokens": ["somefaketoken"],
         "add_token": {
             "_type": "link",
             "action": "post",
@@ -23,6 +21,8 @@ def identify_to_kisee(self, data):
 
 
 def decode_token(self, token):
+    """Decode a token emitted by Kisee
+    """
     return {
         "iss": "example.com",
         "sub": "toto",
@@ -32,8 +32,31 @@ def decode_token(self, token):
 
 
 def enforce_authorization(request):
-    return "kisee-toto", ["my_group", "my_group.staff", "staff"]
+    return {
+        "iss": "example.com",
+        "sub": "kisee-toto",
+        "exp": 1536221551,
+        "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
+        "groups": ["staff", "my_group", "my_group.staff"],
+    }
+
+
+def enforce_authorization_for_refresh_token(request):
+    return {
+        "iss": "example.com",
+        "sub": "kisee-toto",
+        "exp": 1536221551,
+        "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
+        "refresh_token": True,
+        "groups": ["staff", "my_group", "my_group.staff"],
+    }
 
 
 def enforce_authorization__non_staff(request):
-    return "kisee-toto", ["non-staff"]
+    return {
+        "iss": "example.com",
+        "sub": "kisee-toto",
+        "exp": 1536221551,
+        "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
+        "groups": ["non_staff"],
+    }

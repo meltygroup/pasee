@@ -1,8 +1,6 @@
-import os
 import json
 
 import pytest
-import sqlite3
 from aioresponses import aioresponses
 
 from pasee.pasee import identification_app
@@ -43,6 +41,7 @@ async def load_fake_data(app):
             )
             """
         )
+
         conn.execute("INSERT INTO groups(name) VALUES ('staff')")
         conn.execute(
             """
@@ -86,6 +85,11 @@ def client(loop, aiohttp_client):
 
 async def test_get_root(client):
     response = await client.get("/")
+    assert response.status == 200
+
+
+async def test_get_public_key(client):
+    response = await client.get("/public-key/")
     assert response.status == 200
 
 
@@ -137,6 +141,17 @@ async def test_post_tokens(client, monkeypatch):
             "/tokens/", json={"login": "toto@localhost.com", "password": "toto"}
         )
         assert response.status == 422
+
+
+async def test_post_tokens__refresh_token(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization",
+        mocks.enforce_authorization_for_refresh_token,
+    )
+    response = await client.post(
+        "/tokens/", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 201
 
 
 async def test_get_groups(client, monkeypatch):

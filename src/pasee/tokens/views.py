@@ -7,11 +7,11 @@ import logging
 
 import coreapi
 from aiohttp import web
-import jwt
 
 from pasee.serializers import serialize
-from pasee.identity_providers import backend as identity_providers
-from pasee.utils import import_class
+from pasee.tokens.handlers import generate_access_token_and_refresh_token_pairs
+from pasee.tokens.handlers import generate_claims_with_identity_provider
+from pasee import utils
 
 
 logger = logging.getLogger(__name__)
@@ -44,32 +44,22 @@ async def get_tokens(request: web.Request) -> web.Response:
 async def post_token(request: web.Request) -> web.Response:
     """Post to IDP to create a jwt token
     """
-    input_data = await request.json()
-    if "identity_provider" not in input_data:
-        raise web.HTTPUnprocessableEntity(reason="Missing identity_provider")
-    if "data" not in input_data:
-        raise web.HTTPUnprocessableEntity(reason="Missing identity provider input data")
 
-    if input_data["identity_provider"] != "kisee":
-        raise web.HTTPUnprocessableEntity(reason="Identity provider not implemented")
+    # If an Authorization header is available, we proceed it as a refresh token
+    try:
+        claims = utils.enforce_authorization(request)
+        if "refresh_token" not in claims or claims["refresh_token"] is not True:
+            raise web.HTTPBadRequest(reason="token_is_not_refresh_token")
+    except web.HTTPBadRequest as error:
+        if error.text != "400: missing_authorization_header":
+            raise error
+        claims = {}
 
-    identity_provider_path = identity_providers.BACKENDS[
-        input_data["identity_provider"]
-    ]
-    identity_provider_settings = request.app.settings["idps"][
-        input_data["identity_provider"]
-    ]
-    identity_provider = import_class(identity_provider_path)(identity_provider_settings)
+    if not claims:
+        claims = await generate_claims_with_identity_provider(request)
 
-    decoded = await identity_provider.authenticate_user(input_data["data"])
-    decoded["sub"] = f"{input_data['identity_provider']}-{decoded['sub']}"
-    decoded[
-        "groups"
-    ] = await request.app.authorization_backend.get_authorizations_for_user(
-        decoded["sub"]
-    )
-    encoded = jwt.encode(
-        decoded,
+    access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
+        claims,
         request.app.settings["private_key"],
         algorithm=request.app.settings["algorithm"],
     )
@@ -80,11 +70,12 @@ async def post_token(request: web.Request) -> web.Response:
             url="/tokens/",
             title="Create a token with Identify Provider",
             content={
-                "tokens": [encoded.decode("utf-8")],
-                "identify": coreapi.Link(
+                "access_token": access_token.decode("utf-8"),
+                "refresh_token": refresh_token.decode("utf-8"),
+                "create_tokens": coreapi.Link(
                     action="post",
-                    title="Identify",
-                    description="Identifying to an Identity Provider",
+                    title="Create tokens",
+                    description="Requesting access and refresh tokens",
                     fields=[
                         coreapi.Field(name="login", required=True),
                         coreapi.Field(name="password", required=True),

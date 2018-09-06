@@ -23,7 +23,7 @@ def is_authorized(authorized_group: str, groups: List[str]) -> bool:
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
-    _, _ = utils.enforce_authorization(request)
+    utils.enforce_authorization(request)
     authorization_backend = request.app.authorization_backend
     groups = await authorization_backend.get_groups()
     return serialize(
@@ -47,7 +47,7 @@ async def get_groups(request: web.Request) -> web.Response:
 async def post_groups(request: web.Request) -> web.Response:
     """Handler for POST /groups/
     """
-    user, user_groups = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request)
     input_data = await request.json()
     if "group" not in input_data:
         raise web.HTTPUnprocessableEntity(reason="Missing group")
@@ -58,15 +58,16 @@ async def post_groups(request: web.Request) -> web.Response:
         (group_name_splited[0] + ".staff") if len(group_name_splited) > 2 else "staff"
     )
 
-    if group_name_root_staff not in user_groups:
+    if group_name_root_staff not in claims["groups"]:
         raise web.HTTPForbidden(reason="restricted_to_staff")
 
     authorization_backend = request.app.authorization_backend
     staff_group_name = f"{group_name}.staff"
     await authorization_backend.create_group(group_name)
     await authorization_backend.create_group(staff_group_name)
-    await authorization_backend.add_member_to_group(user, group_name)
-    await authorization_backend.add_member_to_group(user, staff_group_name)
+    await authorization_backend.add_member_to_group(claims["sub"], group_name)
+    await authorization_backend.add_member_to_group(claims["sub"], staff_group_name)
+
     location = f"/groups/{group_name}/"
     return web.Response(status=201, headers={"Location": location})
 
@@ -74,14 +75,16 @@ async def post_groups(request: web.Request) -> web.Response:
 async def get_group(request: web.Request) -> web.Response:
     """Handler for GET /groups/{group_uid}
     """
-    _, user_groups = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request)
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]
 
     if not await authorization_backend.group_exists(group):
         raise web.HTTPNotFound(reason="group_does_not_exist")
 
-    if is_authorized("staff", user_groups) or is_authorized(group, user_groups):
+    if is_authorized("staff", claims["groups"]) or is_authorized(
+        group, claims["groups"]
+    ):
         members = await authorization_backend.get_members_of_group(group)
         return serialize(
             request,
@@ -107,7 +110,7 @@ async def post_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    _, user_groups = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request)
     input_data = await request.json()
     authorization_backend = request.app.authorization_backend
     group = request.match_info["group_uid"]
@@ -120,9 +123,8 @@ async def post_group(request: web.Request) -> web.Response:
     member = input_data["member"]
     if not await authorization_backend.user_exists(member):
         raise web.HTTPNotFound(reason="member_to_add_does_not_exist")
-
-    if is_authorized("staff", user_groups) or is_authorized(
-        f"{group}.staff", user_groups
+    if is_authorized("staff", claims["groups"]) or is_authorized(
+        f"{group}.staff", claims["groups"]
     ):
         await authorization_backend.add_member_to_group(member, group)
         return web.Response(status=201)
