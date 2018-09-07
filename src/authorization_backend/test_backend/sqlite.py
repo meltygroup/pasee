@@ -37,7 +37,7 @@ class TestSqliteStorage(AuthorizationBackend):
             );
             """
         )
-        #
+
         # if self.options["file"] == ":memory:":
         #     cursor.execute(
         #         """
@@ -45,6 +45,8 @@ class TestSqliteStorage(AuthorizationBackend):
         #             name
         #         ) VALUES (
         #             "kisee-toto"
+        #         ), (
+        #             "kisee-tata"
         #         )
         #     """
         #     )
@@ -140,6 +142,22 @@ class TestSqliteStorage(AuthorizationBackend):
         ).fetchone()
         return True if result else False
 
+    async def is_user_in_group(self, user: str, group: str) -> bool:
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
+        result = cursor.execute(
+            """
+                SELECT 1
+                FROM user_in_group
+                WHERE
+                    user = :user
+                AND group_name = :group
+            """,
+            {"user": user, "group": group},
+        ).fetchone()
+        return bool(result)
+
     async def add_member_to_group(self, member, group):
         """Staff adds member to group
         """
@@ -151,6 +169,20 @@ class TestSqliteStorage(AuthorizationBackend):
             ) VALUES (
                 :user, :group
             )
+            """,
+            {"user": member, "group": group},
+        )
+
+    async def delete_member_in_group(self, member, group):
+        """Delete member in group
+        """
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """
+            DELETE FROM user_in_group
+            WHERE
+                user = :user
+            AND group_name = :group
             """,
             {"user": member, "group": group},
         )
