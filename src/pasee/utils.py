@@ -36,7 +36,7 @@ def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
 
     if not request.headers.get("Authorization"):
         raise web.HTTPBadRequest(
-            reason="missing_authorization_header",
+            reason="Missing authorization header",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -44,12 +44,12 @@ def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
         scheme, token = request.headers.get("Authorization").strip().split(" ")
     except ValueError:
         raise web.HTTPBadRequest(
-            reason="unable_to_retrieve_scheme_and_token",
+            reason="Unable to retrieve scheme and token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if scheme != "Bearer":
         raise web.HTTPBadRequest(
-            reason="invalid_authorization_scheme",
+            reason="Invalid authorization scheme",
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
@@ -58,9 +58,9 @@ def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
         )
     except jwt.ExpiredSignatureError:
         raise web.HTTPBadRequest(
-            reason="expired_signature", headers={"WWW-Authenticate": "Bearer"}
+            reason="Expired signature", headers={"WWW-Authenticate": "Bearer"}
         )
     except ValueError:
         raise web.HTTPBadRequest(
-            reason="unable_to_decode_token", headers={"WWW-Authenticate": "Bearer"}
+            reason="Unable to decode =token", headers={"WWW-Authenticate": "Bearer"}
         )

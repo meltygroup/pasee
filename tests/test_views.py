@@ -38,6 +38,8 @@ async def load_fake_data(app):
                 "kisee-restrictedguy"
             ), (
                 "kisee-guytoadd"
+            ), (
+                "kisee-guytodel"
             )
             """
         )
@@ -71,6 +73,8 @@ async def load_fake_data(app):
                 'kisee-toto', 'get_group.staff'
             ), (
                 'kisee-toto', 'get_group'
+            ), (
+                'kisee-guytodel', 'get_group' 
             )
             """
         )
@@ -213,6 +217,50 @@ async def test_get_group__raises_not_authorized(client, monkeypatch):
     )
     response = await client.get(
         "/groups/get_group/", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 403
+
+
+async def test_delete_group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/groups/get_group/kisee-guytodel/",
+        headers={"Authorization": "Bearer somefaketoken"},
+    )
+    assert response.status == 204
+
+
+async def test_delete_group__http_not_found__group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/groups/group_does_not_exist/kisee-guytodel/",
+        headers={"Authorization": "Bearer somefaketoken"},
+    )
+    assert response.status == 404
+
+
+async def test_delete_group__http_not_found__user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/groups/get_group/user-does-not-exist/",
+        headers={"Authorization": "Bearer somefaketoken"},
+    )
+    assert response.status == 404
+
+
+async def test_delete_group__http_not_authorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.delete(
+        "/groups/get_group/user-does-not-exist/",
+        headers={"Authorization": "Bearer somefaketoken"},
     )
     assert response.status == 403
 

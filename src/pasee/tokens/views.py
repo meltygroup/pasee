@@ -49,9 +49,9 @@ async def post_token(request: web.Request) -> web.Response:
     try:
         claims = utils.enforce_authorization(request)
         if "refresh_token" not in claims or claims["refresh_token"] is not True:
-            raise web.HTTPBadRequest(reason="token_is_not_refresh_token")
+            raise web.HTTPBadRequest(reason="Token is not refresh token")
     except web.HTTPBadRequest as error:
-        if error.text != "400: missing_authorization_header":
+        if error.text != "400: Missing authorization header":
             raise error
         claims = {}
 

@@ -46,7 +46,17 @@ class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-
         """
 
     @abstractmethod
+    async def is_user_in_group(self, user, group) -> bool:
+        """Verify that user is in group
+        """
+
+    @abstractmethod
     async def add_member_to_group(self, member, group) -> bool:
         """
         staff adds member to group
+        """
+
+    @abstractmethod
+    async def delete_member_in_group(self, member, group):
+        """Delete member in group
         """
