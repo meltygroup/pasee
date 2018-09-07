@@ -77,8 +77,7 @@ async def post_token(request: web.Request) -> web.Response:
                     title="Create tokens",
                     description="Requesting access and refresh tokens",
                     fields=[
-                        coreapi.Field(name="login", required=True),
-                        coreapi.Field(name="password", required=True),
+                        coreapi.Field(name="data", required=True),
                         coreapi.Field(name="identity_provider", required=True),
                     ],
                 ),

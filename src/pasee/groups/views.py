@@ -56,6 +56,10 @@ async def post_groups(request: web.Request) -> web.Response:
 
     authorization_backend = request.app.authorization_backend
     staff_group_name = f"{group_name}.staff"
+
+    if await authorization_backend.group_exists(group_name):
+        raise web.HTTPConflict(reason="Group already exists")
+
     await authorization_backend.create_group(group_name)
     await authorization_backend.create_group(staff_group_name)
     await authorization_backend.add_member_to_group(claims["sub"], group_name)
