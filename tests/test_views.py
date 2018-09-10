@@ -134,17 +134,17 @@ async def test_post_tokens(client, monkeypatch):
         )
 
         response = await client.post(
-            "/tokens/",
-            json={
-                "data": {"login": "toto@localhost.com", "password": "toto"},
-                "identity_provider": "kisee",
-            },
+            "/tokens/?idp=kisee",
+            json={"login": "toto@localhost.com", "password": "toto"},
         )
         assert response.status == 201
-        response = await client.post(
-            "/tokens/", json={"login": "toto@localhost.com", "password": "toto"}
-        )
-        assert response.status == 400
+
+
+async def test_post_tokens__missing_idp_query_string(client, monkeypatch):
+    response = await client.post(
+        "/tokens/", json={"login": "toto@localhost.com", "password": "toto"}
+    )
+    assert response.status == 400
 
 
 async def test_post_tokens__refresh_token(client, monkeypatch):
@@ -153,9 +153,14 @@ async def test_post_tokens__refresh_token(client, monkeypatch):
         mocks.enforce_authorization_for_refresh_token,
     )
     response = await client.post(
-        "/tokens/", headers={"Authorization": "Bearer somefaketoken"}
+        "/tokens/?refresh", headers={"Authorization": "Bearer somefaketoken"}
     )
     assert response.status == 201
+
+
+async def test_post_tokens__refresh_token__missing_header(client, monkeypatch):
+    response = await client.post("/tokens/?refresh")
+    assert response.status == 400
 
 
 async def test_get_groups(client, monkeypatch):

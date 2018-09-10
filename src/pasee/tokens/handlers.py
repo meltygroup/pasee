@@ -37,26 +37,24 @@ async def generate_claims_with_identity_provider(request: web.Request) -> dict:
     And use identity against authorization server database to retrieve claims
     """
     input_data = await request.json()
-    if not all(key in input_data.keys() for key in ["data", "identity_provider"]):
-        raise web.HTTPBadRequest(reason="missing_required_input_fields")
-    if input_data["identity_provider"] not in identity_providers.BACKENDS:
+
+    identity_provider_input = request.rel_url.query.get("idp", None)
+    if not identity_provider_input:
+        raise web.HTTPBadRequest(
+            reason="Identity provider not provided in query string"
+        )
+    if identity_provider_input not in identity_providers.BACKENDS:
         raise web.HTTPBadRequest(reason="Identity provider not implemented")
 
-    identity_provider_path = identity_providers.BACKENDS[
-        input_data["identity_provider"]
-    ]
-    identity_provider_settings = request.app.settings["idps"][
-        input_data["identity_provider"]
-    ]
+    identity_provider_path = identity_providers.BACKENDS[identity_provider_input]
+    identity_provider_settings = request.app.settings["idps"][identity_provider_input]
     identity_provider = import_class(identity_provider_path)(identity_provider_settings)
 
-    decoded = await identity_provider.authenticate_user(input_data["data"])
+    decoded = await identity_provider.authenticate_user(input_data)
 
-    decoded["sub"] = f"{input_data['identity_provider']}-{decoded['sub']}"
+    decoded["sub"] = f"{identity_provider_input}-{decoded['sub']}"
     if not await request.app.authorization_backend.user_exists(decoded["sub"]):
-        raise web.HTTPNotFound(
-            reason="user_does_not_exist_in_our_authorization_service"
-        )
+        raise web.HTTPNotFound(reason="User does not exist in our authorization server")
     decoded[
         "groups"
     ] = await request.app.authorization_backend.get_authorizations_for_user(
