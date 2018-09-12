@@ -31,7 +31,7 @@ algorithm = "ES256"
 
 [[identity_providers]]
 name = "kisee"
-endpoint = "http://dump-kisee-endpoint/jwt/"
+endpoint = "http://dump-kisee-endpoint"
 protocol = "kisee"
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----

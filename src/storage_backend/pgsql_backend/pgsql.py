@@ -70,6 +70,15 @@ class PostgresStorage(StorageBackend):
             )
         return [member[0] for member in results]
 
+    async def create_user(self, username):
+        async with self.pool.acquire() as connection:
+            await connection.execute(
+                """
+                INSERT INTO users(username) VALUES ($1)
+            """,
+                username,
+            )
+
     async def group_exists(self, group: str) -> bool:
         async with self.pool.acquire() as connection:
             result = await connection.fetch(

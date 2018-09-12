@@ -1,7 +1,5 @@
 """Abstract class representing an Identity provider
 """
-
-
 from abc import ABC, abstractmethod
 
 
@@ -19,4 +17,9 @@ class IdentityProviderBackend(ABC):
     @abstractmethod
     async def authenticate_user(self, data) -> dict:
         """Authenticate user
+        """
+
+    @abstractmethod
+    async def register_user(self, data) -> str:
+        """Register user
         """

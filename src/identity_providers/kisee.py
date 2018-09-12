@@ -20,9 +20,12 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
     async def _identify_to_kisee(self, data):
         """Async request to identify to kisee"""
+        create_token_endpoint = self.endpoint + "/jwt/"
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                self.endpoint, headers={"Content-Type": "application/json"}, json=data
+                create_token_endpoint,
+                headers={"Content-Type": "application/json"},
+                json=data,
             ) as response:
 
                 if response.status == 403:
@@ -61,3 +64,22 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
         token = kisee_response["tokens"][0]
         return self._decode_token(token)
+
+    async def register_user(self, data) -> str:
+        if not all(key in data.keys() for key in ["username", "password"]):
+            raise web.HTTPBadRequest(
+                reason="Missing required fields for kisee registration"
+            )
+
+        register_user_endpoint = self.endpoint + "/users/"
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                register_user_endpoint,
+                headers={"Content-Type": "application/json"},
+                json=data,
+            ) as response:
+                if response.status != 201:
+                    raise web.HTTPFailedDependency(
+                        reason="Can not register user in Kisee"
+                    )
+        return data["username"]

@@ -147,6 +147,21 @@ async def test_post_tokens__missing_idp_query_string(client, monkeypatch):
     assert response.status == 400
 
 
+async def test_get_users(client):
+    response = await client.get("/users/")
+    assert response.status == 200
+
+
+async def test_post_users__kisee(client):
+    with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
+
+        mocked.post("http://dump-kisee-endpoint/users/", status=201)
+        response = await client.post(
+            "/users/?idp=kisee", json={"username": "new_user", "password": "toto"}
+        )
+        assert response.status == 201
+
+
 async def test_post_tokens__refresh_token(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization",

@@ -133,6 +133,14 @@ class TestSqliteStorage(StorageBackend):
 
         return True if result else False
 
+    async def create_user(self, username):
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
+        cursor.execute(
+            "INSERT INTO users(name) VALUES(:username)", {"username": username}
+        )
+
     async def user_exists(self, user: str) -> bool:
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
