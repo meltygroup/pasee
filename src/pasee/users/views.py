@@ -10,6 +10,7 @@ from aiohttp import web
 
 from pasee.serializers import serialize
 from pasee.identity_providers.utils import get_identity_provider_with_capability
+from pasee.exceptions import UserAlreadyExist
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +46,17 @@ async def post_users(request: web.Request) -> web.Response:
         request.app.settings["idps"], "register"
     )
     input_data = await request.json()
-    idp_username = await identity_provider.register_user(input_data)
+    try:
+        idp_username = await identity_provider.register_user(input_data)
+    except UserAlreadyExist:
+        raise web.HTTPConflict(
+            reason=f"User already exist in {identity_provider.get_name()}"
+        )
     passe_username = f"{identity_provider.get_name()}-{idp_username}"
-    await request.app.authorization_backend.create_user(passe_username)
+    try:
+        await request.app.authorization_backend.create_user(passe_username)
+    except UserAlreadyExist:
+        raise web.HTTPConflict(reason="User already exist in Pasee")
 
     location = f"/users/{passe_username}/"
     return web.Response(status=201, headers={"Location": location})

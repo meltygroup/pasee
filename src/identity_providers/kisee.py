@@ -7,6 +7,7 @@ from aiohttp import web
 import jwt
 
 from pasee.identity_providers.backend import IdentityProviderBackend
+from pasee.exceptions import UserAlreadyExist
 
 
 class KiseeIdentityProvider(IdentityProviderBackend):
@@ -79,10 +80,13 @@ class KiseeIdentityProvider(IdentityProviderBackend):
                 headers={"Content-Type": "application/json"},
                 json=data,
             ) as response:
-                if response.status != 201:
+                if response.status == 409:
+                    raise UserAlreadyExist
+                elif response.status != 201:
                     raise web.HTTPFailedDependency(
-                        reason="Can not register user in Kisee"
+                        reason="Something went wrong in Kisee"
                     )
+
         return data["username"]
 
     def get_name(self):
