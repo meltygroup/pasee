@@ -9,7 +9,7 @@ import coreapi
 from aiohttp import web
 
 from pasee.serializers import serialize
-from pasee.identity_providers.utils import get_identity_provider_or_raise
+from pasee.identity_providers.utils import get_identity_provider_with_capability
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ async def get_users(request: web.Request) -> web.Response:
                         coreapi.Field(name="username", required=True),
                         coreapi.Field(name="password", required=True),
                     ],
-                    url="/users/?idp=kisee",
+                    url="/users/",
                 )
             },
         ),
@@ -41,13 +41,12 @@ async def get_users(request: web.Request) -> web.Response:
 async def post_users(request: web.Request) -> web.Response:
     """Handler for post /users/, use to create a user
     """
-    idp_input = request.rel_url.query.get("idp")
-    identity_provider = get_identity_provider_or_raise(
-        idp_input, request.app.settings["idps"]
+    identity_provider = get_identity_provider_with_capability(
+        request.app.settings["idps"], "register"
     )
     input_data = await request.json()
     idp_username = await identity_provider.register_user(input_data)
-    passe_username = f"{idp_input}-{idp_username}"
+    passe_username = f"{identity_provider.get_name()}-{idp_username}"
     await request.app.authorization_backend.create_user(passe_username)
 
     location = f"/users/{passe_username}/"

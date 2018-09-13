@@ -17,6 +17,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         super().__init__(settings, **kwargs)
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
+        self.name = "kisee"
 
     async def _identify_to_kisee(self, data):
         """Async request to identify to kisee"""
@@ -83,3 +84,6 @@ class KiseeIdentityProvider(IdentityProviderBackend):
                         reason="Can not register user in Kisee"
                     )
         return data["username"]
+
+    def get_name(self):
+        return self.name

@@ -33,6 +33,7 @@ algorithm = "ES256"
 name = "kisee"
 endpoint = "http://dump-kisee-endpoint"
 protocol = "kisee"
+capabilities = ["register"]
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----
 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/WCqajmhfppNUB2uekSxX976fcWA3bb

@@ -1,23 +1,22 @@
 """Utils for handling identity providers
 """
-from aiohttp import web
-
 from pasee.utils import import_class
 
 BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
 
 
-def get_identity_provider_or_raise(identity_provider_input, idps_settings):
-    """Returns an identity provider object or raise a web response error"""
-    if not identity_provider_input:
-        raise web.HTTPBadRequest(reason="Missing identity provider input")
+def get_identity_provider_with_capability(idps_settings, capability):
+    """Returns an identity provider with capability passed in argument
+    """
 
-    identity_provider_path = BACKENDS.get(identity_provider_input, None)
-    identity_provider_settings = idps_settings.get(identity_provider_input, None)
+    def _has_register_capability(idp, capability):
+        return idp.get("capabilities") and capability in idp.get("capabilities")
 
-    if not identity_provider_path:
-        raise web.HTTPBadRequest(reason="Identity provider not implemented")
-    if not identity_provider_settings:
-        raise web.HTTPBadRequest(reason="Identity provider settings not set in server")
-
+    main_idp = next(
+        idp
+        for key, idp in idps_settings.items()
+        if _has_register_capability(idp, capability)
+    )
+    identity_provider_path = BACKENDS.get(main_idp["name"], None)
+    identity_provider_settings = idps_settings.get(main_idp["name"], None)
     return import_class(identity_provider_path)(identity_provider_settings)

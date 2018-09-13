@@ -152,12 +152,12 @@ async def test_get_users(client):
     assert response.status == 200
 
 
-async def test_post_users__kisee(client):
+async def test_post_users(client):
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
 
         mocked.post("http://dump-kisee-endpoint/users/", status=201)
         response = await client.post(
-            "/users/?idp=kisee", json={"username": "new_user", "password": "toto"}
+            "/users/", json={"username": "new_user", "password": "toto"}
         )
         assert response.status == 201
 

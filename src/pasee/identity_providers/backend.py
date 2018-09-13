@@ -23,3 +23,8 @@ class IdentityProviderBackend(ABC):
     async def register_user(self, data) -> str:
         """Register user
         """
+
+    @abstractmethod
+    def get_name(self):
+        """Get identity provider name
+        """
