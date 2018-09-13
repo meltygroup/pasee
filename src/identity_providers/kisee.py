@@ -40,6 +40,10 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         raise web.HTTPInternalServerError()
 
     async def authenticate_user(self, data):
+        if not all(key in data.keys() for key in {"login", "password"}):
+            raise web.HTTPBadRequest(
+                reason="Missing login or password fields for kisee authentication"
+            )
         kisee_response = await self._identify_to_kisee(data)
 
         # TODO use header location instead to retrieve token

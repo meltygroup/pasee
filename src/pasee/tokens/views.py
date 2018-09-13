@@ -27,14 +27,17 @@ async def get_tokens(request: web.Request) -> web.Response:
             title="Request Token From Identity Provider",
             content={
                 "tokens": [],
-                "identify_to_identity_provider": coreapi.Link(
+                "identify_to_kisee": coreapi.Link(
                     action="post",
-                    title="Request Token From Identity Provider",
-                    description="POSTing to this endpoint to request a token",
+                    title="Login via login/password pair",
+                    description="""
+                        POSTing to this endpoint will identify you by login/password.
+                    """,
                     fields=[
-                        coreapi.Field(name="data", required=True),
-                        coreapi.Field(name="identity_provider", required=True),
+                        coreapi.Field(name="login", required=True),
+                        coreapi.Field(name="password", required=True),
                     ],
+                    url="/tokens/?idp=kisee",
                 ),
             },
         ),
@@ -44,9 +47,12 @@ async def get_tokens(request: web.Request) -> web.Response:
 async def post_token(request: web.Request) -> web.Response:
     """Post to IDP to create a jwt token
     """
-
-    # If an Authorization header is available, we proceed it as a refresh token
-    if request.headers.get("Authorization"):
+    # Proceed as a refresh token handler if query string refresh is available
+    if "refresh" in request.rel_url.query:
+        if not request.headers.get("Authorization"):
+            raise web.HTTPBadRequest(
+                reason="Missing Authorization header for refreshing access token"
+            )
         claims = utils.enforce_authorization(request)
         if not claims.get("refresh_token", False):
             raise Unauthorized("Token is not a refresh token")
@@ -67,14 +73,17 @@ async def post_token(request: web.Request) -> web.Response:
             content={
                 "access_token": access_token.decode("utf-8"),
                 "refresh_token": refresh_token.decode("utf-8"),
-                "create_tokens": coreapi.Link(
+                "identify_to_kisee": coreapi.Link(
                     action="post",
-                    title="Create tokens",
-                    description="Requesting access and refresh tokens",
+                    title="Login via login/password pair",
+                    description="""
+                        POSTing to this endpoint will identify you by login/password.
+                    """,
                     fields=[
-                        coreapi.Field(name="data", required=True),
-                        coreapi.Field(name="identity_provider", required=True),
+                        coreapi.Field(name="login", required=True),
+                        coreapi.Field(name="password", required=True),
                     ],
+                    url="/tokens/?idp=kisee",
                 ),
             },
         ),
