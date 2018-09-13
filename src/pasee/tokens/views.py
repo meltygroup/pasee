@@ -11,7 +11,7 @@ from aiohttp import web
 from pasee.serializers import serialize
 from pasee.tokens.handlers import generate_access_token_and_refresh_token_pairs
 from pasee.tokens.handlers import generate_claims_with_identity_provider
-from pasee import utils
+from pasee import utils, Unauthorized
 
 
 logger = logging.getLogger(__name__)
@@ -46,16 +46,11 @@ async def post_token(request: web.Request) -> web.Response:
     """
 
     # If an Authorization header is available, we proceed it as a refresh token
-    try:
+    if request.headers.get("Authorization"):
         claims = utils.enforce_authorization(request)
-        if "refresh_token" not in claims or claims["refresh_token"] is not True:
-            raise web.HTTPBadRequest(reason="Token is not refresh token")
-    except web.HTTPBadRequest as error:
-        if error.text != "400: Missing authorization header":
-            raise error
-        claims = {}
-
-    if not claims:
+        if not claims.get("refresh_token", False):
+            raise Unauthorized("Token is not a refresh token")
+    else:
         claims = await generate_claims_with_identity_provider(request)
 
     access_token, refresh_token = generate_access_token_and_refresh_token_pairs(

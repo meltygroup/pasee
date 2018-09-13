@@ -6,6 +6,8 @@ from typing import Callable
 
 from aiohttp import web
 
+from pasee import Unauthorized
+
 
 @web.middleware
 async def verify_input_body_is_json(
@@ -20,3 +22,16 @@ async def verify_input_body_is_json(
         except json.decoder.JSONDecodeError:
             raise web.HTTPBadRequest(reason="Malformed JSON.")
     return await handler(request)
+
+
+@web.middleware
+async def transform_unauthorized(request: web.Request, handler: Callable) -> Callable:
+    """Middleware to except pasee.Unauthorized exceptions and transform
+    them to proper HTTP exceptions.
+    """
+    try:
+        return await handler(request)
+    except Unauthorized as err:
+        raise web.HTTPBadRequest(
+            reason=err.reason, headers={"WWW-Authenticate": "Bearer"}
+        )

@@ -6,7 +6,8 @@ import sys
 
 from aiohttp import web
 
-from . import pasee
+import pasee
+from pasee.pasee import identification_app
 
 
 def pasee_arg_parser() -> argparse.ArgumentParser:
@@ -27,7 +28,7 @@ def main():  # pragma: no cover
     """
     parser = pasee_arg_parser()
     try:
-        app = pasee.identification_app(**vars(parser.parse_args()))
+        app = identification_app(**vars(parser.parse_args()))
     except pasee.MissingSettings as err:
         print(err, file=sys.stderr)
         parser.print_help()

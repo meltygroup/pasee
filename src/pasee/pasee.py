@@ -7,16 +7,11 @@ from typing import Dict, Optional
 from aiohttp import web
 import pytoml as toml
 
-from pasee.middlewares import verify_input_body_is_json
-from pasee import views
+from pasee.middlewares import verify_input_body_is_json, transform_unauthorized
+from pasee import views, MissingSettings
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
 from pasee.utils import import_class
-
-
-class MissingSettings(ValueError):
-    """A mandatory setting is missing from the configuration file.
-    """
 
 
 def load_conf(
@@ -73,7 +68,9 @@ def identification_app(
     """Identification provider entry point: builds and run a webserver.
     """
     settings = load_conf(settings_file, host, port, identity_backend_class)
-    app = web.Application(middlewares=[verify_input_body_is_json])
+    app = web.Application(
+        middlewares=[verify_input_body_is_json, transform_unauthorized]
+    )
     app.settings = settings
     app.authorization_backend = import_class(
         settings["authorization_backend"]["class"]
