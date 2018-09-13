@@ -45,18 +45,27 @@ async def post_users(request: web.Request) -> web.Response:
     identity_provider = get_identity_provider_with_capability(
         request.app.settings["idps"], "register"
     )
+
     input_data = await request.json()
+    if not all(key in input_data.keys() for key in {"username", "password"}):
+        raise web.HTTPBadRequest(
+            reason=f"Missing required fields for {identity_provider}.get_name()"
+        )
+
+    idp_username = input_data["username"]
+    passe_username = f"{identity_provider.get_name()}-{idp_username}"
+
+    if await request.app.authorization_backend.user_exists(passe_username):
+        raise web.HTTPBadRequest(reason="User already exist in pasee database")
+
     try:
-        idp_username = await identity_provider.register_user(input_data)
+        await identity_provider.register_user(input_data)
     except UserAlreadyExist:
         raise web.HTTPConflict(
             reason=f"User already exist in {identity_provider.get_name()}"
         )
-    passe_username = f"{identity_provider.get_name()}-{idp_username}"
-    try:
-        await request.app.authorization_backend.create_user(passe_username)
-    except UserAlreadyExist:
-        raise web.HTTPConflict(reason="User already exist in Pasee")
+
+    await request.app.authorization_backend.create_user(passe_username)
 
     location = f"/users/{passe_username}/"
     return web.Response(status=201, headers={"Location": location})

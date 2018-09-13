@@ -68,11 +68,6 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         return self._decode_token(token)
 
     async def register_user(self, data) -> str:
-        if not all(key in data.keys() for key in ["username", "password"]):
-            raise web.HTTPBadRequest(
-                reason="Missing required fields for kisee registration"
-            )
-
         register_user_endpoint = self.endpoint + "/users/"
         async with aiohttp.ClientSession() as session:
             async with session.post(
