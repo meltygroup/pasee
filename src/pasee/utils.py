@@ -6,6 +6,7 @@ from importlib import import_module
 
 import jwt
 from aiohttp import web
+from pasee import Unauthorized
 
 
 def import_class(dotted_path: str) -> type:
@@ -35,32 +36,18 @@ def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
     """
 
     if not request.headers.get("Authorization"):
-        raise web.HTTPBadRequest(
-            reason="Missing authorization header",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
+        raise Unauthorized("Missing authorization header")
     try:
         scheme, token = request.headers.get("Authorization").strip().split(" ")
-    except ValueError:
-        raise web.HTTPBadRequest(
-            reason="Unable to retrieve scheme and token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    except ValueError as err:
+        raise Unauthorized("Malformed authorization header") from err
     if scheme != "Bearer":
-        raise web.HTTPBadRequest(
-            reason="Invalid authorization scheme",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise Unauthorized("Expected Bearer token")
     try:
         return jwt.decode(
             token, request.app.settings["public_key"], request.app.settings["algorithm"]
         )
-    except jwt.ExpiredSignatureError:
-        raise web.HTTPBadRequest(
-            reason="Expired signature", headers={"WWW-Authenticate": "Bearer"}
-        )
-    except ValueError:
-        raise web.HTTPBadRequest(
-            reason="Unable to decode =token", headers={"WWW-Authenticate": "Bearer"}
-        )
+    except jwt.ExpiredSignatureError as err:
+        raise Unauthorized("Expired signature") from err
+    except ValueError as err:
+        raise Unauthorized("Invalid token") from err
