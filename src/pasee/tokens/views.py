@@ -10,7 +10,8 @@ from aiohttp import web
 
 from pasee.serializers import serialize
 from pasee.tokens.handlers import generate_access_token_and_refresh_token_pairs
-from pasee.tokens.handlers import generate_claims_with_identity_provider
+from pasee.tokens.handlers import authenticate_with_identity_provider
+from pasee.tokens.handlers import retrieve_authorizations_create_user_if_not_exist
 from pasee import utils, Unauthorized
 
 
@@ -57,7 +58,10 @@ async def post_token(request: web.Request) -> web.Response:
         if not claims.get("refresh_token", False):
             raise Unauthorized("Token is not a refresh token")
     else:
-        claims = await generate_claims_with_identity_provider(request)
+        claims = await authenticate_with_identity_provider(request)
+        await retrieve_authorizations_create_user_if_not_exist(
+            request.app.authorization_backend, claims
+        )
 
     access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
         claims,

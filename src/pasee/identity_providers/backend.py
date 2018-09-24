@@ -1,6 +1,7 @@
 """Abstract class representing an Identity provider
 """
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
@@ -20,11 +21,12 @@ class IdentityProviderBackend(ABC):
         """
 
     @abstractmethod
-    async def register_user(self, data) -> str:
-        """Register user
+    async def get_endpoint(self, action: Optional[str] = None):
+        """Get identity backend endpoint for specific action
+        Returns root endpoint if action is None
         """
 
     @abstractmethod
     def get_name(self):
-        """Get identity provider name
+        """Get identity backend name
         """

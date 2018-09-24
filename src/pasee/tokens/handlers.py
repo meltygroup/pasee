@@ -8,6 +8,7 @@ from aiohttp import web
 
 from pasee.identity_providers import backend as identity_providers
 from pasee.utils import import_class
+from pasee.groups.backend import AuthorizationBackend
 
 
 def create_jti_and_expiration_values(hours_to_add: int):
@@ -32,9 +33,8 @@ def generate_access_token_and_refresh_token_pairs(claims, private_key, algorithm
     return access_token, refresh_token
 
 
-async def generate_claims_with_identity_provider(request: web.Request) -> dict:
+async def authenticate_with_identity_provider(request: web.Request) -> dict:
     """Use identity provider provided by user to authenticate.
-    And use identity against authorization server database to retrieve claims
     """
     input_data = await request.json()
 
@@ -51,11 +51,17 @@ async def generate_claims_with_identity_provider(request: web.Request) -> dict:
     identity_provider = import_class(identity_provider_path)(identity_provider_settings)
 
     decoded = await identity_provider.authenticate_user(input_data)
-
-    decoded["sub"] = f"{identity_provider_input}-{decoded['sub']}"
-    if not await request.app.storage_backend.user_exists(decoded["sub"]):
-        raise web.HTTPNotFound(reason="User does not exist in our authorization server")
-    decoded["groups"] = await request.app.storage_backend.get_authorizations_for_user(
-        decoded["sub"]
-    )
+    decoded["sub"] = f"{identity_provider.get_name()}-{decoded['sub']}"
     return decoded
+
+
+async def retrieve_authorizations_create_user_if_not_exist(
+    authorization_backend: AuthorizationBackend, claims: dict
+):
+    """Get list of groups user belongs to, and create user if it does not exist
+    """
+    if not await authorization_backend.user_exists(claims["sub"]):
+        await authorization_backend.create_user(claims["sub"])
+    claims["groups"] = await authorization_backend.get_authorizations_for_user(
+        claims["sub"]
+    )

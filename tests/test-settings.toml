@@ -32,6 +32,7 @@ algorithm = "ES256"
 [[identity_providers]]
 name = "kisee"
 endpoint = "http://dump-kisee-endpoint"
+root-path = "/"
 protocol = "kisee"
 capabilities = ["register"]
 [identity_providers.settings]

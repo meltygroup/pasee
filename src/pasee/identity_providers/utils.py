@@ -8,14 +8,10 @@ BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
 def get_identity_provider_with_capability(idps_settings, capability):
     """Returns an identity provider with capability passed in argument
     """
-
-    def _has_register_capability(idp, capability):
-        return idp.get("capabilities") and capability in idp.get("capabilities")
-
     main_idp = next(
         idp
         for key, idp in idps_settings.items()
-        if _has_register_capability(idp, capability)
+        if capability in idp.get("capabilities", set())
     )
     identity_provider_path = BACKENDS.get(main_idp["name"], None)
     identity_provider_settings = idps_settings.get(main_idp["name"], None)

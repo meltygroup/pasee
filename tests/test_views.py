@@ -133,6 +133,50 @@ async def test_post_tokens(client, monkeypatch):
             ),
         )
 
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "http://dump-kisee-endpoint/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "http://dump-kisee-endpoint/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
+        )
+
         response = await client.post(
             "/tokens/?idp=kisee",
             json={"login": "toto@localhost.com", "password": "toto"},
@@ -147,19 +191,62 @@ async def test_post_tokens__missing_idp_query_string(client, monkeypatch):
     assert response.status == 400
 
 
+async def test_post_tokens__idp_not_implemented(client, monkeypatch):
+    response = await client.post(
+        "/tokens/?idp=not_implemented",
+        json={"login": "toto@localhost.com", "password": "toto"},
+    )
+    assert response.status == 400
+
+
 async def test_get_users(client):
-    response = await client.get("/users/")
-    assert response.status == 200
-
-
-async def test_post_users(client):
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
-
-        mocked.post("http://dump-kisee-endpoint/users/", status=201)
-        response = await client.post(
-            "/users/", json={"username": "new_user", "password": "toto"}
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
         )
-        assert response.status == 201
+
+        response = await client.get("/users/")
+        assert response.status == 200
 
 
 async def test_post_tokens__refresh_token(client, monkeypatch):

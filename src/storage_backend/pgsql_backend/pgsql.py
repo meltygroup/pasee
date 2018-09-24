@@ -5,7 +5,6 @@ from typing import List
 import asyncpg
 
 from pasee.storage_interface import StorageBackend
-from pasee.exceptions import UserAlreadyExist
 
 
 class PostgresStorage(StorageBackend):
@@ -73,15 +72,12 @@ class PostgresStorage(StorageBackend):
 
     async def create_user(self, username):
         async with self.pool.acquire() as connection:
-            try:
-                await connection.execute(
-                    """
-                    INSERT INTO users(username) VALUES ($1)
-                """,
-                    username,
-                )
-            except asyncpg.exceptions.UniqueViolationError:
-                raise UserAlreadyExist
+            await connection.execute(
+                """
+                INSERT INTO users(username) VALUES ($1)
+            """,
+                username,
+            )
 
     async def group_exists(self, group: str) -> bool:
         async with self.pool.acquire() as connection:

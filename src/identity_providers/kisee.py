@@ -1,13 +1,13 @@
 """Identity provider for Kisee
 """
 import json
+from typing import Optional
 
 import aiohttp
 from aiohttp import web
 import jwt
 
 from pasee.identity_providers.backend import IdentityProviderBackend
-from pasee.exceptions import UserAlreadyExist
 
 
 class KiseeIdentityProvider(IdentityProviderBackend):
@@ -18,11 +18,13 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         super().__init__(settings, **kwargs)
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
+        self.root_path = self.settings["root-path"]
+        self.root_endpoint = self.endpoint + self.root_path
         self.name = "kisee"
 
     async def _identify_to_kisee(self, data):
         """Async request to identify to kisee"""
-        create_token_endpoint = self.endpoint + "/jwt/"
+        create_token_endpoint = await self.get_endpoint("create-token")
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 create_token_endpoint,
@@ -67,22 +69,13 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         token = kisee_response["tokens"][0]
         return self._decode_token(token)
 
-    async def register_user(self, data) -> str:
-        register_user_endpoint = self.endpoint + "/users/"
+    async def get_endpoint(self, action: Optional[str] = None):
+        if not action:
+            return self.endpoint
         async with aiohttp.ClientSession() as session:
-            async with session.post(
-                register_user_endpoint,
-                headers={"Content-Type": "application/json"},
-                json=data,
-            ) as response:
-                if response.status == 409:
-                    raise UserAlreadyExist
-                elif response.status != 201:
-                    raise web.HTTPFailedDependency(
-                        reason="Something went wrong in Kisee"
-                    )
-
-        return data["username"]
+            async with session.get(self.root_endpoint) as response:
+                root = await response.json()
+        return root["actions"][action]["href"]
 
     def get_name(self):
         return self.name
