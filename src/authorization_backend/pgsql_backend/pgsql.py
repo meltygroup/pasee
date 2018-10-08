@@ -39,7 +39,7 @@ class PostgresStorage(AuthorizationBackend):
         """
         async with self.pool.acquire() as connection:
             results = await connection.fetch(
-                "SELECT username FROM user_in_group WHERE username = $1", user
+                "SELECT group_name FROM user_in_group WHERE username = $1", user
             )
             return [elem[0] for elem in results]
 
