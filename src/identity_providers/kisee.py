@@ -1,13 +1,15 @@
 """Identity provider for Kisee
 """
 import json
-from typing import Optional
+from typing import Optional, Dict
 
 import aiohttp
 from aiohttp import web
 import jwt
 
 from pasee.identity_providers.backend import IdentityProviderBackend
+
+del Dict  # Dict imported only to be used in annotation comment
 
 
 class KiseeIdentityProvider(IdentityProviderBackend):
@@ -18,9 +20,8 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         super().__init__(settings, **kwargs)
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
-        self.root_path = self.settings["root-path"]
-        self.root_endpoint = self.endpoint + self.root_path
         self.name = "kisee"
+        self.action_to_endpoint = dict()  # type: Dict
 
     async def _identify_to_kisee(self, data):
         """Async request to identify to kisee"""
@@ -70,12 +71,19 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         return self._decode_token(token)
 
     async def get_endpoint(self, action: Optional[str] = None):
+
         if not action:
             return self.endpoint
+
+        if action in self.action_to_endpoint:
+            return self.action_to_endpoint[action]
+
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.root_endpoint) as response:
+            async with session.get(self.endpoint) as response:
                 root = await response.json()
-        return root["actions"][action]["href"]
+
+        self.action_to_endpoint[action] = root["actions"][action]["href"]
+        return self.action_to_endpoint[action]
 
     def get_name(self):
         return self.name
