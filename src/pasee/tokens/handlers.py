@@ -8,7 +8,6 @@ from aiohttp import web
 
 from pasee.identity_providers import backend as identity_providers
 from pasee.utils import import_class
-from pasee.groups.backend import AuthorizationBackend
 
 
 def create_jti_and_expiration_values(hours_to_add: int):
@@ -53,15 +52,3 @@ async def authenticate_with_identity_provider(request: web.Request) -> dict:
     decoded = await identity_provider.authenticate_user(input_data)
     decoded["sub"] = f"{identity_provider.get_name()}-{decoded['sub']}"
     return decoded
-
-
-async def retrieve_authorizations_create_user_if_not_exist(
-    authorization_backend: AuthorizationBackend, claims: dict
-):
-    """Get list of groups user belongs to, and create user if it does not exist
-    """
-    if not await authorization_backend.user_exists(claims["sub"]):
-        await authorization_backend.create_user(claims["sub"])
-    claims["groups"] = await authorization_backend.get_authorizations_for_user(
-        claims["sub"]
-    )

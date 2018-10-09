@@ -18,7 +18,7 @@ async def get_users(request: web.Request) -> web.Response:
     """Handlers for GET /users/, just describes that a POST is possible.
     """
     identity_provider = get_identity_provider_with_capability(
-        request.app.settings["idps"], "register"
+        request.app.settings["idps"], "register-user"
     )
     register_user_endpoint = await identity_provider.get_endpoint("register-user")
     return serialize(

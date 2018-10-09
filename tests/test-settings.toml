@@ -34,7 +34,7 @@ name = "kisee"
 endpoint = "http://dump-kisee-endpoint/"
 root-path = "/"
 protocol = "kisee"
-capabilities = ["register"]
+capabilities = ["register-user"]
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----
 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/WCqajmhfppNUB2uekSxX976fcWA3bb

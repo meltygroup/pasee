@@ -184,6 +184,88 @@ async def test_post_tokens(client, monkeypatch):
         assert response.status == 201
 
 
+async def test_post_tokens__creates_new_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        mocks.decode_token__new_user,
+    )
+    with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
+
+        mocked.post(
+            "http://dump-kisee-endpoint/jwt/",
+            status=201,
+            body=json.dumps(
+                {
+                    "_type": "document",
+                    "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
+                    "tokens": [
+                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmNvbSIsInN1YiI6InRvdG8iLCJleHAiOjE1MzQxNzM3MjMsImp0aSI6ImoyQ01SZVhTVXdjbnZQZmhxcTdjU2cifQ.Gy_ooIE-Bx85elJWXcRmZEtOT4Bbqg3TqSu23F3cHVWrhihm_kwTG1ICVXSGxLkl1AJR1QIwcvosA70CZSnOaQ"
+                    ],
+                    "add_token": {
+                        "_type": "link",
+                        "action": "post",
+                        "title": "Create a new JWT",
+                        "description": "POSTing to this endpoint create JWT tokens.",
+                        "fields": [
+                            {"name": "login", "required": True},
+                            {"name": "password", "required": True},
+                        ],
+                    },
+                }
+            ),
+        )
+
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "http://dump-kisee-endpoint/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "http://dump-kisee-endpoint/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
+        )
+
+        response = await client.post(
+            "/tokens/?idp=kisee",
+            json={"login": "toto@localhost.com", "password": "toto"},
+        )
+        assert response.status == 201
+
+
 async def test_post_tokens__missing_idp_query_string(client, monkeypatch):
     response = await client.post(
         "/tokens/", json={"login": "toto@localhost.com", "password": "toto"}
@@ -260,6 +342,17 @@ async def test_post_tokens__refresh_token(client, monkeypatch):
     assert response.status == 201
 
 
+async def test_post_tokens__refresh_token__unauthorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization",
+        mocks.enforce_authorization_for_refresh_token_without_claim,
+    )
+    response = await client.post(
+        "/tokens/?refresh", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 400
+
+
 async def test_post_tokens__refresh_token__missing_header(client, monkeypatch):
     response = await client.post("/tokens/?refresh")
     assert response.status == 400
@@ -288,6 +381,18 @@ async def test_post_groups(client, monkeypatch):
         "/groups/", json={}, headers={"Authorization": "Bearer somefaketoken"}
     )
     assert response.status == 400
+
+
+async def test_post_groups__conflict(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.post(
+        "/groups/",
+        json={"group": "get_group"},
+        headers={"Authorization": "Bearer somefaketoken"},
+    )
+    assert response.status == 409
 
 
 async def test_post_groups__non_staff(client, monkeypatch):

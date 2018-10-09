@@ -9,8 +9,6 @@ import jwt
 
 from pasee.identity_providers.backend import IdentityProviderBackend
 
-del Dict  # Dict imported only to be used in annotation comment
-
 
 class KiseeIdentityProvider(IdentityProviderBackend):
     """Kisee Identity Provider
@@ -21,7 +19,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
         self.name = "kisee"
-        self.action_to_endpoint = dict()  # type: Dict
+        self.action_to_endpoint: Dict = dict()
 
     async def _identify_to_kisee(self, data):
         """Async request to identify to kisee"""
