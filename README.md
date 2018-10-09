@@ -31,6 +31,12 @@ it's not its rôle to handle this. Pasee only forwards blindly those
 requests to the *main identity provider*, typically a `Kisee`
 instance.
 
+### Tokens with authorization scope
+
+Pasee has the role to provide tokens to user. The token is diven by pair:
+- Access token with information regarding the groups, identity of the user
+- Refresh token, a special token meant only to be used for requesting a new
+access token. This is why the groups information is stripped from this token.
 
 ## Configuration
 
