@@ -56,6 +56,12 @@ class PostgresStorage(AuthorizationBackend):
             results = await connection.fetch("SELECT name FROM groups")
             return [group[0] for group in results]
 
+    async def delete_group(self, group: str):
+        """Delete group
+        """
+        async with self.pool.acquire() as connection:
+            connection.execute("DELETE FROM groups WHERE name = $1", group)
+
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
         """

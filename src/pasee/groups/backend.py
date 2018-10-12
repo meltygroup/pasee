@@ -31,6 +31,11 @@ class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-
         """
 
     @abstractmethod
+    async def delete_group(self, group: str):
+        """Delete group
+        """
+
+    @abstractmethod
     async def get_members_of_group(self, group) -> List[str]:
         """Get members of group
         """

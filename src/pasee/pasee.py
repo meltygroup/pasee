@@ -98,6 +98,7 @@ def identification_app(
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
             web.get("/groups/{group_uid}/", group_views.get_group),
+            web.delete("/groups/{group_uid}/", group_views.delete_group),
             web.post("/groups/{group_uid}/", group_views.post_group),
             web.delete(
                 "/groups/{group_uid}/{member_uid}/", group_views.delete_group_member
