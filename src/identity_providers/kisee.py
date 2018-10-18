@@ -85,3 +85,6 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
     def get_name(self):
         return self.name
+
+    async def get_access_token(self, data):
+        raise web.HTTPNotImplemented(reason="implemented only for oauth identification")

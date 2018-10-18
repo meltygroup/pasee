@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 
-BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
+BACKENDS = {
+    "kisee": "identity_providers.kisee.KiseeIdentityProvider",
+    "twitter": "identity_providers.twitter.TwitterIdentityProvider",
+}
 
 
 class IdentityProviderBackend(ABC):
@@ -29,4 +32,9 @@ class IdentityProviderBackend(ABC):
     @abstractmethod
     def get_name(self):
         """Get identity backend name
+        """
+
+    @abstractmethod
+    async def get_access_token(self, data) -> dict:
+        """Get access token
         """

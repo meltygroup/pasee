@@ -11,6 +11,7 @@ from aiohttp import web
 from pasee.serializers import serialize
 from pasee.tokens.handlers import generate_access_token_and_refresh_token_pairs
 from pasee.tokens.handlers import authenticate_with_identity_provider
+from pasee.tokens.handlers import handle_oauth_callback
 from pasee import utils, Unauthorized
 
 
@@ -20,13 +21,23 @@ logger = logging.getLogger(__name__)
 async def get_tokens(request: web.Request) -> web.Response:
     """Handlers for GET /token/, just describes that a POST is possible.
     """
+    access_token, refresh_token = None, None
+    identity_provider_input = request.rel_url.query.get("idp", None)
+    if identity_provider_input:
+        access_token, refresh_token = await handle_oauth_callback(
+            identity_provider_input, request
+        )
+        access_token = access_token.decode("utf-8")
+        refresh_token = refresh_token.decode("utf-8")
+
     return serialize(
         request,
         coreapi.Document(
             url="/token",
             title="Request Token From Identity Provider",
             content={
-                "tokens": [],
+                "access_token": access_token,
+                "refresh_token": refresh_token,
                 "identify_to_kisee": coreapi.Link(
                     action="post",
                     title="Login via login/password pair",
@@ -65,33 +76,38 @@ async def post_token(request: web.Request) -> web.Response:
             claims["sub"]
         )
 
-    access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
-        claims,
-        request.app.settings["private_key"],
-        algorithm=request.app.settings["algorithm"],
-    )
+    response_content = {
+        "identify_to_kisee": coreapi.Link(
+            action="post",
+            title="Login via login/password pair",
+            description="""
+                POSTing to this endpoint will identify you by login/password.
+            """,
+            fields=[
+                coreapi.Field(name="login", required=True),
+                coreapi.Field(name="password", required=True),
+            ],
+            url="/tokens/?idp=kisee",
+        )
+    }
+
+    if "sub" in claims:
+        access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
+            claims,
+            request.app.settings["private_key"],
+            algorithm=request.app.settings["algorithm"],
+        )
+        response_content["access_token"] = access_token.decode("utf-8")
+        response_content["refresh_token"] = refresh_token.decode("utf-8")
+    else:
+        response_content["authorize_url"] = claims["authorize_url"]
 
     return serialize(
         request,
         coreapi.Document(
             url="/tokens/",
             title="Create a token with Identify Provider",
-            content={
-                "access_token": access_token.decode("utf-8"),
-                "refresh_token": refresh_token.decode("utf-8"),
-                "identify_to_kisee": coreapi.Link(
-                    action="post",
-                    title="Login via login/password pair",
-                    description="""
-                        POSTing to this endpoint will identify you by login/password.
-                    """,
-                    fields=[
-                        coreapi.Field(name="login", required=True),
-                        coreapi.Field(name="password", required=True),
-                    ],
-                    url="/tokens/?idp=kisee",
-                ),
-            },
+            content=response_content,
         ),
         status=201,
     )
