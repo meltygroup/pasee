@@ -24,8 +24,17 @@ class KiseeIdentityProvider(IdentityProviderBackend):
             async with session.post(
                 self.endpoint, headers={"Content-Type": "application/json"}, json=data
             ) as response:
+
+                if response.status == 403:
+                    raise web.HTTPForbidden(reason="Can not authenticate on kisee")
+                elif response.status != 201:
+                    raise web.HTTPBadGateway(
+                        reason="Something went wrong with identity provider"
+                    )
+
                 kisee_response = await response.text()
                 kisee_response = json.loads(kisee_response)
+
         return kisee_response
 
     def _decode_token(self, token: str):
