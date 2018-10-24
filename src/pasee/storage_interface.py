@@ -1,4 +1,4 @@
-"""Abstract class representing an Authorization backend
+"""Abstract class representing Storage backend
 """
 
 
@@ -6,9 +6,9 @@ from abc import abstractmethod
 from typing import AsyncContextManager, List, Any
 
 
-class AuthorizationBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
+class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
     # (see https://github.com/PyCQA/pylint/issues/2472)
-    """Abstract class for representing an Authorization backend
+    """Abstract class for representing an Storage backend
     """
 
     def __init__(self, options: dict, **kwargs: Any) -> None:

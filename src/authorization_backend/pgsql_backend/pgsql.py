@@ -4,10 +4,10 @@ from typing import List
 
 import asyncpg
 
-from pasee.groups.backend import AuthorizationBackend
+from pasee.storage_interface import StorageBackend
 
 
-class PostgresStorage(AuthorizationBackend):
+class PostgresStorage(StorageBackend):
     """Exposing a simple backend that fetch authorizations from a dictionary.
     """
 

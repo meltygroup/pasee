@@ -4,10 +4,10 @@ from typing import List
 
 import sqlite3
 
-from pasee.groups.backend import AuthorizationBackend
+from pasee.storage_interface import StorageBackend
 
 
-class TestSqliteStorage(AuthorizationBackend):
+class TestSqliteStorage(StorageBackend):
     """Exposing a simple backend that fetch authorizations from a dictionary.
     """
 
