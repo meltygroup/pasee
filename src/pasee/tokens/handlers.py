@@ -20,12 +20,12 @@ def generate_access_token_and_refresh_token_pairs(claims, private_key, algorithm
     """Create new access token with refresh token
     """
     claims["jti"], claims["exp"] = create_jti_and_expiration_values(  # type: ignore
-        hours_to_add=1
+        hours_to_add=24
     )
     access_token = jwt.encode(claims, private_key, algorithm=algorithm)
 
     claims["jti"], claims["exp"] = create_jti_and_expiration_values(  # type: ignore
-        hours_to_add=24
+        hours_to_add=720
     )
     claims["refresh_token"] = True
     refresh_token = jwt.encode(claims, private_key, algorithm=algorithm)
