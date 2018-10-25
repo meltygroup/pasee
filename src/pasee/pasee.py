@@ -5,6 +5,7 @@ import os
 from typing import Dict, Optional
 
 from aiohttp import web
+import aiohttp_cors
 import pytoml as toml
 
 from pasee.middlewares import verify_input_body_is_json, transform_unauthorized
@@ -67,9 +68,18 @@ def identification_app(
 ):
     """Identification provider entry point: builds and run a webserver.
     """
+
     settings = load_conf(settings_file, host, port, identity_backend_class)
     app = web.Application(
         middlewares=[verify_input_body_is_json, transform_unauthorized]
+    )
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True, expose_headers="*", allow_headers="*"
+            )
+        },
     )
     app.settings = settings
     app.authorization_backend = import_class(
@@ -91,10 +101,10 @@ def identification_app(
 
     app.add_routes(
         [
-            web.get("/", views.get_root),
+            web.get("/", views.get_root, name="get_root"),
             web.get("/public-key/", views.get_public_key),
-            web.get("/tokens/", token_views.get_tokens),
-            web.post("/tokens/", token_views.post_token),
+            web.get("/tokens/", token_views.get_tokens, name="get_tokens"),
+            web.post("/tokens/", token_views.post_token, name="post_tokens"),
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
             web.get("/groups/{group_uid}/", group_views.get_group),
@@ -104,5 +114,20 @@ def identification_app(
             ),
         ]
     )
+
+    allowed_cors = {"get_root", "get_tokens", "post_tokens"}
+
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True, expose_headers="*", allow_headers="*"
+            )
+        },
+    )
+
+    for route in list(app.router.routes()):
+        if route.name in allowed_cors:
+            cors.add(route)
 
     return app

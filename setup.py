@@ -29,6 +29,7 @@ def setup_package():
         package_dir={"": "src"},
         install_requires=[
             "aiohttp>=3.2.1,<4",
+            "aiohttp-cors==0.7.0",
             "coreapi>=2.3.3,<3",
             "cryptography>=2.2.2,<3",
             "pyjwt>=1.6.3,<2",
