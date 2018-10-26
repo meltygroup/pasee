@@ -7,7 +7,7 @@ import pytest
 from pasee.utils import import_class
 
 
-def test_import_authorization_backend():
+def test_import_storage_backend():
     """Test importing authorization backend
     """
     with pytest.raises(ImportError):
@@ -15,4 +15,4 @@ def test_import_authorization_backend():
     with pytest.raises(ImportError):
         import_class("my.dummy.path")
     with pytest.raises(ImportError):
-        import_class("authorization_backend.test_backend.UnknownClass")
+        import_class("storage_backend.test_backend.UnknownClass")

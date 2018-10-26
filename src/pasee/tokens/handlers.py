@@ -53,11 +53,9 @@ async def generate_claims_with_identity_provider(request: web.Request) -> dict:
     decoded = await identity_provider.authenticate_user(input_data)
 
     decoded["sub"] = f"{identity_provider_input}-{decoded['sub']}"
-    if not await request.app.authorization_backend.user_exists(decoded["sub"]):
+    if not await request.app.storage_backend.user_exists(decoded["sub"]):
         raise web.HTTPNotFound(reason="User does not exist in our authorization server")
-    decoded[
-        "groups"
-    ] = await request.app.authorization_backend.get_authorizations_for_user(
+    decoded["groups"] = await request.app.storage_backend.get_authorizations_for_user(
         decoded["sub"]
     )
     return decoded

@@ -73,28 +73,21 @@ def identification_app(
     app = web.Application(
         middlewares=[verify_input_body_is_json, transform_unauthorized]
     )
-    cors = aiohttp_cors.setup(
-        app,
-        defaults={
-            "*": aiohttp_cors.ResourceOptions(
-                allow_credentials=True, expose_headers="*", allow_headers="*"
-            )
-        },
-    )
+
     app.settings = settings
-    app.authorization_backend = import_class(
-        settings["authorization_backend"]["class"]
-    )(settings["authorization_backend"]["options"])
+    app.storage_backend = import_class(settings["storage_backend"]["class"])(
+        settings["storage_backend"]["options"]
+    )
 
     async def on_startup_wrapper(app):
         """Wrapper to call __aenter__.
         """
-        await app.authorization_backend.__aenter__()
+        await app.storage_backend.__aenter__()
 
     async def on_cleanup_wrapper(app):
         """Wrapper to call __exit__.
         """
-        await app.authorization_backend.__aexit__(None, None, None)
+        await app.storage_backend.__aexit__(None, None, None)
 
     app.on_startup.append(on_startup_wrapper)
     app.on_cleanup.append(on_cleanup_wrapper)
