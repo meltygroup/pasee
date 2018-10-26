@@ -20,10 +20,10 @@ mVu3bgkvT/P7bsq4lu20o8kWQd/srSRCb7kvz9xQQMVLLemrebXZCA==
 -----END PUBLIC KEY-----"""
 algorithm = "ES256"
 
-[authorization_backend]
-    #class = "authorization_backend.test_backend.dictionary.TestDictionaryStorage"
-    class = "authorization_backend.test_backend.sqlite.TestSqliteStorage"
-    [authorization_backend.options]
+[storage_backend]
+    #class = "storage_backend.test_backend.dictionary.TestDictionaryStorage"
+    class = "storage_backend.test_backend.sqlite.TestSqliteStorage"
+    [storage_backend.options]
         file = ":memory:"
 
 [jwt]
