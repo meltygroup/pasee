@@ -41,9 +41,8 @@ async def get_tokens(request: web.Request) -> web.Response:
                 "identify_to_kisee": coreapi.Link(
                     action="post",
                     title="Login via login/password pair",
-                    description="""
-                        POSTing to this endpoint will identify you by login/password.
-                    """,
+                    description="POSTing to this endpoint will identify you by "
+                    "login/password.",
                     fields=[
                         coreapi.Field(name="login", required=True),
                         coreapi.Field(name="password", required=True),
