@@ -126,6 +126,25 @@ async def post_group(request: web.Request) -> web.Response:
     return web.Response(status=201)
 
 
+async def delete_group(request: web.Request) -> web.Response:
+    """Handler for POST /groups/{group_id}/
+    add a user to {group_id}
+    """
+    claims = utils.enforce_authorization(request)
+    authorization_backend = request.app.authorization_backend
+    group = request.match_info["group_uid"]
+
+    if not is_authorized_for_group(claims["groups"], "staff"):
+        raise web.HTTPForbidden(reason="Not authorized to manage group")
+
+    if not await authorization_backend.group_exists(group):
+        raise web.HTTPNotFound(reason="Group does not exist")
+
+    await authorization_backend.delete_group(group)
+    await authorization_backend.delete_group(f"{group}.staff")
+    return web.Response(status=204)
+
+
 async def delete_group_member(request: web.Request) -> web.Response:
     """Delete group member of group
     """

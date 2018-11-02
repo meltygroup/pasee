@@ -62,6 +62,10 @@ async def load_fake_data(app):
                 'get_group'
             ), (
                 'get_group.staff'
+            ), (
+                'group_to_delete'
+            ), (
+                'group_to_delete.staff'
             )
             """
         )
@@ -433,7 +437,37 @@ async def test_get_group__raises_not_authorized(client, monkeypatch):
     assert response.status == 403
 
 
+async def test_delete_group__forbidden(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.delete(
+        "/groups/group_to_delete/", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 403
+
+
+async def test_delete_group__not_found(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/groups/group_not_exist/", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 404
+
+
 async def test_delete_group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/groups/group_to_delete/", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 204
+
+
+async def test_delete_group_member(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization
     )
@@ -444,7 +478,7 @@ async def test_delete_group(client, monkeypatch):
     assert response.status == 204
 
 
-async def test_delete_group__http_not_found__group(client, monkeypatch):
+async def test_delete_group_member__http_not_found__group(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization
     )
@@ -455,7 +489,7 @@ async def test_delete_group__http_not_found__group(client, monkeypatch):
     assert response.status == 404
 
 
-async def test_delete_group__http_not_found__user(client, monkeypatch):
+async def test_delete_group_member__http_not_found__user(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization
     )
@@ -466,7 +500,7 @@ async def test_delete_group__http_not_found__user(client, monkeypatch):
     assert response.status == 404
 
 
-async def test_delete_group__http_not_authorized(client, monkeypatch):
+async def test_delete_group_member__http_not_authorized(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
     )

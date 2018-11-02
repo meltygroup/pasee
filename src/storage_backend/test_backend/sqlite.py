@@ -105,6 +105,14 @@ class TestSqliteStorage(StorageBackend):
         cursor.close()
         return groups
 
+    async def delete_group(self, group: str):
+        """Delete group
+        """
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
+        cursor.execute("DELETE FROM groups WHERE name = :group", {"group": group})
+
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
         """
