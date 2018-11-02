@@ -36,6 +36,7 @@ async def get_root(request: web.Request) -> web.Response:
                         },
                         "hints": {"allow": ["GET", "POST", "DELETE"]},
                     },
+                    "users": {"href": "/users/", "hints": {"allow": ["GET", "POST"]}},
                 },
             }
         ),

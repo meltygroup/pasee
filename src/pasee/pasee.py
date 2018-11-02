@@ -12,6 +12,7 @@ from pasee.middlewares import verify_input_body_is_json, transform_unauthorized
 from pasee import views, MissingSettings
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
+from pasee.users import views as user_views
 from pasee.utils import import_class
 
 
@@ -98,6 +99,7 @@ def identification_app(
             web.get("/public-key/", views.get_public_key),
             web.get("/tokens/", token_views.get_tokens, name="get_tokens"),
             web.post("/tokens/", token_views.post_token, name="post_tokens"),
+            web.get("/users/", user_views.get_users),
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
             web.get("/groups/{group_uid}/", group_views.get_group),

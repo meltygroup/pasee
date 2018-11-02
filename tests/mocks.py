@@ -31,6 +31,18 @@ def decode_token(self, token):
     }
 
 
+def decode_token__new_user(self, token):
+    """Decode a token emitted by Kisee
+    with a user who does not exist in database
+    """
+    return {
+        "iss": "example.com",
+        "sub": "newguy",
+        "exp": 1534173723,
+        "jti": "j2CMReXSUwcnvPfhqq7cSg",
+    }
+
+
 def enforce_authorization(request):
     return {
         "iss": "example.com",
@@ -48,6 +60,16 @@ def enforce_authorization_for_refresh_token(request):
         "exp": 1536221551,
         "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
         "refresh_token": True,
+        "groups": ["staff", "my_group", "my_group.staff"],
+    }
+
+
+def enforce_authorization_for_refresh_token_without_claim(request):
+    return {
+        "iss": "example.com",
+        "sub": "kisee-toto",
+        "exp": 1536221551,
+        "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
         "groups": ["staff", "my_group", "my_group.staff"],
     }
 

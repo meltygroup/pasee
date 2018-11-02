@@ -105,10 +105,10 @@ Yes, feel free to implement it.
 
 > Can Pasee use multiple instances of Kisee to hit different identity sources?
 
-Yes, but only the first one will be used to forward registrations as
-the users have no way (for the moment) to choose on which Kisee
-instance they will be stored, from their point of view they're
-registering to the `Pasee` instance without knowing it's forwarding
+Yes, but only the first one with register capability set in its configurations
+will be used to forward registrations as the users have no way (for the moment)
+to choose on which Kisee instance they will be stored, from their point of view
+they're registering to the `Pasee` instance without knowing it's forwarding
 blindly to a `Kisee`. You can also hard-code your client to register with
 a specific Kisee instance directly as the Kisee/Pasee API are the same.
 
