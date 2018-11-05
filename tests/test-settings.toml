@@ -49,3 +49,13 @@ protocol = "oauth2"
 [identity_providers.settings]
 app_id = "..."
 app_secret = "..."
+
+[[identity_providers]]
+name = "twitter"
+host = "twitter.com"
+port = 443
+protocol = "oauth1"
+[identity_providers.settings]
+consumer_key = "someconsumerkey"
+consumer_secret = "someconsumersecret"
+callback_url = "http://my-host.example.com/tokens/?idp=twitter"

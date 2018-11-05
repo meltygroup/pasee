@@ -106,6 +106,27 @@ async def test_get_tokens(client):
     assert response.status == 200
 
 
+async def test_post_tokens__twitter(client, monkeypatch):
+    monkeypatch.setattr(
+        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        mocks.twitter__authenticate_user,
+    )
+    response = await client.post("/tokens/?idp=twitter", json={"login": "test"})
+    assert response.status == 201
+
+
+async def test_get_tokens__twitter_callback(client, monkeypatch):
+    monkeypatch.setattr(
+        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        mocks.twitter__authenticate_user,
+    )
+    response = await client.get(
+        "/tokens/?idp=twitter&oauth_verifier=some_random_token&oauth_token=some_random_token",
+        json={"login": "test"},
+    )
+    assert response.status == 200
+
+
 async def test_post_tokens(client, monkeypatch):
     monkeypatch.setattr(
         "identity_providers.kisee.KiseeIdentityProvider._decode_token",

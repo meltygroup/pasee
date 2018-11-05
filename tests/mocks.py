@@ -82,3 +82,11 @@ def enforce_authorization__non_staff(request):
         "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
         "groups": ["non_staff"],
     }
+
+
+async def twitter__authenticate_user(self, data, step=1):
+    if step == 1:
+        return {"authorize_url": "http://some-authorize-url.example.com"}
+    elif step == 2:
+        return {"access_token": "random-access-token", "sub": "twitter-42"}
+    raise ValueError("Step should be either 1 or 2")

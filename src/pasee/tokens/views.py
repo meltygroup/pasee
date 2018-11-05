@@ -67,13 +67,7 @@ async def post_token(request: web.Request) -> web.Response:
         if not claims.get("refresh_token", False):
             raise Unauthorized("Token is not a refresh token")
     else:
-        storage_backend = request.app.storage_backend
         claims = await authenticate_with_identity_provider(request)
-        if not await storage_backend.user_exists(claims["sub"]):
-            await storage_backend.create_user(claims["sub"])
-        claims["groups"] = await storage_backend.get_authorizations_for_user(
-            claims["sub"]
-        )
 
     response_content = {
         "identify_to_kisee": coreapi.Link(
@@ -91,6 +85,13 @@ async def post_token(request: web.Request) -> web.Response:
     }
 
     if "sub" in claims:
+        storage_backend = request.app.storage_backend
+        if not await storage_backend.user_exists(claims["sub"]):
+            await storage_backend.create_user(claims["sub"])
+
+        claims["groups"] = await storage_backend.get_authorizations_for_user(
+            claims["sub"]
+        )
         access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
             claims,
             request.app.settings["private_key"],

@@ -1,8 +1,10 @@
 """Abstract class representing an Identity provider
 """
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Mapping, MutableMapping, Union, Any
 
+Claims = MutableMapping[str, Union[Any]]
+LoginCredentials = Mapping[str, str]
 
 BACKENDS = {
     "kisee": "identity_providers.kisee.KiseeIdentityProvider",
@@ -19,7 +21,7 @@ class IdentityProviderBackend(ABC):
         super().__init__(**kwargs)  # type: ignore # mypy issue 4335
 
     @abstractmethod
-    async def authenticate_user(self, data) -> dict:
+    async def authenticate_user(self, data: LoginCredentials, step: int = 1) -> Claims:
         """Authenticate user
         """
 
@@ -32,9 +34,4 @@ class IdentityProviderBackend(ABC):
     @abstractmethod
     def get_name(self):
         """Get identity backend name
-        """
-
-    @abstractmethod
-    async def get_access_token(self, data) -> dict:
-        """Get access token
         """
