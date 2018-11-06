@@ -7,8 +7,8 @@ Claims = MutableMapping[str, Union[Any]]
 LoginCredentials = Mapping[str, str]
 
 BACKENDS = {
-    "kisee": "identity_providers.kisee.KiseeIdentityProvider",
-    "twitter": "identity_providers.twitter.TwitterIdentityProvider",
+    "kisee": "pasee.identity_providers.kisee.KiseeIdentityProvider",
+    "twitter": "pasee.identity_providers.twitter.TwitterIdentityProvider",
 }
 
 
