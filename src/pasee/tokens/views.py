@@ -4,6 +4,7 @@
 - POST /tokens/
 """
 import logging
+from typing import List
 
 import coreapi
 from aiohttp import web
@@ -32,12 +33,11 @@ async def get_tokens(request: web.Request) -> web.Response:
 
     idps = {}
     for idp_name, idp_conf in request.app.settings["idps"].items():
-        fields = []
+        fields: List[coreapi.Field] = []
         if idp_conf.get("input_fields"):
             fields = [
                 coreapi.Field(name=field.get("name"), required=field.get("required"))
-                for field
-                in idp_conf["input_fields"]
+                for field in idp_conf["input_fields"]
             ]
         idps[f"identify_via_{idp_name}"] = coreapi.Link(
             action="post",
