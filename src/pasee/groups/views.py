@@ -131,17 +131,17 @@ async def delete_group(request: web.Request) -> web.Response:
     add a user to {group_id}
     """
     claims = utils.enforce_authorization(request)
-    authorization_backend = request.app.authorization_backend
+    storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
 
     if not is_authorized_for_group(claims["groups"], "staff"):
         raise web.HTTPForbidden(reason="Not authorized to manage group")
 
-    if not await authorization_backend.group_exists(group):
+    if not await storage_backend.group_exists(group):
         raise web.HTTPNotFound(reason="Group does not exist")
 
-    await authorization_backend.delete_group(group)
-    await authorization_backend.delete_group(f"{group}.staff")
+    await storage_backend.delete_group(group)
+    await storage_backend.delete_group(f"{group}.staff")
     return web.Response(status=204)
 
 

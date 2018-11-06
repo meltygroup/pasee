@@ -8,6 +8,7 @@ from aiohttp import web
 import jwt
 
 from pasee.identity_providers.backend import IdentityProviderBackend
+from pasee.identity_providers.backend import Claims, LoginCredentials
 
 
 class KiseeIdentityProvider(IdentityProviderBackend):
@@ -54,7 +55,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
                 pass
         raise web.HTTPInternalServerError()
 
-    async def authenticate_user(self, data):
+    async def authenticate_user(self, data: LoginCredentials, step: int = 1) -> Claims:
         if not all(key in data.keys() for key in {"login", "password"}):
             raise web.HTTPBadRequest(
                 reason="Missing login or password fields for kisee authentication"
@@ -66,7 +67,9 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         # token_location = kisee_headers["Location"]
 
         token = kisee_response["tokens"][0]
-        return self._decode_token(token)
+        decoded = self._decode_token(token)
+        decoded["sub"] = f"{self.name}-{decoded['sub']}"
+        return decoded
 
     async def get_endpoint(self, action: Optional[str] = None):
 

@@ -37,19 +37,26 @@ def load_conf(
             os.path.join(os.getcwd(), "settings.toml"),
             os.path.expanduser("~/settings.toml"),
             os.path.expanduser(os.path.join("~/", settings_path)),
-            "/etc/settings.toml",
-            os.path.join("/etc/", settings_path),
+            "/etc/pasee/settings.toml",
+            os.path.join("/etc/pasee/", settings_path),
         )
     else:
         candidates = (
             os.path.join(os.getcwd(), "settings.toml"),
             os.path.expanduser("~/settings.toml"),
-            "/etc/settings.toml",
+            "/etc/pasee/settings.toml",
         )
+    settings = None
     for candidate in candidates:
         if os.path.exists(candidate):
             with open(candidate) as candidate_file:
                 settings = toml.load(candidate_file)
+                break
+    if not settings:
+        raise MissingSettings(
+            f"No settings files found, tried: {', '.join(set(candidates))}"
+        )
+
     if host:
         settings["host"] = host
     if "host" not in settings:

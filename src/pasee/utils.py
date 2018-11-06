@@ -1,12 +1,14 @@
 """Some functions not directly linked with the core of pasee but still usefull.
 """
-from typing import Mapping, Any
+from typing import MutableMapping, Union, Any
 
 from importlib import import_module
 
 import jwt
 from aiohttp import web
 from pasee import Unauthorized
+
+Claims = MutableMapping[str, Union[Any]]
 
 
 def import_class(dotted_path: str) -> type:
@@ -30,7 +32,7 @@ def import_class(dotted_path: str) -> type:
         ) from err
 
 
-def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
+def enforce_authorization(request: web.Request) -> Claims:
     """claim user authorization middleware handler written as a standalone
     function to allow easier mocking for test
     """
@@ -44,9 +46,13 @@ def enforce_authorization(request: web.Request) -> Mapping[str, Any]:
     if scheme != "Bearer":
         raise Unauthorized("Expected Bearer token")
     try:
-        return jwt.decode(
-            token, request.app.settings["public_key"], request.app.settings["algorithm"]
-        )
+        return {
+            **jwt.decode(
+                token,
+                request.app.settings["public_key"],
+                request.app.settings["algorithm"],
+            )
+        }
     except jwt.ExpiredSignatureError as err:
         raise Unauthorized("Expired signature") from err
     except ValueError as err:

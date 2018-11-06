@@ -14,6 +14,7 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
     """Parses command line arguments.
     """
     parser = argparse.ArgumentParser(
+        prog="pasee",
         description="Pasee Identity Manager",
         epilog="All options, if given, take precedence over settings file.",
     )
