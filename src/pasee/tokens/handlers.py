@@ -1,5 +1,6 @@
 """Hanlers for tokens
 """
+import json
 from datetime import datetime, timedelta
 
 import jwt
@@ -37,7 +38,10 @@ def generate_access_token_and_refresh_token_pairs(claims, private_key, algorithm
 async def authenticate_with_identity_provider(request: web.Request) -> Claims:
     """Use identity provider provided by user to authenticate.
     """
-    input_data = await request.json()
+    try:
+        input_data = await request.json()
+    except json.decoder.JSONDecodeError:
+        input_data = {}
 
     identity_provider_input = request.rel_url.query.get("idp", None)
     if not identity_provider_input:

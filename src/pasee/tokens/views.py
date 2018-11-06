@@ -30,6 +30,23 @@ async def get_tokens(request: web.Request) -> web.Response:
         access_token = access_token.decode("utf-8")
         refresh_token = refresh_token.decode("utf-8")
 
+    idps = {}
+    for idp_name, idp_conf in request.app.settings["idps"].items():
+        fields = []
+        if idp_conf.get("input_fields"):
+            fields = [
+                coreapi.Field(name=field.get("name"), required=field.get("required"))
+                for field
+                in idp_conf["input_fields"]
+            ]
+        idps[f"identify_via_{idp_name}"] = coreapi.Link(
+            action="post",
+            title=idp_conf.get("title"),
+            description=idp_conf.get("description"),
+            fields=fields,
+            url=f"/tokens/?idp={idp_name}",
+        )
+
     return serialize(
         request,
         coreapi.Document(
@@ -38,17 +55,7 @@ async def get_tokens(request: web.Request) -> web.Response:
             content={
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "identify_to_kisee": coreapi.Link(
-                    action="post",
-                    title="Login via login/password pair",
-                    description="POSTing to this endpoint will identify you by "
-                    "login/password.",
-                    fields=[
-                        coreapi.Field(name="login", required=True),
-                        coreapi.Field(name="password", required=True),
-                    ],
-                    url="/tokens/?idp=kisee",
-                ),
+                **idps,
             },
         ),
     )
