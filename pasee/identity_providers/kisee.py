@@ -22,7 +22,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         self.name = "kisee"
         self.action_to_endpoint: Dict = dict()
 
-    async def _identify_to_kisee(self, data):
+    async def _identify_to_kisee(self, data: LoginCredentials):
         """Async request to identify to kisee"""
         create_token_endpoint = await self.get_endpoint("create-token")
         async with aiohttp.ClientSession() as session:
