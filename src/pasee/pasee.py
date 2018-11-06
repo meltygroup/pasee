@@ -8,7 +8,11 @@ from aiohttp import web
 import aiohttp_cors
 import pytoml as toml
 
-from pasee.middlewares import verify_input_body_is_json, transform_unauthorized
+from pasee.middlewares import (
+    verify_input_body_is_json,
+    transform_unauthorized,
+    coreapi_error_middleware,
+)
 from pasee import views, MissingSettings
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
@@ -72,7 +76,11 @@ def identification_app(
 
     settings = load_conf(settings_file, host, port, identity_backend_class)
     app = web.Application(
-        middlewares=[verify_input_body_is_json, transform_unauthorized]
+        middlewares=[
+            verify_input_body_is_json,
+            transform_unauthorized,
+            coreapi_error_middleware,
+        ]
     )
 
     app.settings = settings
