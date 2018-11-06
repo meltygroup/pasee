@@ -45,7 +45,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         return kisee_response
 
     def _decode_token(self, token: str):
-        """Decode token with public keys
+        """Decode token with public keys.
         """
         for public_key in self.public_keys:
             try:
