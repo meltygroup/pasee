@@ -49,9 +49,9 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         """
         for public_key in self.public_keys:
             try:
-                decoded = jwt.decode(token, public_key)
+                decoded = jwt.decode(token, public_key, algorithms="ES256")
                 return decoded
-            except ValueError:
+            except (ValueError, jwt.DecodeError):
                 pass
         raise web.HTTPInternalServerError()
 
