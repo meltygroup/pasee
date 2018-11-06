@@ -31,6 +31,7 @@ algorithm = "ES256"
 
 [[identity_providers]]
 name = "kisee"
+implementation = "pasee.identity_providers.kisee.KiseeIdentityProvider"
 endpoint = "http://dump-kisee-endpoint/"
 title = "Login via login/password pair"
 description = "POSTing to this endpoint will identify you by login/password."
@@ -51,6 +52,7 @@ required = true
 
 [[identity_providers]]
 name = "twitter"
+implementation = "pasee.identity_providers.twitter.TwitterIdentityProvider"
 host = "twitter.com"
 port = 443
 protocol = "oauth"
@@ -59,17 +61,4 @@ description = "POSTing to this endpoint will identify you with Twitter via oauth
 [identity_providers.settings]
 consumer_key = "example-consumer-key"
 consumer_secret = "example-consumer-secret"
-callback_url = "http://my-host.example.com/tokens/?idp=twitter"
-
-
-[[identity_providers]]
-name = "twitter"
-host = "twitter.com"
-port = 443
-protocol = "oauth1"
-title = "Login via Twitter oauth"
-description = "POSTing to this endpoint will identify you with Twitter via oauth1"
-[identity_providers.settings]
-consumer_key = "someconsumerkey"
-consumer_secret = "someconsumersecret"
 callback_url = "http://my-host.example.com/tokens/?idp=twitter"
