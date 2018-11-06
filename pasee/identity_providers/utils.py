@@ -2,7 +2,7 @@
 """
 from pasee.utils import import_class
 
-BACKENDS = {"kisee": "identity_providers.kisee.KiseeIdentityProvider"}
+BACKENDS = {"kisee": "pasee.identity_providers.kisee.KiseeIdentityProvider"}
 
 
 def get_identity_provider_with_capability(idps_settings, capability):

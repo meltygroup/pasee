@@ -4,7 +4,7 @@ import pytest
 from aioresponses import aioresponses
 
 from pasee.pasee import identification_app
-from tests import mocks
+import mocks
 
 
 async def load_fake_data(app):
@@ -78,7 +78,7 @@ async def load_fake_data(app):
             ), (
                 'kisee-toto', 'get_group'
             ), (
-                'kisee-guytodel', 'get_group' 
+                'kisee-guytodel', 'get_group'
             )
             """
         )
@@ -108,7 +108,7 @@ async def test_get_tokens(client):
 
 async def test_post_tokens__twitter(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
         mocks.twitter__authenticate_user,
     )
     response = await client.post("/tokens/?idp=twitter", json={"login": "test"})
@@ -117,7 +117,7 @@ async def test_post_tokens__twitter(client, monkeypatch):
 
 async def test_get_tokens__twitter_callback(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
         mocks.twitter__authenticate_user,
     )
     response = await client.get(
@@ -129,7 +129,7 @@ async def test_get_tokens__twitter_callback(client, monkeypatch):
 
 async def test_post_tokens(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        "pasee.identity_providers.kisee.KiseeIdentityProvider._decode_token",
         mocks.decode_token,
     )
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
@@ -211,7 +211,7 @@ async def test_post_tokens(client, monkeypatch):
 
 async def test_post_tokens__creates_new_user(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        "pasee.identity_providers.kisee.KiseeIdentityProvider._decode_token",
         mocks.decode_token__new_user,
     )
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
