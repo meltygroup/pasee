@@ -16,13 +16,14 @@ logger = logging.getLogger(__name__)
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
+    hostname = request.app.settings["hostname"]
     utils.enforce_authorization(request)
     storage_backend = request.app.storage_backend
     groups = await storage_backend.get_groups()
     return serialize(
         request,
         coreapi.Document(
-            url="/groups/",
+            url=f"{hostname}/groups/",
             title="Groups of Identity Manager",
             content={
                 "groups": groups,
@@ -72,6 +73,7 @@ async def post_groups(request: web.Request) -> web.Response:
 async def get_group(request: web.Request) -> web.Response:
     """Handler for GET /groups/{group_uid}
     """
+    hostname = request.app.settings["hostname"]
     claims = utils.enforce_authorization(request)
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
@@ -86,7 +88,7 @@ async def get_group(request: web.Request) -> web.Response:
     return serialize(
         request,
         coreapi.Document(
-            url=f"/groups/{group}/",
+            url=f"{hostname}/groups/{{group}}/",
             title=f"{group} group management interface",
             content={
                 "members": members,
