@@ -75,6 +75,7 @@ async def handle_oauth_callback(identity_provider_input: str, request: web.Reque
     )
 
     sub = f"{identity_provider_input}-{idp_claims['sub']}"
+    print(f"sub is {sub}")
     if not await request.app.storage_backend.user_exists(sub):
         await request.app.storage_backend.create_user(sub)
     groups = await request.app.storage_backend.get_authorizations_for_user(sub)
