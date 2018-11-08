@@ -88,5 +88,13 @@ async def twitter__authenticate_user(self, data, step=1):
     if step == 1:
         return {"authorize_url": "http://some-authorize-url.example.com"}
     elif step == 2:
-        return {"access_token": "random-access-token", "sub": "twitter-42"}
+        return {"access_token": "random-access-token", "sub": "newtwitteruser"}
+    raise ValueError("Step should be either 1 or 2")
+
+
+async def twitter__authenticate_user__user_exists(self, data, step=1):
+    if step == 1:
+        return {"authorize_url": "http://some-authorize-url.example.com"}
+    elif step == 2:
+        return {"access_token": "random-access-token", "sub": "foo"}
     raise ValueError("Step should be either 1 or 2")

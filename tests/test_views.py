@@ -40,6 +40,8 @@ async def load_fake_data(app):
                 "kisee-guytoadd"
             ), (
                 "kisee-guytodel"
+            ), (
+                "twitter-foo"
             )
             """
         )
@@ -119,6 +121,18 @@ async def test_get_tokens__twitter_callback(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
         mocks.twitter__authenticate_user,
+    )
+    response = await client.get(
+        "/tokens/?idp=twitter&oauth_verifier=some_random_token&oauth_token=some_random_token",
+        json={"login": "test"},
+    )
+    assert response.status == 200
+
+
+async def test_get_tokens__twitter_callback__user_exists(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        mocks.twitter__authenticate_user__user_exists,
     )
     response = await client.get(
         "/tokens/?idp=twitter&oauth_verifier=some_random_token&oauth_token=some_random_token",
