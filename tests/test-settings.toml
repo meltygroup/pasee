@@ -1,5 +1,6 @@
 host = "0.0.0.0"
 port = 8150
+hostname = "http://127.0.0.1:8150"
 
 # Generated using:
 #

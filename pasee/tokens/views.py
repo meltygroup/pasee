@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 async def get_tokens(request: web.Request) -> web.Response:
     """Handlers for GET /token/, just describes that a POST is possible.
     """
+    hostname = request.app.settings["hostname"]
     access_token, refresh_token = None, None
     identity_provider_input = request.rel_url.query.get("idp", None)
     if identity_provider_input:
@@ -50,7 +51,7 @@ async def get_tokens(request: web.Request) -> web.Response:
     return serialize(
         request,
         coreapi.Document(
-            url="/token",
+            url=f"{hostname}/token",
             title="Request Token From Identity Provider",
             content={
                 "access_token": access_token,
