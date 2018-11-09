@@ -1,0 +1,44 @@
+hostname = "http://127.0.0.1:8150"
+
+[storage_backend]
+    #class = "pasee.storage_backend.test_backend.dictionary.TestDictionaryStorage"
+    class = "pasee.storage_backend.test_backend.sqlite.TestSqliteStorage"
+    [storage_backend.options]
+        file = ":memory:"
+
+[jwt]
+    iss = "pasee.meltylab.fr"
+
+[[identity_providers]]
+name = "kisee"
+implementation = "pasee.identity_providers.kisee.KiseeIdentityProvider"
+endpoint = "http://dump-kisee-endpoint/"
+title = "Login via login/password pair"
+description = "POSTing to this endpoint will identify you by login/password."
+protocol = "kisee"
+capabilities = ["register-user"]
+[identity_providers.settings]
+public_keys = ["""-----BEGIN PUBLIC KEY-----
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/WCqajmhfppNUB2uekSxX976fcWA3bb
+dew8NkUtCoBigl9lWkqfnkF18H9fgG0gafPhGtub23+8Ldulvmf1lg==
+-----END PUBLIC KEY-----"""]
+[[identity_providers.input_fields]]
+name = "login"
+required = true
+[[identity_providers.input_fields]]
+name = "password"
+required = true
+
+
+[[identity_providers]]
+name = "twitter"
+implementation = "pasee.identity_providers.twitter.TwitterIdentityProvider"
+host = "twitter.com"
+port = 443
+protocol = "oauth"
+title = "Login via Twitter oauth"
+description = "POSTing to this endpoint will identify you with Twitter via oauth1"
+[identity_providers.settings]
+consumer_key = "example-consumer-key"
+consumer_secret = "example-consumer-secret"
+callback_url = "http://my-host.example.com/tokens/?idp=twitter"

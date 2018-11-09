@@ -1,10 +1,10 @@
 """Some functions not directly linked with the core of pasee but still usefull.
 """
 from typing import MutableMapping, Mapping, Union, Any
-
 from importlib import import_module
 
 import jwt
+
 from pasee import Unauthorized
 
 Claims = MutableMapping[str, Union[Any]]
@@ -37,7 +37,6 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
     """claim user authorization middleware handler written as a standalone
     function to allow easier mocking for test
     """
-
     if not headers.get("Authorization"):
         raise Unauthorized("Missing authorization header")
     try:
@@ -46,6 +45,7 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
         raise Unauthorized("Malformed authorization header") from err
     if scheme != "Bearer":
         raise Unauthorized("Expected Bearer token")
+
     try:
         return {
             **jwt.decode(

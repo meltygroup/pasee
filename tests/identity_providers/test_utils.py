@@ -68,11 +68,10 @@ def test_enforce_authorization__not_valid_bearer_token():
         )
 
 
-# a decomenter lundi
-# def test_enforce_authorization__expired_token():
-#     expired_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJmb28iLCJqdGkiOjE1NDE2OTI1NjAuNDU1Nzc5fQ.XE3LwfQlyN_uiqOy6dnu3lSXlyJ_kL9aFO0AsyQV1P4VIkLou767I6RqBb0mCyxkpCsb6cwIsHypFn4WAaIoYw"
-#     with pytest.raises(Unauthorized):
-#         assert enforce_authorization(
-#             {"Authorization": f"Bearer {expired_token}"},
-#             {"public_key": PUBLIC_KEY, "algorithm": ALGORITHM},
-#         )
+def test_enforce_authorization__expired_token():
+    expired_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJmb28iLCJleHAiOjE1NDE2OTI1NjAuNDU1Nzc5fQ.o3ZPwFmqJ3PLpxoZ854sHuu5ozD18J6kD7EdG2ospWSlovcgxGvSo65Hdgd8_RPHUDDJu4RZ4FwkyT1VTFRi_A"
+    with pytest.raises(Unauthorized):
+        assert enforce_authorization(
+            {"Authorization": f"Bearer {expired_token}"},
+            {"public_key": PUBLIC_KEY, "algorithm": ALGORITHM},
+        )
