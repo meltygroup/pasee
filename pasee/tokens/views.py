@@ -71,7 +71,7 @@ async def post_token(request: web.Request) -> web.Response:
             raise web.HTTPBadRequest(
                 reason="Missing Authorization header for refreshing access token"
             )
-        claims = utils.enforce_authorization(request)
+        claims = utils.enforce_authorization(request.headers, request.app.settings)
         if not claims.get("refresh_token", False):
             raise Unauthorized("Token is not a refresh token")
     else:

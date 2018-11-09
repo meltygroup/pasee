@@ -51,6 +51,7 @@ def setup_package():
                 "bandit",
                 "black",
                 "mypy",
+                "freezegun",
             ]
         },
         packages=find_packages(),

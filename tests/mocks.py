@@ -43,7 +43,7 @@ def decode_token__new_user(self, token):
     }
 
 
-def enforce_authorization(request):
+def enforce_authorization(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -53,7 +53,7 @@ def enforce_authorization(request):
     }
 
 
-def enforce_authorization_for_refresh_token(request):
+def enforce_authorization_for_refresh_token(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -64,7 +64,7 @@ def enforce_authorization_for_refresh_token(request):
     }
 
 
-def enforce_authorization_for_refresh_token_without_claim(request):
+def enforce_authorization_for_refresh_token_without_claim(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -74,7 +74,7 @@ def enforce_authorization_for_refresh_token_without_claim(request):
     }
 
 
-def enforce_authorization__non_staff(request):
+def enforce_authorization__non_staff(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
