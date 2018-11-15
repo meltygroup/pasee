@@ -111,7 +111,7 @@ def identification_app(
     app.add_routes(
         [
             web.get("/", views.get_root, name="get_root"),
-            web.get("/public-key/", views.get_public_key),
+            web.get("/public-key/", views.get_public_key, name="get_public_key"),
             web.get("/tokens/", token_views.get_tokens, name="get_tokens"),
             web.post("/tokens/", token_views.post_token, name="post_tokens"),
             web.get("/users/", user_views.get_users),
@@ -126,7 +126,7 @@ def identification_app(
         ]
     )
 
-    allowed_cors = {"get_root", "get_tokens", "post_tokens"}
+    allowed_cors = {"get_root", "get_tokens", "post_tokens", "get_public_key"}
 
     cors = aiohttp_cors.setup(
         app,
