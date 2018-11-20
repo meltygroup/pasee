@@ -54,5 +54,5 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
         }
     except jwt.ExpiredSignatureError as err:
         raise Unauthorized("Expired signature") from err
-    except jwt.InvalidSignatureError as err:
+    except jwt.InvalidTokenError as err:
         raise Unauthorized("Invalid token") from err
