@@ -43,7 +43,7 @@ def decode_token__new_user(self, token):
     }
 
 
-def enforce_authorization(request):
+def enforce_authorization(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -53,7 +53,7 @@ def enforce_authorization(request):
     }
 
 
-def enforce_authorization_for_refresh_token(request):
+def enforce_authorization_for_refresh_token(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -64,7 +64,7 @@ def enforce_authorization_for_refresh_token(request):
     }
 
 
-def enforce_authorization_for_refresh_token_without_claim(request):
+def enforce_authorization_for_refresh_token_without_claim(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -74,7 +74,7 @@ def enforce_authorization_for_refresh_token_without_claim(request):
     }
 
 
-def enforce_authorization__non_staff(request):
+def enforce_authorization__non_staff(headers, settings):
     return {
         "iss": "example.com",
         "sub": "kisee-toto",
@@ -88,5 +88,33 @@ async def twitter__authenticate_user(self, data, step=1):
     if step == 1:
         return {"authorize_url": "http://some-authorize-url.example.com"}
     elif step == 2:
-        return {"access_token": "random-access-token", "sub": "twitter-42"}
+        return {"access_token": "random-access-token", "sub": "newtwitteruser"}
     raise ValueError("Step should be either 1 or 2")
+
+
+async def twitter__authenticate_user__user_exists(self, data, step=1):
+    if step == 1:
+        return {"authorize_url": "http://some-authorize-url.example.com"}
+    elif step == 2:
+        return {"access_token": "random-access-token", "sub": "foo"}
+    raise ValueError("Step should be either 1 or 2")
+
+
+async def twitter_get_request_token(self, loop=None, **params):
+    self.oauth_token = "oauth_token_example"
+    self.oauth_token_secret = "oauth_token_secret_example"
+    return self.oauth_token, self.oauth_token_secret, {}
+
+
+async def twitter_get_access_token(
+    self, oauth_verifier, request_token=None, loop=None, **params
+):
+    return (
+        "access_token_example",
+        "access_token_secret_example",
+        {"user_id": "sub_example"},
+    )
+
+
+def join(path, *paths):
+    return "tests/test-settings.toml"

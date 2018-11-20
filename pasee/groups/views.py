@@ -16,13 +16,14 @@ logger = logging.getLogger(__name__)
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
-    utils.enforce_authorization(request)
+    hostname = request.app.settings["hostname"]
+    utils.enforce_authorization(request.headers, request.app.settings)
     storage_backend = request.app.storage_backend
     groups = await storage_backend.get_groups()
     return serialize(
         request,
         coreapi.Document(
-            url="/groups/",
+            url=f"{hostname}/groups/",
             title="Groups of Identity Manager",
             content={
                 "groups": groups,
@@ -40,7 +41,7 @@ async def get_groups(request: web.Request) -> web.Response:
 async def post_groups(request: web.Request) -> web.Response:
     """Handler for POST /groups/
     """
-    claims = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
     input_data = await request.json()
     if "group" not in input_data:
         raise web.HTTPBadRequest(reason="Missing group")
@@ -72,7 +73,8 @@ async def post_groups(request: web.Request) -> web.Response:
 async def get_group(request: web.Request) -> web.Response:
     """Handler for GET /groups/{group_uid}
     """
-    claims = utils.enforce_authorization(request)
+    hostname = request.app.settings["hostname"]
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
 
@@ -86,7 +88,7 @@ async def get_group(request: web.Request) -> web.Response:
     return serialize(
         request,
         coreapi.Document(
-            url=f"/groups/{group}/",
+            url=f"{hostname}/groups/{{group}}/",
             title=f"{group} group management interface",
             content={
                 "members": members,
@@ -105,7 +107,7 @@ async def post_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    claims = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
     input_data = await request.json()
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
@@ -130,7 +132,7 @@ async def delete_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    claims = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
 
@@ -148,7 +150,7 @@ async def delete_group(request: web.Request) -> web.Response:
 async def delete_group_member(request: web.Request) -> web.Response:
     """Delete group member of group
     """
-    claims = utils.enforce_authorization(request)
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
     member = request.match_info["member_uid"]

@@ -21,7 +21,7 @@ from pasee.utils import import_class
 
 
 def load_conf(
-    settings_path: Optional[str],
+    settings_path: Optional[str] = None,
     host: str = None,
     port: int = None,
     identity_backend_class: str = None,

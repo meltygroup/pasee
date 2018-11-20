@@ -26,7 +26,6 @@ def setup_package():
             "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
         ],
-        package_dir={"": "src"},
         install_requires=[
             "aiohttp>=3.2.1,<4",
             "aiohttp-cors==0.7.0",
@@ -52,9 +51,10 @@ def setup_package():
                 "bandit",
                 "black",
                 "mypy",
+                "freezegun",
             ]
         },
-        packages=find_packages("src"),
+        packages=find_packages(),
     )
 
 

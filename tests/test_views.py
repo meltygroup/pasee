@@ -4,7 +4,7 @@ import pytest
 from aioresponses import aioresponses
 
 from pasee.pasee import identification_app
-from tests import mocks
+import mocks
 
 
 async def load_fake_data(app):
@@ -40,6 +40,8 @@ async def load_fake_data(app):
                 "kisee-guytoadd"
             ), (
                 "kisee-guytodel"
+            ), (
+                "twitter-foo"
             )
             """
         )
@@ -78,7 +80,7 @@ async def load_fake_data(app):
             ), (
                 'kisee-toto', 'get_group'
             ), (
-                'kisee-guytodel', 'get_group' 
+                'kisee-guytodel', 'get_group'
             )
             """
         )
@@ -108,16 +110,16 @@ async def test_get_tokens(client):
 
 async def test_post_tokens__twitter(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
         mocks.twitter__authenticate_user,
     )
-    response = await client.post("/tokens/?idp=twitter", json={"login": "test"})
+    response = await client.post("/tokens/?idp=twitter")
     assert response.status == 201
 
 
 async def test_get_tokens__twitter_callback(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
         mocks.twitter__authenticate_user,
     )
     response = await client.get(
@@ -127,9 +129,29 @@ async def test_get_tokens__twitter_callback(client, monkeypatch):
     assert response.status == 200
 
 
+async def test_get_tokens__twitter_callback__user_exists(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.identity_providers.twitter.TwitterIdentityProvider.authenticate_user",
+        mocks.twitter__authenticate_user__user_exists,
+    )
+    response = await client.get(
+        "/tokens/?idp=twitter&oauth_verifier=some_random_token&oauth_token=some_random_token",
+        json={"login": "test"},
+    )
+    assert response.status == 200
+
+
+async def test_get_tokens__oauth_unknown_idp(client):
+    response = await client.get(
+        "/tokens/?idp=unknown&oauth_verifier=some_random_token&oauth_token=some_random_token",
+        json={"login": "test"},
+    )
+    assert response.status == 400
+
+
 async def test_post_tokens(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        "pasee.identity_providers.kisee.KiseeIdentityProvider._decode_token",
         mocks.decode_token,
     )
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
@@ -211,7 +233,7 @@ async def test_post_tokens(client, monkeypatch):
 
 async def test_post_tokens__creates_new_user(client, monkeypatch):
     monkeypatch.setattr(
-        "identity_providers.kisee.KiseeIdentityProvider._decode_token",
+        "pasee.identity_providers.kisee.KiseeIdentityProvider._decode_token",
         mocks.decode_token__new_user,
     )
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:

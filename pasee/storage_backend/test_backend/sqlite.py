@@ -49,21 +49,25 @@ class TestSqliteStorage(StorageBackend):
         #             "kisee-tata"
         #         ), (
         #             "twitter-1052137762525208577"
+        #         ), (
+        #             "kisee-2391272"
         #         )
         #     """
         #     )
         #     cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
-        # cursor.execute(
-        #     """
-        #     INSERT INTO user_in_group(
-        #         user, group_name
-        #     ) VALUES (
-        #         "kisee-toto", "staff"
-        #     ), (
-        #         "twitter-1052137762525208577", "staff"
+        #     cursor.execute(
+        #         """
+        #         INSERT INTO user_in_group(
+        #             user, group_name
+        #         ) VALUES (
+        #             "kisee-toto", "staff"
+        #         ), (
+        #             "twitter-1052137762525208577", "staff"
+        #         ), (
+        #             "kisee-2391272", "staff"
+        #         )
+        #         """
         #     )
-        #     """
-        # )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.connection.close()

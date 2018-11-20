@@ -1,25 +1,4 @@
-host = "0.0.0.0"
-port = 8150
 hostname = "http://127.0.0.1:8150"
-
-# Generated using:
-#
-#    openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
-#
-# Yes we know P-256 is a bad one, but for compatibility with JS
-# clients for the moment we can't really do better.
-private_key = """-----BEGIN EC PRIVATE KEY-----
-MHQCAQEEIJoeYe+EUPAPiQBTxvgV7qW0gMUbyGZLBKlIvXrarNIhoAcGBSuBBAAK
-oUQDQgAEgLwEAlfrY/AJrS4bCzg2pEhXrT5Zu3crmVu3bgkvT/P7bsq4lu20o8kW
-Qd/srSRCb7kvz9xQQMVLLemrebXZCA==
------END EC PRIVATE KEY-----"""
-# Generated using:
-# openssl ec -in secp256k1.pem -pubout > secp256k1.pub
-public_key = """-----BEGIN PUBLIC KEY-----
-MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEgLwEAlfrY/AJrS4bCzg2pEhXrT5Zu3cr
-mVu3bgkvT/P7bsq4lu20o8kWQd/srSRCb7kvz9xQQMVLLemrebXZCA==
------END PUBLIC KEY-----"""
-algorithm = "ES256"
 
 [storage_backend]
     #class = "pasee.storage_backend.test_backend.dictionary.TestDictionaryStorage"

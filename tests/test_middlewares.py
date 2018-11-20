@@ -4,7 +4,7 @@ import pytest
 from aioresponses import aioresponses
 
 from pasee.pasee import identification_app
-from tests import mocks
+import mocks
 
 
 @pytest.fixture

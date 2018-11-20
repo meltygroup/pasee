@@ -22,7 +22,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         self.name = "kisee"
         self.action_to_endpoint: Dict = dict()
 
-    async def _identify_to_kisee(self, data):
+    async def _identify_to_kisee(self, data: LoginCredentials):
         """Async request to identify to kisee"""
         create_token_endpoint = await self.get_endpoint("create-token")
         async with aiohttp.ClientSession() as session:
@@ -45,13 +45,13 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         return kisee_response
 
     def _decode_token(self, token: str):
-        """Decode token with public keys
+        """Decode token with public keys.
         """
         for public_key in self.public_keys:
             try:
-                decoded = jwt.decode(token, public_key)
+                decoded = jwt.decode(token, public_key, algorithms="ES256")
                 return decoded
-            except ValueError:
+            except (ValueError, jwt.DecodeError):
                 pass
         raise web.HTTPInternalServerError()
 
