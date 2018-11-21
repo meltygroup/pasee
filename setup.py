@@ -52,6 +52,7 @@ def setup_package():
                 "black",
                 "mypy",
                 "freezegun",
+                "pytest-asyncio",
             ]
         },
         packages=find_packages(),

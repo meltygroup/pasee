@@ -1,4 +1,3 @@
-from asyncio import run
 import json
 
 import aiohttp
@@ -53,60 +52,65 @@ def fake_kisee():
         yield mocked
 
 
-def test_endpoint_discovery(provider, fake_kisee):
-    assert run(provider.get_endpoint()) == "http://kisee.example.com/"
+@pytest.mark.asyncio
+async def test_endpoint_discovery(provider, fake_kisee):
+    assert (await provider.get_endpoint()) == "http://kisee.example.com/"
     for _ in range(3):
         assert (
-            run(provider.get_endpoint("create-token"))
-            == "http://kisee.example.com/jwt/"
-        )
+            await provider.get_endpoint("create-token")
+        ) == "http://kisee.example.com/jwt/"
 
 
 def test_name(provider):
-    assert provider.get_name() == "kisee"
+    provider.get_name() == "kisee"
 
 
-def test_kisee_idp_succeed(provider, test_token, fake_kisee):
+@pytest.mark.asyncio
+async def test_kisee_idp_succeed(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
         status=201,
         body=json.dumps({"tokens": [test_token]}),
     )
-    claims = run(provider.authenticate_user({"login": "toto", "password": "toto"}))
+    claims = await provider.authenticate_user({"login": "toto", "password": "toto"})
     assert claims["sub"] == "kisee-toto"
 
 
-def test_kisee_idp_missing_field(provider, test_token, fake_kisee):
+@pytest.mark.asyncio
+async def test_kisee_idp_missing_field(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
         status=201,
         body=json.dumps({"tokens": [test_token]}),
     )
     with pytest.raises(aiohttp.web_exceptions.HTTPBadRequest):
-        run(provider.authenticate_user({"login": "toto"}))
+        await provider.authenticate_user({"login": "toto"})
 
 
-def test_kisee_idp_bad_token(provider, test_token, fake_kisee):
+@pytest.mark.asyncio
+async def test_kisee_idp_bad_token(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
         status=201,
         body=json.dumps({"tokens": [test_token[::-1]]}),
     )
     with pytest.raises(aiohttp.web_exceptions.HTTPInternalServerError):
-        run(provider.authenticate_user({"login": "toto", "password": "toto"}))
+        await provider.authenticate_user({"login": "toto", "password": "toto"})
 
 
-def test_kisee_idp_bad_password(provider, fake_kisee):
+@pytest.mark.asyncio
+async def test_kisee_idp_bad_password(provider, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/", status=403, body=json.dumps({"_type": "error"})
     )
     with pytest.raises(aiohttp.web_exceptions.HTTPForbidden):
-        run(provider.authenticate_user({"login": "toto", "password": "toto"}))
+        await provider.authenticate_user({"login": "toto", "password": "toto"})
 
 
-def test_kisee_idp_service_failure(provider, fake_kisee):
+@pytest.mark.asyncio
+async def test_kisee_idp_service_failure(provider, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/", status=500, body=json.dumps({"_type": "error"})
     )
     with pytest.raises(aiohttp.web_exceptions.HTTPBadGateway):
-        run(provider.authenticate_user({"login": "toto", "password": "toto"}))
+        await provider.authenticate_user({"login": "toto", "password": "toto"})
