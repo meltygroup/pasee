@@ -1,5 +1,3 @@
-from asyncio import run
-
 import pytest
 
 from pasee.storage_backend.test_backend.sqlite import TestSqliteStorage
@@ -10,46 +8,55 @@ def sqlite_storage():
     return TestSqliteStorage({"file": ":memory:"})
 
 
-def test_get_authorizations_for_user(sqlite_storage):
+@pytest.mark.asyncio
+async def test_get_authorizations_for_user(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.get_authorizations_for_user(""))
+        await sqlite_storage.get_authorizations_for_user("")
 
 
-def test_create_group(sqlite_storage):
+@pytest.mark.asyncio
+async def test_create_group(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.create_group(""))
+        await sqlite_storage.create_group("")
 
 
-def test_get_groups(sqlite_storage):
+@pytest.mark.asyncio
+async def test_get_groups(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.get_groups())
+        await sqlite_storage.get_groups()
 
 
-def test_delete_group(sqlite_storage):
+@pytest.mark.asyncio
+async def test_delete_group(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.delete_group(""))
+        await sqlite_storage.delete_group("")
 
 
-def test_get_members_of_group(sqlite_storage):
+@pytest.mark.asyncio
+async def test_get_members_of_group(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.get_members_of_group(""))
+        await sqlite_storage.get_members_of_group("")
 
 
-def test_group_exists(sqlite_storage):
+@pytest.mark.asyncio
+async def test_group_exists(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.group_exists(""))
+        await sqlite_storage.group_exists("")
 
 
-def test_create_user(sqlite_storage):
+@pytest.mark.asyncio
+async def test_create_user(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.create_user(""))
+        await sqlite_storage.create_user("")
 
 
-def test_user_exists(sqlite_storage):
+@pytest.mark.asyncio
+async def test_user_exists(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.user_exists(""))
+        await sqlite_storage.user_exists("")
 
 
-def test_is_user_in_group(sqlite_storage):
+@pytest.mark.asyncio
+async def test_is_user_in_group(sqlite_storage):
     with pytest.raises(RuntimeError):
-        run(sqlite_storage.is_user_in_group("", ""))
+        await sqlite_storage.is_user_in_group("", "")

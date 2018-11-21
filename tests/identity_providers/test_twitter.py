@@ -1,5 +1,3 @@
-from asyncio import run
-
 import pytest
 from aiohttp import web
 
@@ -28,29 +26,32 @@ def test_name(provider):
     assert provider.get_name() == "twitter"
 
 
-def test_endpoint_discovery(provider):
+@pytest.mark.asyncio
+async def test_endpoint_discovery(provider):
     with pytest.raises(web.HTTPNotImplemented):
-        assert run(provider.get_endpoint())
+        assert await provider.get_endpoint()
 
 
-def test_authenticate_user_step_one_returns_authorize_url(provider, monkeypatch):
+@pytest.mark.asyncio
+async def test_authenticate_user_step_one_returns_authorize_url(provider, monkeypatch):
     monkeypatch.setattr(
         "pasee.identity_providers.twitter.TwitterClient.get_request_token",
         mocks.twitter_get_request_token,
     )
-    data = run(provider.authenticate_user({}, step=1))
+    data = await provider.authenticate_user({}, step=1)
     assert "authorize_url" in data
 
     monkeypatch.setattr(
         "pasee.identity_providers.twitter.TwitterClient.get_access_token",
         mocks.twitter_get_access_token,
     )
-    data = run(
-        provider.authenticate_user({"oauth_token": "", "oauth_verifier": ""}, step=2)
+    data = await provider.authenticate_user(
+        {"oauth_token": "", "oauth_verifier": ""}, step=2
     )
     assert "access_token" in data
 
 
-def test_authenticate_user_wrong_step_input(provider):
+@pytest.mark.asyncio
+async def test_authenticate_user_wrong_step_input(provider):
     with pytest.raises(ValueError):
-        assert run(provider.authenticate_user({}, step=3))
+        assert await provider.authenticate_user({}, step=3)
