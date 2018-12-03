@@ -148,7 +148,7 @@ class TestSqliteStorage(StorageBackend):
             "SELECT 1 FROM groups WHERE name = :group", {"group": group}
         ).fetchone()
 
-        return True if result else False
+        return bool(result)
 
     async def create_user(self, username):
         if self.connection is None:
@@ -165,7 +165,7 @@ class TestSqliteStorage(StorageBackend):
         result = cursor.execute(
             "SELECT 1 FROM users WHERE name = :user", {"user": user}
         ).fetchone()
-        return True if result else False
+        return bool(result)
 
     async def is_user_in_group(self, user: str, group: str) -> bool:
         if self.connection is None:
