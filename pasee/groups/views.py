@@ -52,7 +52,6 @@ async def post_groups(request: web.Request) -> web.Response:
 
     group_name = input_data["group"]
 
-    is_authorized_for_group(claims["groups"], group_name)
     if not is_authorized_for_group_create(claims["groups"], group_name):
         raise web.HTTPForbidden(reason="Not authorized to create group")
 
