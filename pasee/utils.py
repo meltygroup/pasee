@@ -1,6 +1,6 @@
 """Some functions not directly linked with the core of pasee but still usefull.
 """
-from typing import MutableMapping, Mapping, Union, Any, List
+from typing import MutableMapping, Mapping, Union, Any
 from importlib import import_module
 
 import jwt
@@ -56,4 +56,3 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
         raise Unauthorized("Expired signature") from err
     except jwt.InvalidTokenError as err:
         raise Unauthorized("Invalid token") from err
-

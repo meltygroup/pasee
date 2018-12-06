@@ -8,7 +8,11 @@ from aiohttp import web
 
 from pasee import utils
 from pasee.serializers import serialize
-from pasee.groups.utils import is_authorized_for_group
+from pasee.groups.utils import (
+    is_authorized_for_group,
+    is_authorized_for_group_create,
+    is_parent_group_staff,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +53,7 @@ async def post_groups(request: web.Request) -> web.Response:
     group_name = input_data["group"]
 
     is_authorized_for_group(claims["groups"], group_name)
-    if not is_authorized_for_group(claims["groups"], group_name):
+    if not is_authorized_for_group_create(claims["groups"], group_name):
         raise web.HTTPForbidden(reason="Not authorized to create group")
 
     storage_backend = request.app.storage_backend
@@ -60,8 +64,9 @@ async def post_groups(request: web.Request) -> web.Response:
 
     await storage_backend.create_group(group_name)
     await storage_backend.create_group(staff_group_name)
-    await storage_backend.add_member_to_group(claims["sub"], group_name)
-    await storage_backend.add_member_to_group(claims["sub"], staff_group_name)
+    if is_parent_group_staff(claims["groups"], group_name):
+        await storage_backend.add_member_to_group(claims["sub"], group_name)
+        await storage_backend.add_member_to_group(claims["sub"], staff_group_name)
 
     location = f"/groups/{group_name}/"
     return web.Response(status=201, headers={"Location": location})
