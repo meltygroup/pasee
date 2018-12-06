@@ -47,13 +47,10 @@ async def post_groups(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(reason="Missing group")
 
     group_name = input_data["group"]
-    group_name_splited = group_name.rsplit(".", 1)
-    group_name_root_staff = (
-        (group_name_splited[0] + ".staff") if len(group_name_splited) > 2 else "staff"
-    )
 
-    if group_name_root_staff not in claims["groups"]:
-        raise web.HTTPForbidden(reason="Restricted to staff")
+    is_authorized_for_group(claims["groups"], group_name)
+    if not is_authorized_for_group(claims["groups"], group_name):
+        raise web.HTTPForbidden(reason="Not authorized to create group")
 
     storage_backend = request.app.storage_backend
     staff_group_name = f"{group_name}.staff"
