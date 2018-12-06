@@ -7,7 +7,7 @@ import sqlite3
 from pasee.storage_interface import StorageBackend
 
 
-class TestSqliteStorage(StorageBackend):
+class DemoSqliteStorage(StorageBackend):
     """Exposing a simple backend that fetch authorizations from a dictionary.
     """
 

@@ -1,11 +1,11 @@
 import pytest
 
-from pasee.storage_backend.test_backend.sqlite import TestSqliteStorage
+from pasee.storage_backend.demo_backend.sqlite import DemoSqliteStorage
 
 
 @pytest.fixture
 def sqlite_storage():
-    return TestSqliteStorage({"file": ":memory:"})
+    return DemoSqliteStorage({"file": ":memory:"})
 
 
 @pytest.mark.asyncio

@@ -430,6 +430,18 @@ async def test_post_groups(client, monkeypatch):
     assert response.status == 400
 
 
+async def test_post_groups__parent_staff(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.post(
+        "/groups/",
+        json={"group": "my_group.somegroup"},
+        headers={"Authorization": "Bearer somefaketoken"},
+    )
+    assert response.status == 201
+
+
 async def test_post_groups__conflict(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization
