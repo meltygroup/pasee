@@ -45,7 +45,7 @@ async def get_root(request: web.Request) -> web.Response:
         },
     }
     return web.Response(
-        body=json.dumps(home, indent=4), content_type="application/json-home"
+        body=json.dumps(home, indent=4), content_type="application/json-home+json"
     )
 
 
