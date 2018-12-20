@@ -16,3 +16,5 @@ def test_import_storage_backend():
         import_class("my.dummy.path")
     with pytest.raises(ImportError):
         import_class("pasee.storage_backend.test_backend.UnknownClass")
+    with pytest.raises(ImportError):
+        import_class("pasee.storage_backend.demo_backend.sqlite.UnknownClassName")
