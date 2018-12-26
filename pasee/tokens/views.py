@@ -117,5 +117,6 @@ async def post_token(request: web.Request) -> web.Response:
             title="Create a token with Identify Provider",
             content=response_content,
         ),
+        headers={"Cache-Control": "no-store", "Pragma": "no-cache"},
         status=201,
     )

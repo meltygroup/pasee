@@ -27,7 +27,7 @@ def setup_package():
             "Programming Language :: Python :: 3.6",
         ],
         install_requires=[
-            "aiohttp>=3.2.1,<4",
+            "aiohttp==3.4.0",
             "aiohttp-cors==0.7.0",
             "coreapi>=2.3.3,<3",
             "cryptography>=2.2.2,<3",
