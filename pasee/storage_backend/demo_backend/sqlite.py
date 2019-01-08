@@ -102,6 +102,7 @@ class DemoSqliteStorage(StorageBackend):
         cursor.execute(
             "INSERT INTO groups (name) VALUES (:group_name)", {"group_name": group_name}
         )
+        self.connection.commit()
 
     async def get_groups(self) -> List[str]:
         """Get all groups
@@ -121,6 +122,7 @@ class DemoSqliteStorage(StorageBackend):
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
         cursor.execute("DELETE FROM groups WHERE name = :group", {"group": group})
+        self.connection.commit()
 
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
@@ -157,6 +159,7 @@ class DemoSqliteStorage(StorageBackend):
         cursor.execute(
             "INSERT INTO users(name) VALUES(:username)", {"username": username}
         )
+        self.connection.commit()
 
     async def user_exists(self, user: str) -> bool:
         if self.connection is None:
@@ -197,6 +200,7 @@ class DemoSqliteStorage(StorageBackend):
             """,
             {"user": member, "group": group},
         )
+        self.connection.commit()
 
     async def delete_member_in_group(self, member, group):
         """Delete member in group
@@ -211,3 +215,4 @@ class DemoSqliteStorage(StorageBackend):
             """,
             {"user": member, "group": group},
         )
+        self.connection.commit()

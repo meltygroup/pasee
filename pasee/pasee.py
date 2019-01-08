@@ -2,6 +2,7 @@
 """
 
 import os
+import logging
 from typing import Dict, Optional
 
 from aiohttp import web
@@ -18,6 +19,8 @@ from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
 from pasee.users import views as user_views
 from pasee.utils import import_class
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def load_conf(
