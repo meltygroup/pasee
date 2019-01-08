@@ -1,10 +1,12 @@
 """sqlite
 """
 from typing import List
-
+import logging
 import sqlite3
 
 from pasee.storage_interface import StorageBackend
+
+logger = logging.getLogger(__name__)
 
 
 class DemoSqliteStorage(StorageBackend):
@@ -38,36 +40,12 @@ class DemoSqliteStorage(StorageBackend):
             """
         )
 
-        # if self.options["file"] == ":memory:":
-        #     cursor.execute(
-        #         """
-        #         INSERT INTO users(
-        #             name
-        #         ) VALUES (
-        #             "kisee-toto"
-        #         ), (
-        #             "kisee-tata"
-        #         ), (
-        #             "twitter-1052137762525208577"
-        #         ), (
-        #             "kisee-2391272"
-        #         )
-        #     """
-        #     )
-        #     cursor.execute("INSERT INTO groups(name) VALUES ('staff')")
-        #     cursor.execute(
-        #         """
-        #         INSERT INTO user_in_group(
-        #             user, group_name
-        #         ) VALUES (
-        #             "kisee-toto", "staff"
-        #         ), (
-        #             "twitter-1052137762525208577", "staff"
-        #         ), (
-        #             "kisee-2391272", "staff"
-        #         )
-        #         """
-        #     )
+        cursor.execute(
+            """
+            CREATE UNIQUE INDEX group_name_index
+            on groups (name);
+            """
+        )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.connection.close()
@@ -104,13 +82,25 @@ class DemoSqliteStorage(StorageBackend):
         )
         self.connection.commit()
 
-    async def get_groups(self) -> List[str]:
-        """Get all groups
+    async def get_groups(self, last_element: str = "") -> List[str]:
+        """Get groups paginated by group name in alphabetical order
+        List of groups is returned by page of 20
+        last_element is the last know element returned in previous page
+        So passing the last element to this function will retrieve the next page
         """
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
-        results = cursor.execute("SELECT name FROM groups")
+        results = cursor.execute(
+            """
+            SELECT name
+            FROM groups
+            WHERE name > :last_element
+            ORDER BY name ASC
+            LIMIT 20
+            """,
+            {"last_element": last_element},
+        )
         groups = [group[0] for group in results]
         cursor.close()
         return groups

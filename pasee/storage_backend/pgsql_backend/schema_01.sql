@@ -6,3 +6,4 @@ CREATE TABLE IF NOT EXISTS user_in_group(
     group_name TEXT references groups(name),
     PRIMARY KEY(username, group_name)
 );
+CREATE INDEX groupname_order_by_asc ON groups (name ASC);

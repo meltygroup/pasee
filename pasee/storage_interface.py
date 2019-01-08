@@ -26,8 +26,11 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
         """
 
     @abstractmethod
-    async def get_groups(self) -> List[str]:
-        """Get all groups
+    async def get_groups(self, last_element: str = "") -> List[str]:
+        """Get groups paginated by group name in alphabetical order
+        List of groups is returned by page of 20
+        last_element is the last know element returned in previous page
+        So passing the last element to this function will retrieve the next page
         """
 
     @abstractmethod

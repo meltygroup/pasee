@@ -49,11 +49,23 @@ class PostgresStorage(StorageBackend):
         async with self.pool.acquire() as connection:
             await connection.execute("INSERT INTO groups(name) VALUES($1)", group_name)
 
-    async def get_groups(self) -> List[str]:
-        """Get all groups
+    async def get_groups(self, last_element: str = "") -> List[str]:
+        """Get groups paginated by group name in alphabetical order
+        List of groups is returned by page of 20
+        last_element is the last know element returned in previous page
+        So passing the last element to this function will retrieve the next page
         """
         async with self.pool.acquire() as connection:
-            results = await connection.fetch("SELECT name FROM groups")
+            results = await connection.fetch(
+                """
+                SELECT name
+                FROM groups
+                WHERE name > $1
+                ORDER BY name
+                LIMIT 20
+                """,
+                last_element,
+            )
             return [group[0] for group in results]
 
     async def delete_group(self, group: str):

@@ -2,6 +2,7 @@
 """
 
 import logging
+from typing import List
 
 import coreapi
 from aiohttp import web
@@ -13,6 +14,8 @@ from pasee.groups.utils import (
     is_authorized_for_group_create,
     is_parent_group_staff,
 )
+from pasee.utils import is_root
+from pasee import Unauthorized
 
 logger = logging.getLogger(__name__)
 
@@ -21,23 +24,37 @@ async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
     hostname = request.app.settings["hostname"]
-    utils.enforce_authorization(request.headers, request.app.settings)
-    storage_backend = request.app.storage_backend
-    groups = await storage_backend.get_groups()
+    groups: List = []
+
+    try:
+        claims = utils.enforce_authorization(request.headers, request.app.settings)
+        if is_root(claims["groups"]):
+            last_element = request.rel_url.query.get("last_element", "")
+            groups = await request.app.storage_backend.get_groups(last_element)
+    except Unauthorized:
+        pass
+    content = {
+        "groups": [
+            coreapi.Document(url=f"{hostname}/groups/{group}/", content={"name": group})
+            for group in groups
+        ],
+        "create_group": coreapi.Link(
+            action="post",
+            title="Create a group",
+            description="A method to create a group by a staff member",
+            fields=[coreapi.Field(name="group", required=True)],
+        ),
+    }
+    if groups:
+        content["next"] = coreapi.Link(
+            url=f"{hostname}/groups/?last_element={groups[-1]}"
+        )
     return serialize(
         request,
         coreapi.Document(
             url=f"{hostname}/groups/",
             title="Groups of Identity Manager",
-            content={
-                "groups": groups,
-                "create_group": coreapi.Link(
-                    action="post",
-                    title="Create a group",
-                    description="A method to create a group by a staff member",
-                    fields=[coreapi.Field(name="group", required=True)],
-                ),
-            },
+            content=content,
         ),
     )
 

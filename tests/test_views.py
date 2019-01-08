@@ -405,11 +405,28 @@ async def test_post_tokens__refresh_token__missing_header(client, monkeypatch):
     assert response.status == 400
 
 
-async def test_get_groups(client, monkeypatch):
+async def test_get_groups(client):
+    response = await client.get("/groups/")
+    assert response.status == 200
+
+
+async def test_get_groups__with_authorization_header(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization
     )
-    response = await client.get("/groups/")
+    response = await client.get(
+        "/groups/", headers={"Authorization": "Bearer faketoken"}
+    )
+    assert response.status == 200
+
+
+async def test_get_groups__with_authorization_header_non_staff(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.get(
+        "/groups/", headers={"Authorization": "Bearer faketoken"}
+    )
     assert response.status == 200
 
 
