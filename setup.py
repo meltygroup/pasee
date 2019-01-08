@@ -36,6 +36,7 @@ def setup_package():
             "shortuuid>=0.5.0",
             "asyncpg==0.18.2",
             "aioauth-client",
+            "sentry-sdk==0.6.6",
         ],
         entry_points={"console_scripts": ["pasee = pasee.__main__:main"]},
         extras_require={
