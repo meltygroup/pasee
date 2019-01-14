@@ -42,7 +42,7 @@ class DemoSqliteStorage(StorageBackend):
 
         cursor.execute(
             """
-            CREATE UNIQUE INDEX group_name_index
+            CREATE UNIQUE INDEX IF NOT EXISTS group_name_index
             on groups (name);
             """
         )
@@ -113,6 +113,18 @@ class DemoSqliteStorage(StorageBackend):
         cursor = self.connection.cursor()
         cursor.execute("DELETE FROM groups WHERE name = :group", {"group": group})
         self.connection.commit()
+
+    async def get_users(self, last_element: str = ""):
+        """Get users
+        """
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
+        results = cursor.execute(
+            "SELECT * FROM users WHERE name > :name ORDER BY name ASC LIMIT 50",
+            {"name": last_element},
+        )
+        return [elem[0] for elem in results]
 
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group

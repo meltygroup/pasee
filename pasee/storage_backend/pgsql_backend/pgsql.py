@@ -68,6 +68,20 @@ class PostgresStorage(StorageBackend):
             )
             return [group[0] for group in results]
 
+    async def get_users(self, last_element: str = ""):
+        async with self.pool.acquire() as connection:
+            results = await connection.fetch(
+                """
+                SELECT username
+                FROM users
+                WHERE username > $1
+                ORDER BY username ASC
+                LIMIT 50
+                """,
+                last_element,
+            )
+            return [group[0] for group in results]
+
     async def delete_group(self, group: str):
         """Delete group
         """
