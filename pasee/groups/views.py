@@ -12,9 +12,8 @@ from pasee.serializers import serialize
 from pasee.groups.utils import (
     is_authorized_for_group,
     is_authorized_for_group_create,
-    is_parent_group_staff,
+    is_root,
 )
-from pasee.utils import is_root
 from pasee import Unauthorized
 
 logger = logging.getLogger(__name__)
@@ -80,9 +79,7 @@ async def post_groups(request: web.Request) -> web.Response:
 
     await storage_backend.create_group(group_name)
     await storage_backend.create_group(staff_group_name)
-    if is_parent_group_staff(claims["groups"], group_name):
-        await storage_backend.add_member_to_group(claims["sub"], group_name)
-        await storage_backend.add_member_to_group(claims["sub"], staff_group_name)
+    await storage_backend.add_member_to_group(claims["sub"], staff_group_name)
 
     location = f"/groups/{group_name}/"
     return web.Response(status=201, headers={"Location": location})
