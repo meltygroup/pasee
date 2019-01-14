@@ -42,7 +42,7 @@ class DemoSqliteStorage(StorageBackend):
 
         cursor.execute(
             """
-            CREATE UNIQUE INDEX group_name_index
+            CREATE UNIQUE INDEX IF NOT EXISTS group_name_index
             on groups (name);
             """
         )
