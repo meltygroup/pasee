@@ -433,6 +433,117 @@ async def test_get_users__as_staff(client, monkeypatch):
         assert response.status == 200
 
 
+async def test_get_users__as_staff_with_after_query_string(client, monkeypatch):
+    with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
+        )
+        monkeypatch.setattr(
+            "pasee.utils.enforce_authorization", mocks.enforce_authorization
+        )
+
+        response = await client.get(
+            "/users/?after=kisee-42", headers={"Authorization": "Bearer somefaketoken"}
+        )
+        assert response.status == 200
+
+
+async def test_get_users__as_staff_with_random_query_string(client, monkeypatch):
+    with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
+        )
+        monkeypatch.setattr(
+            "pasee.utils.enforce_authorization", mocks.enforce_authorization
+        )
+
+        response = await client.get(
+            "/users/?random-param=random-value",
+            headers={"Authorization": "Bearer somefaketoken"},
+        )
+        assert response.status == 200
+
+
 async def test_get_users__as_non_staff(client, monkeypatch):
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
         mocked.get(
