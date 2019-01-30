@@ -39,6 +39,11 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
         """
 
     @abstractmethod
+    async def get_users(self, last_element: str = ""):
+        """Get users
+        """
+
+    @abstractmethod
     async def get_members_of_group(self, group) -> List[str]:
         """Get members of group
         """

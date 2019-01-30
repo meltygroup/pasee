@@ -33,6 +33,12 @@ async def test_delete_group(sqlite_storage):
 
 
 @pytest.mark.asyncio
+async def test_get_users(sqlite_storage):
+    with pytest.raises(RuntimeError):
+        await sqlite_storage.get_users("")
+
+
+@pytest.mark.asyncio
 async def test_get_members_of_group(sqlite_storage):
     with pytest.raises(RuntimeError):
         await sqlite_storage.get_members_of_group("")
