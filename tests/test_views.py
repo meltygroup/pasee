@@ -852,6 +852,18 @@ async def test_post_group__raises_not_found_user(client, monkeypatch):
     assert response.status == 404
 
 
+async def test_post_group__raises_user_already_in_group(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.post(
+        "/groups/get_group/",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"member": "kisee-toto"},
+    )
+    assert response.status == 400
+
+
 async def test_post_group__raises_unprocessable_entity(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization

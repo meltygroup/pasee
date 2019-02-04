@@ -138,6 +138,8 @@ async def post_group(request: web.Request) -> web.Response:
     member = input_data["member"]
     if not await storage_backend.user_exists(member):
         raise web.HTTPNotFound(reason="Member to add does not exist")
+    if await storage_backend.is_user_in_group(member, group):
+        raise web.HTTPBadRequest(reason="User already in group")
 
     await storage_backend.add_member_to_group(member, group)
     return web.Response(status=201)

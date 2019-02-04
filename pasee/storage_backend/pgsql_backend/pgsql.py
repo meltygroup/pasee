@@ -145,7 +145,7 @@ class PostgresStorage(StorageBackend):
         """Verify that user is in group
         """
         async with self.pool.acquire() as connection:
-            result = await connection.execute(
+            result = await connection.fetch(
                 """
                 SELECT 1
                 FROM user_in_group

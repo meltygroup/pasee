@@ -19,7 +19,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         super().__init__(settings, **kwargs)
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
-        self.name = "kisee"
+        self.name = self.settings["name"]
         self.action_to_endpoint: Dict = dict()
 
     async def _identify_to_kisee(self, data: LoginCredentials):
