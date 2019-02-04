@@ -48,10 +48,12 @@ async def authenticate_with_identity_provider(request: web.Request) -> Claims:
         raise web.HTTPBadRequest(
             reason="Identity provider not provided in query string"
         )
-    if identity_provider_input not in identity_providers.BACKENDS:
+    if identity_provider_input not in request.app.settings["idps"]:
         raise web.HTTPBadRequest(reason="Identity provider not implemented")
 
-    identity_provider_path = identity_providers.BACKENDS[identity_provider_input]
+    identity_provider_path = request.app.settings["idps"][identity_provider_input][
+        "implementation"
+    ]
     identity_provider_settings = request.app.settings["idps"][identity_provider_input]
     identity_provider = import_class(identity_provider_path)(identity_provider_settings)
 

@@ -28,6 +28,7 @@ def provider():
         {
             "settings": {"public_keys": [PUBLIC_KEY]},
             "endpoint": "http://kisee.example.com/",
+            "name": "kisee",
         }
     )
 
