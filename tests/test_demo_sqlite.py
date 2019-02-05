@@ -66,3 +66,9 @@ async def test_user_exists(sqlite_storage):
 async def test_is_user_in_group(sqlite_storage):
     with pytest.raises(RuntimeError):
         await sqlite_storage.is_user_in_group("", "")
+
+
+@pytest.mark.asyncio
+async def test_get_groups_of_user(sqlite_storage):
+    with pytest.raises(RuntimeError):
+        await sqlite_storage.get_groups_of_user("")

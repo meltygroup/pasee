@@ -105,6 +105,29 @@ class DemoSqliteStorage(StorageBackend):
         cursor.close()
         return groups
 
+    async def get_groups_of_user(self, user: str, last_element: str = "") -> List[str]:
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+
+        cursor = self.connection.cursor()
+        results = cursor.execute(
+            """
+            SELECT groups.name
+            FROM groups
+            JOIN user_in_group
+                ON groups.name = user_in_group.group_name
+            WHERE
+                user_in_group.user = :user
+                AND groups.name > :last_element
+            ORDER BY groups.name ASC
+            LIMIT 20
+            """,
+            {"user": user, "last_element": last_element},
+        )
+        groups = [group[0] for group in results]
+        cursor.close()
+        return groups
+
     async def delete_group(self, group: str):
         """Delete group
         """
