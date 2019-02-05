@@ -651,6 +651,16 @@ async def test_get_groups__with_authorization_header_non_staff(client, monkeypat
     assert response.status == 200
 
 
+async def test_get_groups__of_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.get(
+        "/groups/?user=kisee-toto", headers={"Authorization": "Bearer faketoken"}
+    )
+    assert response.status == 200
+
+
 async def test_post_groups(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization", mocks.enforce_authorization

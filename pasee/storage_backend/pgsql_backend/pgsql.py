@@ -68,6 +68,25 @@ class PostgresStorage(StorageBackend):
             )
             return [group[0] for group in results]
 
+    async def get_groups_of_user(self, user: str, last_element: str = "") -> List[str]:
+        async with self.pool.acquire() as connection:
+            results = await connection.fetch(
+                """
+                SELECT groups.name
+                FROM groups
+                JOIN user_in_group
+                    ON groups.name = user_in_group.group_name
+                WHERE
+                    user_in_group.username = $1
+                    AND groups.name > $2
+                ORDER BY groups.name ASC
+                LIMIT 20
+                """,
+                user,
+                last_element,
+            )
+        return [group[0] for group in results]
+
     async def get_users(self, last_element: str = ""):
         async with self.pool.acquire() as connection:
             results = await connection.fetch(

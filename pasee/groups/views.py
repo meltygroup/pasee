@@ -28,8 +28,14 @@ async def get_groups(request: web.Request) -> web.Response:
     try:
         claims = utils.enforce_authorization(request.headers, request.app.settings)
         if is_root(claims["groups"]):
+            user = request.rel_url.query.get("user")
             last_element = request.rel_url.query.get("last_element", "")
-            groups = await request.app.storage_backend.get_groups(last_element)
+            if not user:
+                groups = await request.app.storage_backend.get_groups(last_element)
+            else:
+                groups = await request.app.storage_backend.get_groups_of_user(
+                    user, last_element
+                )
     except Unauthorized:
         pass
     content = {
@@ -42,6 +48,12 @@ async def get_groups(request: web.Request) -> web.Response:
             title="Create a group",
             description="A method to create a group by a staff member",
             fields=[coreapi.Field(name="group", required=True)],
+        ),
+        "get_groups_of_user": coreapi.Link(
+            action="get",
+            title="Get groups of user",
+            description="Get list of groups of a user",
+            url=f"{hostname}/groups/{{?user}}",
         ),
     }
     if groups:
