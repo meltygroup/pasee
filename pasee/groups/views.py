@@ -14,7 +14,7 @@ from pasee.groups.utils import (
     is_authorized_for_group_create,
     is_root,
 )
-from pasee import Unauthorized
+from pasee import Unauthorized, Unauthenticated
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ async def get_groups(request: web.Request) -> web.Response:
     """
     hostname = request.app.settings["hostname"]
     groups: List = []
+    errors: List[coreapi.Error] = []
 
     try:
         claims = utils.enforce_authorization(request.headers, request.app.settings)
@@ -36,8 +37,11 @@ async def get_groups(request: web.Request) -> web.Response:
                 groups = await request.app.storage_backend.get_groups_of_user(
                     user, last_element
                 )
-    except Unauthorized:
+    except Unauthorized as unauthorized_error:
+        errors.append(coreapi.Error(content={"reason": unauthorized_error.reason}))
+    except Unauthenticated:
         pass
+
     content = {
         "groups": [
             coreapi.Document(url=f"{hostname}/groups/{group}/", content={"name": group})
@@ -55,6 +59,7 @@ async def get_groups(request: web.Request) -> web.Response:
             description="Get list of groups of a user",
             url=f"{hostname}/groups/{{?user}}",
         ),
+        "errors": errors,
     }
     if groups:
         content["next"] = coreapi.Link(

@@ -6,7 +6,7 @@ from typing import Callable
 
 from aiohttp import web
 
-from pasee import Unauthorized
+from pasee import Unauthorized, Unauthenticated
 from pasee.serializers import serialize
 
 
@@ -32,7 +32,7 @@ async def transform_unauthorized(request: web.Request, handler: Callable) -> Cal
     """
     try:
         return await handler(request)
-    except Unauthorized as err:
+    except (Unauthorized, Unauthenticated) as err:
         raise web.HTTPBadRequest(
             reason=err.reason, headers={"WWW-Authenticate": "Bearer"}
         )
