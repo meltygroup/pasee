@@ -80,8 +80,11 @@ class KiseeIdentityProvider(IdentityProviderBackend):
             return self.action_to_endpoint[action]
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.endpoint) as response:
-                root = await response.json()
+            try:
+                async with session.get(self.endpoint) as response:
+                    root = await response.json()
+            except aiohttp.client_exceptions.ClientConnectorError:
+                raise web.HTTPServiceUnavailable(reason="kisee not responding")
 
         self.action_to_endpoint[action] = root["actions"][action]["href"]
         return self.action_to_endpoint[action]

@@ -231,6 +231,13 @@ async def test_post_tokens(client, monkeypatch):
         assert response.status == 201
 
 
+async def test_post_tokens__kisee_not_available(client):
+    response = await client.post(
+        "/tokens/?idp=kisee", json={"login": "toto@localhost.com", "password": "toto"}
+    )
+    assert response.status == 503
+
+
 async def test_post_tokens__creates_new_user(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.identity_providers.kisee.KiseeIdentityProvider._decode_token",
