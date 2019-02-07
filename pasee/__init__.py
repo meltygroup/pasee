@@ -19,3 +19,13 @@ class Unauthorized(PaseeException):
     def __init__(self, reason, **kwargs):
         self.reason = reason
         super().__init__(**kwargs)
+
+
+class Unauthenticated(PaseeException):
+    """An exception used to distinguish incoming requests showing authentication
+    and requests without authentication
+    """
+
+    def __init__(self, reason, **kwargs):
+        self.reason = reason
+        super().__init__(**kwargs)

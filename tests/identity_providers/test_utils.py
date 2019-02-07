@@ -2,7 +2,7 @@ import pytest
 import pytoml
 
 from pasee.identity_providers.utils import get_identity_provider_with_capability
-from pasee.utils import enforce_authorization, Unauthorized
+from pasee.utils import enforce_authorization, Unauthorized, Unauthenticated
 
 PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEgLwEAlfrY/AJrS4bCzg2pEhXrT5Zu3cr
@@ -46,7 +46,7 @@ def test_get_identity_provider_with_capability_not_found(settings):
 
 
 def test_enforce_authorization__missing_authorization_header():
-    with pytest.raises(Unauthorized):
+    with pytest.raises(Unauthenticated):
         assert enforce_authorization({}, {})
 
 

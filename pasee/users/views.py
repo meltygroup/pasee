@@ -10,7 +10,7 @@ from urllib.parse import parse_qs
 import coreapi
 from aiohttp import web
 
-from pasee import Unauthorized
+from pasee import Unauthorized, Unauthenticated
 from pasee.serializers import serialize
 from pasee.identity_providers.utils import get_identity_provider_with_capability
 from pasee.groups.utils import is_root
@@ -29,6 +29,7 @@ async def get_users(request: web.Request) -> web.Response:
     register_user_endpoint = await identity_provider.get_endpoint("register-user")
 
     users: List[str] = []
+    errors: List[coreapi.Error] = []
     last_element = None
     try:
         claims = utils.enforce_authorization(request.headers, request.app.settings)
@@ -37,7 +38,9 @@ async def get_users(request: web.Request) -> web.Response:
             users = await request.app.storage_backend.get_users(after)
             last_element = users[-1] if users else None
 
-    except Unauthorized:
+    except Unauthorized as unauthorized_error:
+        errors.append(coreapi.Error(content={"reason": unauthorized_error.reason}))
+    except Unauthenticated:
         pass
 
     content = {
@@ -48,6 +51,7 @@ async def get_users(request: web.Request) -> web.Response:
             description="Get more information on how to self register",
             url=register_user_endpoint,
         ),
+        "errors": errors,
     }
 
     if last_element:

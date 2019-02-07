@@ -6,7 +6,7 @@ from importlib import import_module
 
 import jwt
 
-from pasee import Unauthorized
+from pasee import Unauthorized, Unauthenticated
 
 Claims = MutableMapping[str, Union[Any]]
 RequestHeaders = Mapping[str, Union[Any]]
@@ -39,7 +39,7 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
     function to allow easier mocking for test
     """
     if not headers.get("Authorization"):
-        raise Unauthorized("Missing authorization header")
+        raise Unauthenticated("Missing authorization header")
     try:
         scheme, token = headers.get("Authorization", "").strip().split(" ")
     except ValueError as err:

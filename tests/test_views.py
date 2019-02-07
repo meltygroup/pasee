@@ -385,6 +385,58 @@ async def test_get_users(client):
         assert response.status == 200
 
 
+async def test_get_users__corrupted_authorization_header(client, monkeypatch):
+    with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
+        mocked.get(
+            "http://dump-kisee-endpoint/",
+            status=200,
+            body=json.dumps(
+                {
+                    "resources": {
+                        "jwt": {
+                            "hints": {
+                                "allow": ["GET", "POST"],
+                                "formats": {"application/coreapi+json": {}},
+                            },
+                            "href": "/jwt/",
+                        }
+                    },
+                    "actions": {
+                        "register-user": {
+                            "fields": [
+                                {"name": "username", "required": True},
+                                {"required": True, "name": "password"},
+                                {"name": "email", "required": True},
+                            ],
+                            "href": "/users/",
+                            "method": "POST",
+                        },
+                        "create-token": {
+                            "method": "POST",
+                            "href": "/jwt/",
+                            "fields": [
+                                {"name": "login", "required": True},
+                                {"name": "password", "required": True},
+                            ],
+                        },
+                    },
+                    "api": {
+                        "links": {
+                            "describedBy": "https://doc.meltylab.fr",
+                            "author": "mailto:julien@palard.fr",
+                        },
+                        "title": "Identification Provider",
+                    },
+                }
+            ),
+        )
+
+        response = await client.get(
+            "/users/", headers={"Authorization": "not-event-bearer"}
+        )
+        assert response.status == 200
+
+
 async def test_get_users__as_staff(client, monkeypatch):
     with aioresponses(passthrough=["http://127.0.0.1:"]) as mocked:
         mocked.get(
@@ -635,6 +687,13 @@ async def test_post_tokens__refresh_token__missing_header(client, monkeypatch):
 
 async def test_get_groups(client):
     response = await client.get("/groups/")
+    assert response.status == 200
+
+
+async def test_get_groups__with_corrupted_authorization_header(client):
+    response = await client.get(
+        "/groups/", headers={"Authorization": "not-event-bearer-token"}
+    )
     assert response.status == 200
 
 
