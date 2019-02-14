@@ -26,6 +26,8 @@ class PostgresStorage(StorageBackend):
             password=self.password,
             host=self.host,
             port=self.port,
+            min_size=1,
+            max_size=5,
         )
 
     async def __aexit__(self, exc_type, exc_value, traceback):
