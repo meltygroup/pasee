@@ -44,7 +44,9 @@ async def get_groups(request: web.Request) -> web.Response:
 
     content = {
         "groups": [
-            coreapi.Document(url=f"{hostname}/groups/{group}/", content={"group": group})
+            coreapi.Document(
+                url=f"{hostname}/groups/{group}/", content={"group": group}
+            )
             for group in groups
         ],
         "create_group": coreapi.Link(

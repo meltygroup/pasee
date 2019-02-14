@@ -118,6 +118,7 @@ def identification_app(
             web.get("/tokens/", token_views.get_tokens, name="get_tokens"),
             web.post("/tokens/", token_views.post_token, name="post_tokens"),
             web.get("/users/", user_views.get_users),
+            web.get("/users/{user_uid}", user_views.get_user),
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
             web.get("/groups/{group_uid}/", group_views.get_group),
