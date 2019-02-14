@@ -118,13 +118,14 @@ def identification_app(
             web.get("/tokens/", token_views.get_tokens, name="get_tokens"),
             web.post("/tokens/", token_views.post_token, name="post_tokens"),
             web.get("/users/", user_views.get_users),
+            web.get("/users/{username}", user_views.get_user),
             web.get("/groups/", group_views.get_groups),
             web.post("/groups/", group_views.post_groups),
             web.get("/groups/{group_uid}/", group_views.get_group),
             web.delete("/groups/{group_uid}/", group_views.delete_group),
             web.post("/groups/{group_uid}/", group_views.post_group),
             web.delete(
-                "/groups/{group_uid}/{member_uid}/", group_views.delete_group_member
+                "/groups/{group_uid}/{username}/", group_views.delete_group_member
             ),
         ]
     )

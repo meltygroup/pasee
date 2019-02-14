@@ -77,7 +77,7 @@ def enforce_authorization_for_refresh_token_without_claim(headers, settings):
 def enforce_authorization__non_staff(headers, settings):
     return {
         "iss": "example.com",
-        "sub": "kisee-toto",
+        "sub": "kisee-tototo",
         "exp": 1536221551,
         "jti": "T4FVrRkN3rqeR6wR9Fxf6R",
         "groups": ["non_staff"],

@@ -44,7 +44,12 @@ async def get_users(request: web.Request) -> web.Response:
         pass
 
     content = {
-        "users": users,
+        "users": [
+            coreapi.Document(
+                url=f"{hostname}/groups/{user}/", content={"username": user}
+            )
+            for user in users
+        ],
         "Self service registration": coreapi.Link(
             action="get",
             title="Self service registration for identity provider",
@@ -76,5 +81,45 @@ async def get_users(request: web.Request) -> web.Response:
             url=f"{hostname}/users/",
             title="Users management interface",
             content=content,
+        ),
+    )
+
+
+async def get_user(request: web.Request) -> web.Response:
+    """Handlers for GET /users/{username}
+    List groups of {username}
+    """
+    hostname = request.app.settings["hostname"]
+    username = request.match_info["username"]
+
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    if not is_root(claims["groups"]) and not claims["sub"] == username:  # is user
+        raise web.HTTPForbidden(reason="Do not have rights to view user info")
+
+    last_element = request.rel_url.query.get("last_element", "")
+
+    if not await request.app.storage_backend.user_exists(username):
+        raise web.HTTPNotFound(reason="User does not exist")
+    groups = await request.app.storage_backend.get_groups_of_user(
+        username, last_element
+    )
+
+    content = {}
+
+    if groups:
+        content["next"] = coreapi.Link(
+            url=f"{hostname}/users/{username}?last_element={groups[-1]}"
+        )
+        content["groups"] = [
+            coreapi.Document(
+                url=f"{hostname}/groups/{group}/", content={"group": group}
+            )
+            for group in groups
+        ]
+
+    return serialize(
+        request,
+        coreapi.Document(
+            url=f"{hostname}/users/{username}", title="User interface", content=content
         ),
     )

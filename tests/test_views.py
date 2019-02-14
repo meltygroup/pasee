@@ -658,6 +658,46 @@ async def test_get_users__as_non_staff(client, monkeypatch):
         assert response.status == 200
 
 
+async def test_get_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.get(
+        "/users/kisee-toto", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 200
+
+
+async def test_get_user__no_groups(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.get(
+        "/users/kisee-restrictedguy", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 200
+
+
+async def test_get_user__user_does_not_exist(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.get(
+        "/users/kisee-hedoesnotexist", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 404
+
+
+async def test_get_user__not_authorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.get(
+        "/users/kisee-toto", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 403
+
+
 async def test_post_tokens__refresh_token(client, monkeypatch):
     monkeypatch.setattr(
         "pasee.utils.enforce_authorization",
@@ -899,7 +939,7 @@ async def test_post_group__success(client, monkeypatch):
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
-        json={"member": "kisee-guytoadd"},
+        json={"username": "kisee-guytoadd"},
     )
     assert response.status == 201
 
@@ -911,7 +951,7 @@ async def test_post_group__raises_not_found_group(client, monkeypatch):
     response = await client.post(
         "/groups/unknown_group/",
         headers={"Authorization": "Bearer somefaketoken"},
-        json={"member": "kisee-guytoadd"},
+        json={"username": "kisee-guytoadd"},
     )
     assert response.status == 404
 
@@ -923,7 +963,7 @@ async def test_post_group__raises_not_found_user(client, monkeypatch):
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
-        json={"member": "kisee-guytoadd-unknown"},
+        json={"username": "kisee-guytoadd-unknown"},
     )
     assert response.status == 404
 
@@ -935,7 +975,7 @@ async def test_post_group__raises_user_already_in_group(client, monkeypatch):
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
-        json={"member": "kisee-toto"},
+        json={"username": "kisee-toto"},
     )
     assert response.status == 400
 
@@ -959,6 +999,6 @@ async def test_post_group__raises_not_authorized(client, monkeypatch):
     response = await client.post(
         "/groups/get_group/",
         headers={"Authorization": "Bearer somefaketoken"},
-        json={"member": "kisee-guytoadd"},
+        json={"username": "kisee-guytoadd"},
     )
     assert response.status == 403

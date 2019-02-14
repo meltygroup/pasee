@@ -44,7 +44,9 @@ async def get_groups(request: web.Request) -> web.Response:
 
     content = {
         "groups": [
-            coreapi.Document(url=f"{hostname}/groups/{group}/", content={"name": group})
+            coreapi.Document(
+                url=f"{hostname}/groups/{group}/", content={"group": group}
+            )
             for group in groups
         ],
         "create_group": coreapi.Link(
@@ -150,15 +152,15 @@ async def post_group(request: web.Request) -> web.Response:
     if not await storage_backend.group_exists(group):
         raise web.HTTPNotFound(reason="Group does not exist")
 
-    if "member" not in input_data:
-        raise web.HTTPBadRequest(reason="Missing member in request body")
-    member = input_data["member"]
-    if not await storage_backend.user_exists(member):
-        raise web.HTTPNotFound(reason="Member to add does not exist")
-    if await storage_backend.is_user_in_group(member, group):
+    if "username" not in input_data:
+        raise web.HTTPBadRequest(reason="Missing username in request body")
+    username = input_data["username"]
+    if not await storage_backend.user_exists(username):
+        raise web.HTTPNotFound(reason="User to add does not exist")
+    if await storage_backend.is_user_in_group(username, group):
         raise web.HTTPBadRequest(reason="User already in group")
 
-    await storage_backend.add_member_to_group(member, group)
+    await storage_backend.add_member_to_group(username, group)
     return web.Response(status=201)
 
 
@@ -187,13 +189,13 @@ async def delete_group_member(request: web.Request) -> web.Response:
     claims = utils.enforce_authorization(request.headers, request.app.settings)
     storage_backend = request.app.storage_backend
     group = request.match_info["group_uid"]
-    member = request.match_info["member_uid"]
+    username = request.match_info["username"]
 
     if not await storage_backend.group_exists(group):
         raise web.HTTPNotFound(reason="Group does not exist")
     if not is_authorized_for_group(claims["groups"], group):
         raise web.HTTPForbidden(reason="Not authorized to manage group")
-    if not await storage_backend.is_user_in_group(member, group):
+    if not await storage_backend.is_user_in_group(username, group):
         raise web.HTTPNotFound(reason="User does not exist in group")
-    await storage_backend.delete_member_in_group(member, group)
+    await storage_backend.delete_member_in_group(username, group)
     return web.Response(status=204)
