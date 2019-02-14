@@ -45,7 +45,9 @@ async def get_users(request: web.Request) -> web.Response:
 
     content = {
         "users": [
-            coreapi.Document(url=f"{hostname}/groups/{user}/", content={"user": user})
+            coreapi.Document(
+                url=f"{hostname}/groups/{user}/", content={"username": user}
+            )
             for user in users
         ],
         "Self service registration": coreapi.Link(
@@ -84,29 +86,29 @@ async def get_users(request: web.Request) -> web.Response:
 
 
 async def get_user(request: web.Request) -> web.Response:
-    """Handlers for GET /users/{user-uid}
-    List groups of {user-uid}
+    """Handlers for GET /users/{username}
+    List groups of {username}
     """
     hostname = request.app.settings["hostname"]
-    user_uid = request.match_info["user_uid"]
+    username = request.match_info["username"]
 
     claims = utils.enforce_authorization(request.headers, request.app.settings)
-    if not is_root(claims["groups"]) and not claims["sub"] == user_uid:  # is user
+    if not is_root(claims["groups"]) and not claims["sub"] == username:  # is user
         raise web.HTTPForbidden(reason="Do not have rights to view user info")
 
     last_element = request.rel_url.query.get("last_element", "")
 
-    if not await request.app.storage_backend.user_exists(user_uid):
+    if not await request.app.storage_backend.user_exists(username):
         raise web.HTTPNotFound(reason="User does not exist")
     groups = await request.app.storage_backend.get_groups_of_user(
-        user_uid, last_element
+        username, last_element
     )
 
     content = {}
 
     if groups:
         content["next"] = coreapi.Link(
-            url=f"{hostname}/users/{user_uid}?last_element={groups[-1]}"
+            url=f"{hostname}/users/{username}?last_element={groups[-1]}"
         )
         content["groups"] = [
             coreapi.Document(
@@ -118,6 +120,6 @@ async def get_user(request: web.Request) -> web.Response:
     return serialize(
         request,
         coreapi.Document(
-            url=f"{hostname}/users/{user_uid}", title="User interface", content=content
+            url=f"{hostname}/users/{username}", title="User interface", content=content
         ),
     )
