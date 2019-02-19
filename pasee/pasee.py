@@ -130,8 +130,6 @@ def identification_app(
         ]
     )
 
-    allowed_cors = {"get_root", "get_tokens", "post_tokens", "get_public_key"}
-
     cors = aiohttp_cors.setup(
         app,
         defaults={
@@ -142,7 +140,6 @@ def identification_app(
     )
 
     for route in list(app.router.routes()):
-        if route.name in allowed_cors:
-            cors.add(route)
+        cors.add(route)
 
     return app
