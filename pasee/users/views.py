@@ -46,7 +46,7 @@ async def get_users(request: web.Request) -> web.Response:
     content = {
         "users": [
             coreapi.Document(
-                url=f"{hostname}/groups/{user}/", content={"username": user}
+                url=f"{hostname}/users/{user}/", content={"username": user}
             )
             for user in users
         ],
