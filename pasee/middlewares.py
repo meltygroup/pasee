@@ -63,6 +63,8 @@ SECURITY_HEADERS = {
 
 @web.middleware
 async def security_headers(request, handler):
+    """Add some security headers like CSP, Referrer-Policy and so on.
+    """
     response = await handler(request)
     response.headers.update(SECURITY_HEADERS)
     return response
