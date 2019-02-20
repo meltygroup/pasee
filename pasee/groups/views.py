@@ -130,7 +130,7 @@ async def get_group(request: web.Request) -> web.Response:
                     action="post",
                     title="Add a member to group",
                     description="A method to add a member to group",
-                    fields=[coreapi.Field(name="member", required=True)],
+                    fields=[coreapi.Field(name="username", required=True)],
                 ),
             },
         ),
