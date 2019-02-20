@@ -13,6 +13,7 @@ from pasee.middlewares import (
     verify_input_body_is_json,
     transform_unauthorized,
     coreapi_error_middleware,
+    security_headers,
 )
 from pasee import views, MissingSettings
 from pasee.groups import views as group_views
@@ -90,6 +91,7 @@ def identification_app(
             verify_input_body_is_json,
             transform_unauthorized,
             coreapi_error_middleware,
+            security_headers,
         ]
     )
 

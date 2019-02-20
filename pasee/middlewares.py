@@ -49,3 +49,20 @@ async def coreapi_error_middleware(request, handler):
         return serialize(
             request, {"_type": "error", "_meta": {"title": ex.reason}}, ex.status
         )
+
+
+SECURITY_HEADERS = {
+    "Content-Security-Policy": "default-src 'none'",
+    "Referrer-Policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+    "Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "deny",
+    "X-XSS-Protection": "1; mode=block",
+}
+
+
+@web.middleware
+async def security_headers(request, handler):
+    response = await handler(request)
+    response.headers.update(SECURITY_HEADERS)
+    return response
