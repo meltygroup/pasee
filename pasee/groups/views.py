@@ -125,7 +125,12 @@ async def get_group(request: web.Request) -> web.Response:
             url=f"{hostname}/groups/{{group}}/",
             title=f"{group} group management interface",
             content={
-                "members": members,
+                "members": [
+                    coreapi.Document(
+                        url=f"{hostname}/users/{member}/", content={"username": member}
+                    )
+                    for member in members
+                ],
                 "add_member": coreapi.Link(
                     action="post",
                     title="Add a member to group",
