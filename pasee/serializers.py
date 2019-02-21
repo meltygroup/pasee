@@ -12,8 +12,8 @@ def serialize(
     """Serialize the given document according to the Accept header of the
     given request.
     """
-    accept = request.headers.get("Accept")
-    codec = coreapi.utils.negotiate_encoder([coreapi.codecs.CoreJSONCodec()], accept)
+    del request
+    codec = coreapi.utils.negotiate_encoder([coreapi.codecs.CoreJSONCodec()], None)
     content = codec.dump(document)
     return web.Response(
         body=content, content_type=codec.media_type, headers=headers, status=status
