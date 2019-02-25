@@ -82,6 +82,7 @@ async def get_users(request: web.Request) -> web.Response:
             title="Users management interface",
             content=content,
         ),
+        headers={"Vary": "Origin"},
     )
 
 
@@ -122,4 +123,5 @@ async def get_user(request: web.Request) -> web.Response:
         coreapi.Document(
             url=f"{hostname}/users/{username}", title="User interface", content=content
         ),
+        headers={"Vary": "Origin"},
     )

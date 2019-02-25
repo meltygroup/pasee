@@ -74,6 +74,7 @@ async def get_groups(request: web.Request) -> web.Response:
             title="Groups of Identity Manager",
             content=content,
         ),
+        headers={"Vary": "Origin"},
     )
 
 
@@ -139,6 +140,7 @@ async def get_group(request: web.Request) -> web.Response:
                 ),
             },
         ),
+        headers={"Vary": "Origin"},
     )
 
 
