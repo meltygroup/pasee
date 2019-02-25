@@ -42,7 +42,9 @@ async def get_root(request: web.Request) -> web.Response:
         },
     }
     return web.Response(
-        body=json.dumps(home, indent=4), content_type="application/json-home+json"
+        body=json.dumps(home, indent=4),
+        headers={"Vary": "Origin"},
+        content_type="application/json-home+json",
     )
 
 
@@ -53,5 +55,6 @@ async def get_public_key(request: web.Request) -> web.Response:
     algorithm = request.app.settings["algorithm"]
     return web.Response(
         body=json.dumps({"public_key": public_key, "algorithm": algorithm}),
+        headers={"Vary": "Origin"},
         content_type="application/json",
     )
