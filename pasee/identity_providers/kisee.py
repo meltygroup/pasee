@@ -34,7 +34,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
                 if response.status == 403:
                     raise web.HTTPForbidden(reason="Can not authenticate on kisee")
-                elif response.status != 201:
+                if response.status != 201:
                     raise web.HTTPBadGateway(
                         reason="Something went wrong with identity provider"
                     )
