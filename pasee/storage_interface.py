@@ -83,3 +83,8 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
     async def delete_member_in_group(self, member, group):
         """Delete member in group
         """
+
+    @abstractmethod
+    async def delete_members_in_group(self, group):
+        """Delete all members of group
+        """

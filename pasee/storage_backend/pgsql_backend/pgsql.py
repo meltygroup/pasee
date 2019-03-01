@@ -40,9 +40,20 @@ class PostgresStorage(StorageBackend):
         """Claim list of groups an user belongs to
         """
         async with self.pool.acquire() as connection:
+
             results = await connection.fetch(
-                "SELECT group_name FROM user_in_group WHERE username = $1", user
+                """
+                SELECT groups.name
+                FROM groups
+                JOIN user_in_group
+                    ON groups.name = user_in_group.group_name
+                WHERE
+                    user_in_group.username = $1
+                ORDER BY groups.name ASC
+                """,
+                user,
             )
+
             return [elem[0] for elem in results]
 
     async def create_group(self, group_name):
@@ -106,8 +117,9 @@ class PostgresStorage(StorageBackend):
     async def delete_group(self, group: str):
         """Delete group
         """
+        await self.delete_members_in_group(group)
         async with self.pool.acquire() as connection:
-            connection.execute("DELETE FROM groups WHERE name = $1", group)
+            await connection.execute("DELETE FROM groups WHERE name = $1", group)
 
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
@@ -193,5 +205,15 @@ class PostgresStorage(StorageBackend):
                     group_name = $2
             """,
                 member,
+                group,
+            )
+
+    async def delete_members_in_group(self, group):
+        async with self.pool.acquire() as connection:
+            await connection.execute(
+                """
+                DELETE FROM user_in_group
+                WHERE group_name = $1
+            """,
                 group,
             )
