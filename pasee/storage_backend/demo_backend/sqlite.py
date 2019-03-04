@@ -65,8 +65,18 @@ class DemoSqliteStorage(StorageBackend):
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
+
         results = cursor.execute(
-            "SELECT group_name FROM user_in_group WHERE user = :user", {"user": user}
+            """
+            SELECT groups.name
+            FROM groups
+            JOIN user_in_group
+                ON groups.name = user_in_group.group_name
+            WHERE
+                user_in_group.user = :user
+            ORDER BY name ASC
+            """,
+            {"user": user},
         )
         return [elem[0] for elem in results]
 
@@ -131,6 +141,7 @@ class DemoSqliteStorage(StorageBackend):
     async def delete_group(self, group: str):
         """Delete group
         """
+        await self.delete_members_in_group(group)
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
@@ -239,5 +250,21 @@ class DemoSqliteStorage(StorageBackend):
             AND group_name = :group
             """,
             {"user": member, "group": group},
+        )
+        self.connection.commit()
+
+    async def delete_members_in_group(self, group):
+        """Delete all members of group
+        """
+        if self.connection is None:
+            return
+
+        cursor = self.connection.cursor()
+        cursor.execute(
+            """
+            DELETE FROM user_in_group
+            WHERE group_name = :group
+            """,
+            {"group": group},
         )
         self.connection.commit()
