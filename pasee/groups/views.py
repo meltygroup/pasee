@@ -163,7 +163,7 @@ async def post_group(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(reason="Missing username in request body")
     username = input_data["username"]
     if not await storage_backend.user_exists(username):
-        raise web.HTTPNotFound(reason="User to add does not exist")
+        await request.app.storage_backend.create_user(username)
     if await storage_backend.is_user_in_group(username, group):
         raise web.HTTPBadRequest(reason="User already in group")
 
