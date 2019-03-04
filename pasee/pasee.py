@@ -136,7 +136,10 @@ def identification_app(
         app,
         defaults={
             "*": aiohttp_cors.ResourceOptions(
-                allow_credentials=True, expose_headers="*", allow_headers="*"
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods=["GET", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"],
             )
         },
     )
