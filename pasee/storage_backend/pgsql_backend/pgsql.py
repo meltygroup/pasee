@@ -46,9 +46,11 @@ class PostgresStorage(StorageBackend):
                 SELECT groups.name
                 FROM groups
                 JOIN user_in_group
-                    ON groups.name = user_in_group.group_name
+                    ON groups.id = user_in_group.group_id
+                JOIN users
+                    ON user_in_group.user_id = users.id
                 WHERE
-                    user_in_group.username = $1
+                    users.username = $1
                 ORDER BY groups.name ASC
                 """,
                 user,
@@ -88,9 +90,11 @@ class PostgresStorage(StorageBackend):
                 SELECT groups.name
                 FROM groups
                 JOIN user_in_group
-                    ON groups.name = user_in_group.group_name
+                    ON groups.id = user_in_group.group_id
+                JOIN users
+                    ON user_in_group.user_id = users.id
                 WHERE
-                    user_in_group.username = $1
+                    users.username = $1
                     AND groups.name > $2
                 ORDER BY groups.name ASC
                 LIMIT 20
@@ -127,9 +131,11 @@ class PostgresStorage(StorageBackend):
         async with self.pool.acquire() as connection:
             results = await connection.fetch(
                 """
-                SELECT username
+                SELECT users.username
                 FROM user_in_group
-                WHERE group_name = $1
+                JOIN users ON users.id = user_in_group.user_id
+                JOIN groups ON groups.id = user_in_group.group_id
+                WHERE groups.name = $1
             """,
                 group,
             )
@@ -164,12 +170,12 @@ class PostgresStorage(StorageBackend):
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """
-                INSERT INTO user_in_group(
-                    username, group_name
-                ) VALUES (
-                    $1, $2
-                )
-            """,
+                INSERT INTO user_in_group (user_id, group_id)
+                SELECT user.user_id, group.group_id
+                FROM user, group
+                WHERE user.username = $1
+                AND group.name = $2
+                """,
                 member,
                 group,
             )
@@ -182,11 +188,11 @@ class PostgresStorage(StorageBackend):
                 """
                 SELECT 1
                 FROM user_in_group
-                WHERE
-                    group_name = $1
-                AND
-                    username = $2
-            """,
+                JOIN users ON users.id = user_in_group.user_id
+                JOIN groups ON groups.id = user_in_group.group_id
+                WHERE groups.name = $1
+                AND users.username = $2
+                """,
                 group,
                 user,
             )
@@ -198,11 +204,11 @@ class PostgresStorage(StorageBackend):
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """
-                DELETE FROM user_in_group
-                WHERE
-                    username = $1
-                AND
-                    group_name = $2
+                DELETE FROM user_in_group USING users, groups
+                WHERE user_in_group.user_id = users.id
+                  AND user_in_group.group_id = groups.id
+                  AND users.username = $1
+                  AND groups.name = $2
             """,
                 member,
                 group,
@@ -212,8 +218,9 @@ class PostgresStorage(StorageBackend):
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """
-                DELETE FROM user_in_group
-                WHERE group_name = $1
-            """,
+                DELETE FROM user_in_group USING groups
+                WHERE user_in_group.group_id = groups.id
+                  AND groups.name = $1
+                """,
                 group,
             )
