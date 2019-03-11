@@ -171,7 +171,7 @@ class PostgresStorage(StorageBackend):
             await connection.execute(
                 """
                 INSERT INTO user_in_group (user_id, group_id)
-                SELECT users.user_id, groups.group_id
+                SELECT users.id, groups.id
                 FROM users, groups
                 WHERE users.username = $1
                 AND groups.name = $2
