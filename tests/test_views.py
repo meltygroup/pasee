@@ -42,6 +42,8 @@ async def load_fake_data(app):
                 "kisee-guytodel"
             ), (
                 "twitter-foo"
+            ), (
+                "kisee-deleteme"
             )
             """
         )
@@ -696,6 +698,26 @@ async def test_get_user__not_authorized(client, monkeypatch):
         "/users/kisee-toto", headers={"Authorization": "Bearer somefaketoken"}
     )
     assert response.status == 403
+
+
+async def test_delete_user__non_staff(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.delete(
+        "/users/kisee-deleteme", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 403
+
+
+async def test_delete_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.delete(
+        "/users/kisee-deleteme", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 204
 
 
 async def test_post_tokens__refresh_token(client, monkeypatch):

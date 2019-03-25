@@ -197,6 +197,18 @@ class DemoSqliteStorage(StorageBackend):
         )
         self.connection.commit()
 
+    async def delete_user(self, username):
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+        cursor = self.connection.cursor()
+        cursor.execute(
+            "DELETE FROM user_in_group WHERE user = :username", {"username": username}
+        )
+        cursor.execute(
+            "DELETE FROM users WHERE name = :username", {"username": username}
+        )
+        self.connection.commit()
+
     async def user_exists(self, user: str) -> bool:
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")

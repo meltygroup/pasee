@@ -125,3 +125,15 @@ async def get_user(request: web.Request) -> web.Response:
         ),
         headers={"Vary": "Origin"},
     )
+
+
+async def delete_user(request: web.Request) -> web.Response:
+    """Handlers for DELETE /users/{username}
+    Delete {username}
+    """
+    username = request.match_info["username"]
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    if not is_root(claims["groups"]):
+        raise web.HTTPForbidden(reason="Do not have rights to delete user")
+    await request.app.storage_backend.delete_user(username)
+    return web.Response(status=204)
