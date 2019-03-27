@@ -150,6 +150,20 @@ class PostgresStorage(StorageBackend):
                 username,
             )
 
+    async def delete_user(self, username):
+        async with self.pool.acquire() as connection:
+
+            await connection.execute(
+                """
+                DELETE FROM user_in_group
+                USING users
+                WHERE user_in_group.user_id = users.id
+                AND users.username = $1
+                """,
+                username,
+            )
+            await connection.execute("DELETE FROM users WHERE username = $1", username)
+
     async def group_exists(self, group: str) -> bool:
         async with self.pool.acquire() as connection:
             result = await connection.fetch(

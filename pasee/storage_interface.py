@@ -69,6 +69,11 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
         """
 
     @abstractmethod
+    async def delete_user(self, username):
+        """Delete user
+        """
+
+    @abstractmethod
     async def is_user_in_group(self, user, group) -> bool:
         """Verify that user is in group
         """
