@@ -38,7 +38,10 @@ async def get_root(request: web.Request) -> web.Response:
                 "hrefVars": {"group_uid": "group unique id"},
                 "hints": {"allow": ["GET", "POST", "DELETE"]},
             },
-            "users": {"href": f"{hostname}/users/", "hints": {"allow": ["GET"]}},
+            "users": {
+                "href": f"{hostname}/users/",
+                "hints": {"allow": ["GET", "DELETE", "PATCH"]},
+            },
         },
     }
     return web.Response(
