@@ -118,6 +118,25 @@ class PostgresStorage(StorageBackend):
             )
             return [group[0] for group in results]
 
+    async def get_user(self, username: str = ""):
+        async with self.pool.acquire() as connection:
+            result = await connection.fetchrow(
+                """
+                SELECT
+                    username,
+                    is_banned
+                FROM users
+                WHERE username = $1
+                LIMIT 1
+                """,
+                username,
+            )
+
+            if not result:
+                return None
+
+            return {"username": result["username"], "is_banned": result["is_banned"]}
+
     async def delete_group(self, group: str):
         """Delete group
         """
@@ -237,4 +256,18 @@ class PostgresStorage(StorageBackend):
                   AND groups.name = $1
                 """,
                 group,
+            )
+
+    async def ban_user(self, username: str, ban: bool = True):
+        """Ban user
+        """
+        async with self.pool.acquire() as connection:
+            await connection.execute(
+                """
+                UPDATE users
+                SET is_banned = $1
+                WHERE username = $2
+                """,
+                ban,
+                username,
             )

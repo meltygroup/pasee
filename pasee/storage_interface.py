@@ -49,6 +49,11 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
         """
 
     @abstractmethod
+    async def get_user(self, username: str = ""):
+        """Get user
+        """
+
+    @abstractmethod
     async def get_members_of_group(self, group) -> List[str]:
         """Get members of group
         """
@@ -92,4 +97,9 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
     @abstractmethod
     async def delete_members_in_group(self, group):
         """Delete all members of group
+        """
+
+    @abstractmethod
+    async def ban_user(self, username: str, ban: bool = True):
+        """Ban user
         """

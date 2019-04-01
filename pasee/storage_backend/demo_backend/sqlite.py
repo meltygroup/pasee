@@ -25,7 +25,9 @@ class DemoSqliteStorage(StorageBackend):
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS users(
-                name TEXT PRIMARY KEY
+                name TEXT PRIMARY KEY,
+                is_banned BOOLEAN DEFAULT FALSE
+
             );
             """
         )
@@ -160,6 +162,23 @@ class DemoSqliteStorage(StorageBackend):
         )
         return [elem[0] for elem in results]
 
+    async def get_user(self, username: str = ""):
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+
+        cursor = self.connection.cursor()
+        result = cursor.execute(
+            """
+            SELECT name, is_banned
+            FROM users
+            WHERE name = :username
+            """,
+            {"username": username},
+        ).fetchone()
+        if not result:
+            return None
+        return {"username": result[0], "is_banned": result[1]}
+
     async def get_members_of_group(self, group: str) -> List[str]:
         """Get members of group
         """
@@ -280,3 +299,15 @@ class DemoSqliteStorage(StorageBackend):
             {"group": group},
         )
         self.connection.commit()
+
+    async def ban_user(self, username: str, ban: bool = True):
+        """Ban user
+        """
+        if self.connection is None:
+            raise RuntimeError("This class should be used in a context manager.")
+
+        cursor = self.connection.cursor()
+        cursor.execute(
+            "UPDATE users SET is_banned = :ban WHERE name = :username",
+            {"username": username, "ban": ban},
+        )

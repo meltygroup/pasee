@@ -99,13 +99,21 @@ async def get_user(request: web.Request) -> web.Response:
 
     last_element = request.rel_url.query.get("last_element", "")
 
-    if not await request.app.storage_backend.user_exists(username):
+    user = await request.app.storage_backend.get_user(username)
+    if not user:
         raise web.HTTPNotFound(reason="User does not exist")
+
     groups = await request.app.storage_backend.get_groups_of_user(
         username, last_element
     )
 
-    content = {}
+    content = user
+    content["patch"] = coreapi.Link(
+        action="patch",
+        title="Patch fields of user",
+        description="A method to patch fields of user",
+        fields=[coreapi.Field(name="is_banned")],
+    )
 
     if groups:
         content["next"] = coreapi.Link(
@@ -125,6 +133,29 @@ async def get_user(request: web.Request) -> web.Response:
         ),
         headers={"Vary": "Origin"},
     )
+
+
+async def patch_user(request: web.Request) -> web.Response:
+    """Handlers for PATCH /users/{username}
+    Patch an user
+    """
+    username = request.match_info["username"]
+
+    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    if not is_root(claims["groups"]):
+        raise web.HTTPForbidden(reason="Do not have rights to patch")
+
+    user = await request.app.storage_backend.get_user(username)
+    if not user:
+        raise web.HTTPNotFound(reason="User does not exist")
+
+    input_data = await request.json()
+    if "username" in input_data:
+        raise web.HTTPBadRequest(reason="can not patch username")
+    if "is_banned" in input_data:
+        ban = input_data["is_banned"]
+        await request.app.storage_backend.ban_user(username, ban)
+    return web.Response(status=204)
 
 
 async def delete_user(request: web.Request) -> web.Response:

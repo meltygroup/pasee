@@ -1,7 +1,7 @@
 CREATE DATABASE pasee;
 
 CREATE TABLE "groups" ("id" serial NOT NULL PRIMARY KEY, "name" text NOT NULL UNIQUE);
-CREATE TABLE "users" ("id" serial NOT NULL PRIMARY KEY, "username" text NOT NULL UNIQUE);
+CREATE TABLE "users" ("id" serial NOT NULL PRIMARY KEY, "username" text NOT NULL UNIQUE, "is_banned" boolean DEFAULT FALSE);
 CREATE TABLE "user_in_group" ("id" serial NOT NULL PRIMARY KEY, "user_id" integer NOT NULL, "group_id" integer NOT NULL);
 CREATE INDEX "groups_name_46b2c599_like" ON "groups" ("name" text_pattern_ops);
 CREATE INDEX "users_username_e8658fc8_like" ON "users" ("username" text_pattern_ops);

@@ -13,7 +13,8 @@ async def load_fake_data(app):
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS users(
-                name TEXT PRIMARY KEY
+                name TEXT PRIMARY KEY,
+                is_banned BOOLEAN DEFAULT FALSE
             );
             """
         )
@@ -44,6 +45,8 @@ async def load_fake_data(app):
                 "twitter-foo"
             ), (
                 "kisee-deleteme"
+            ), (
+                "kisee-banme"
             )
             """
         )
@@ -696,6 +699,66 @@ async def test_get_user__not_authorized(client, monkeypatch):
     )
     response = await client.get(
         "/users/kisee-toto", headers={"Authorization": "Bearer somefaketoken"}
+    )
+    assert response.status == 403
+
+
+async def test_patch_user(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.patch(
+        "/users/kisee-banme",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"is_banned": True},
+    )
+    assert response.status == 204
+
+
+async def test_patch_user__no_valid_field_to_patch(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.patch(
+        "/users/kisee-banme",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"not_valid": True},
+    )
+    assert response.status == 204
+
+
+async def test_patch_user__bad_request(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.patch(
+        "/users/kisee-banme",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"username": "kisee-banme2"},
+    )
+    assert response.status == 400
+
+
+async def test_patch_user__not_found(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization
+    )
+    response = await client.patch(
+        "/users/kisee-userdoestnotexist",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"is_banned": True},
+    )
+    assert response.status == 404
+
+
+async def test_patch_user__not_authorized(client, monkeypatch):
+    monkeypatch.setattr(
+        "pasee.utils.enforce_authorization", mocks.enforce_authorization__non_staff
+    )
+    response = await client.patch(
+        "/users/kisee-banme",
+        headers={"Authorization": "Bearer somefaketoken"},
+        json={"is_banned": True},
     )
     assert response.status == 403
 
