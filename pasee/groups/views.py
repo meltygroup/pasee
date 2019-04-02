@@ -128,7 +128,7 @@ async def get_group(request: web.Request) -> web.Response:
             content={
                 "members": [
                     coreapi.Document(
-                        url=f"{hostname}/users/{member}/", content={"username": member}
+                        url=f"{hostname}/users/{member}", content={"username": member}
                     )
                     for member in members
                 ],
