@@ -27,16 +27,19 @@ groups or whatever in your application.
 ### Self-service registration / password reset / and so on
 
 `Pasee` exposes in its API means for users to register and so on, but
-it's not its rôle to handle this. Pasee only forwards blindly those
+it's not its role to handle this. Pasee only forwards blindly those
 requests to the *main identity provider*, typically a `Kisee`
 instance.
 
+
 ### Tokens with authorization scope
 
-Pasee has the role to provide tokens to user. The token is diven by pair:
+Pasee has the role to provide tokens to user, always a pair of tokens:
+
 - Access token with information regarding the groups, identity of the user
 - Refresh token, a special token meant only to be used for requesting a new
-access token. This is why the groups information is stripped from this token.
+  access token. This is why the groups information is stripped from this token.
+
 
 ## Configuration
 
