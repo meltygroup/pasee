@@ -1,0 +1,83 @@
+host = "0.0.0.0"
+port = 8150
+hostname = "http://127.0.0.1:8150"
+
+# Generated using:
+#
+#    openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
+#
+# Yes we know P-256 is a bad one, but for compatibility with JS
+# clients for the moment we can't really do better.
+private_key = """-----BEGIN EC PRIVATE KEY-----
+MHQCAQEEIOCU3vGXbvrOXHkB1eUmAW88oaaIRkl0gAcw/LwQsUsqoAcGBSuBBAAK
+oUQDQgAEuwkzlI8abVkXixO+7UoxTFiBhbhDXPDx1lKF7Z/UhnPs/pNWp4FclVo0
+vF40KpPMuxohkET3Iu2u5nlcyTueHA==
+-----END EC PRIVATE KEY-----
+"""
+
+# Generated using:
+# openssl ec -in secp256k1.pem -pubout > secp256k1.pub
+public_key = """-----BEGIN PUBLIC KEY-----
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEuwkzlI8abVkXixO+7UoxTFiBhbhDXPDx
+1lKF7Z/UhnPs/pNWp4FclVo0vF40KpPMuxohkET3Iu2u5nlcyTueHA==
+-----END PUBLIC KEY-----
+"""
+
+algorithm = "ES256"
+
+[storage_backend]
+    class = "pasee.storage_backend.demo_backend.sqlite.DemoSqliteStorage"
+    [storage_backend.options]
+        foo = "bar"
+        file = ":memory:"
+
+# [storage_backend]
+#     class = "pasee.storage_backend.pgsql_backend.pgsql.PostgresStorage"
+#     [storage_backend.options]
+#         user = "admin"
+#         password = "admin"
+#         database = "pasee"
+#         host = "127.0.0.1"
+#         port = 5432
+
+[jwt]
+    iss = "pasee.meltylab.fr"
+
+[[identity_providers]]
+name = "kisee"
+implementation = "pasee.identity_providers.kisee.KiseeIdentityProvider"
+endpoint = "http://127.0.0.1:8140/"
+protocol = "kisee"
+title = "Login via login/password pair"
+description = "POSTing to this endpoint will identify you by login/password."
+capabilities = ["register-user"]
+
+[identity_providers.settings]
+public_keys = ["""-----BEGIN PUBLIC KEY-----
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/WCqajmhfppNUB2uekSxX976fcWA3bb
+dew8NkUtCoBigl9lWkqfnkF18H9fgG0gafPhGtub23+8Ldulvmf1lg==
+-----END PUBLIC KEY-----"""]
+
+[[identity_providers.input_fields]]
+name = "login"
+required = true
+
+[[identity_providers.input_fields]]
+name = "password"
+required = true
+
+# Example configuration to use Twitter as a backend, please fill
+# consumer_key and consumer_secret:
+#
+# [[identity_providers]]
+# name = "twitter"
+# implementation = "pasee.identity_providers.twitter.TwitterIdentityProvider"
+# host = "twitter.com"
+# port = 443
+# protocol = "oauth1"
+# title = "Login via Twitter oauth"
+# description = "POSTing to this endpoint will identify you with Twitter via oauth1"
+# [identity_providers.settings]
+# consumer_key = "…"
+# consumer_secret = "…"
+# callback_url = "http://127.0.0.1:8150/tokens/?idp=twitter"

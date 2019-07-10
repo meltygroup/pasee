@@ -16,7 +16,9 @@ and other identity providers like Twitter, Github, …
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart
    features
+   API
    configuration
    contributing
    faq
