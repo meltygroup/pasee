@@ -55,9 +55,9 @@ another ``Kisee`` named "internals", you'll receive users identified as
 "externals-internals-ada". As you see ``Pasee`` is adding the prefixes,
 ``Kisee`` does not.
 
-This way you can use a deep and wide setup of ``Kisee``s and ``Pasee``s,
-you'll never hit a name-clash, and you'll always be able to visually
-spot where a user come from.
+This way you can use a deep and wide setup of ``Kisee``\ s and
+``Pasee``\ s, you'll never hit a name-clash, and you'll always be able
+to visually spot where a user come from.
 
 
 Groups

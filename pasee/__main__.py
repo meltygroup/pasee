@@ -5,7 +5,11 @@ import argparse
 import sys
 
 from aiohttp import web
-import sentry_sdk
+
+try:
+    import sentry_sdk
+except ImportError:
+    sentry_sdk = None
 
 import pasee
 from pasee.pasee import identification_app
@@ -28,7 +32,8 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
 def main():  # pragma: no cover
     """Command line entry point.
     """
-    sentry_sdk.init()
+    if sentry_sdk:
+        sentry_sdk.init()
 
     parser = pasee_arg_parser()
     try:
