@@ -1,0 +1,47 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "pasee"
+author = "Julien Palard"
+author-email = "julien@python.org"
+home-page = "https://github.com/meltygroup/pasee"
+requires = [
+    "aioauth-client",
+    "aiohttp",
+    "aiohttp-cors",
+    "asyncpg",
+    "coreapi",
+    "cryptography",
+    "pyjwt",
+    "pytoml",
+    "shortuuid",
+]
+description-file = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.6",
+]
+requires-python = ">=3.6"
+
+[tool.flit.scripts]
+pasee = "pasee.__main__:main"
+
+[tool.flit.metadata.requires-extra]
+dev = [
+    "aioresponses",
+    "astroid",
+    "bandit",
+    "black",
+    "flake8",
+    "freezegun",
+    "mypy",
+    "pylint",
+    "pytest",
+    "pytest-aiohttp",
+    "pytest-asyncio",
+    "pytest-cov",
+]
