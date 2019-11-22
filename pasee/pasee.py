@@ -1,13 +1,10 @@
 """Pasee main module.
 """
 
-import os
 import logging
-from typing import Dict, Optional
 
 from aiohttp import web
 import aiohttp_cors
-import pytoml as toml
 
 from pasee.middlewares import (
     verify_input_body_is_json,
@@ -15,7 +12,7 @@ from pasee.middlewares import (
     coreapi_error_middleware,
     security_headers,
 )
-from pasee import views, MissingSettings
+from pasee import views
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
 from pasee.users import views as user_views
@@ -24,68 +21,10 @@ from pasee.utils import import_class
 logging.basicConfig(level=logging.DEBUG)
 
 
-def load_conf(
-    settings_path: Optional[str] = None,
-    host: str = None,
-    port: int = None,
-    identity_backend_class: str = None,
-) -> Dict:
-    """Search for a settings.toml file and load it.
-    """
-    del identity_backend_class
-    candidates: tuple
-    if settings_path:
-        candidates = (
-            settings_path,
-            os.path.join(os.getcwd(), settings_path),
-            os.path.join(os.getcwd(), "settings.toml"),
-            os.path.expanduser("~/settings.toml"),
-            os.path.expanduser(os.path.join("~/", settings_path)),
-            "/etc/pasee/settings.toml",
-            os.path.join("/etc/pasee/", settings_path),
-        )
-    else:
-        candidates = (
-            os.path.join(os.getcwd(), "settings.toml"),
-            os.path.expanduser("~/settings.toml"),
-            "/etc/pasee/settings.toml",
-        )
-    settings = None
-    for candidate in candidates:
-        if os.path.exists(candidate):
-            with open(candidate) as candidate_file:
-                settings = toml.load(candidate_file)
-                break
-    if not settings:
-        raise MissingSettings(
-            f"No settings files found, tried: {', '.join(set(candidates))}"
-        )
-
-    if host:
-        settings["host"] = host
-    if "host" not in settings:
-        settings["host"] = "127.0.0.1"
-    if port:
-        settings["port"] = port
-    if "port" not in settings:
-        settings["port"] = 8140
-    for mandatory_setting in {"private_key", "public_key", "identity_providers"}:
-        if mandatory_setting not in settings:
-            raise MissingSettings(f"No {mandatory_setting} in settings, see README.md")
-    settings["idps"] = {idp["name"]: idp for idp in settings["identity_providers"]}
-    return settings
-
-
-def identification_app(
-    settings_file: str = None,
-    host: str = None,
-    port: int = None,
-    identity_backend_class: str = None,
-):
+def identification_app(settings,):
     """Identification provider entry point: builds and run a webserver.
     """
 
-    settings = load_conf(settings_file, host, port, identity_backend_class)
     app = web.Application(
         middlewares=[
             verify_input_body_is_json,

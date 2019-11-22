@@ -2,9 +2,12 @@
 """
 
 import argparse
+import os
 import sys
+from typing import Optional, Dict
 
 from aiohttp import web
+import pytoml as toml
 
 try:
     import sentry_sdk
@@ -12,6 +15,7 @@ except ImportError:
     sentry_sdk = None
 
 import pasee
+from pasee import MissingSettings
 from pasee.pasee import identification_app
 
 
@@ -34,6 +38,54 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def load_conf(
+    settings_path: Optional[str] = None, host: str = None, port: int = None,
+) -> Dict:
+    """Search for a settings.toml file and load it.
+    """
+    candidates: tuple
+    if settings_path:
+        candidates = (
+            settings_path,
+            os.path.join(os.getcwd(), settings_path),
+            os.path.join(os.getcwd(), "settings.toml"),
+            os.path.expanduser("~/settings.toml"),
+            os.path.expanduser(os.path.join("~/", settings_path)),
+            "/etc/pasee/settings.toml",
+            os.path.join("/etc/pasee/", settings_path),
+        )
+    else:
+        candidates = (
+            os.path.join(os.getcwd(), "settings.toml"),
+            os.path.expanduser("~/settings.toml"),
+            "/etc/pasee/settings.toml",
+        )
+    settings = None
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            with open(candidate) as candidate_file:
+                settings = toml.load(candidate_file)
+                break
+    if not settings:
+        raise MissingSettings(
+            f"No settings files found, tried: {', '.join(set(candidates))}"
+        )
+
+    if host:
+        settings["host"] = host
+    if "host" not in settings:
+        settings["host"] = "127.0.0.1"
+    if port:
+        settings["port"] = port
+    if "port" not in settings:
+        settings["port"] = 8140
+    for mandatory_setting in {"private_key", "public_key", "identity_providers"}:
+        if mandatory_setting not in settings:
+            raise MissingSettings(f"No {mandatory_setting} in settings, see README.md")
+    settings["idps"] = {idp["name"]: idp for idp in settings["identity_providers"]}
+    return settings
+
+
 def main():  # pragma: no cover
     """Command line entry point.
     """
@@ -41,15 +93,14 @@ def main():  # pragma: no cover
         sentry_sdk.init()
 
     parser = pasee_arg_parser()
+    args = parser.parse_args()
     try:
-        args = parser.parse_args()
-        app = identification_app(
-            args.settings_file or args.settings, args.host, args.port
-        )
+        settings = load_conf(args.settings_file or args.settings, args.host, args.port,)
     except pasee.MissingSettings as err:
         print(err, file=sys.stderr)
         parser.print_help()
         sys.exit(1)
+    app = identification_app(settings)
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 
 

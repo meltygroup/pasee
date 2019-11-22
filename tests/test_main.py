@@ -13,4 +13,4 @@ def test_parse_args():
     """
     with patch.object(sys, "argv", ["dummy"]):
         args = main.pasee_arg_parser().parse_args()
-        assert args.settings_file == "settings.toml"
+        assert (args.settings_file or args.settings) == "settings.toml"

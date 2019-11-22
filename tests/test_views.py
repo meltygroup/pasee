@@ -3,6 +3,7 @@ import json
 import pytest
 from aioresponses import aioresponses
 
+from pasee.__main__ import load_conf
 from pasee.pasee import identification_app
 import mocks
 
@@ -93,7 +94,7 @@ async def load_fake_data(app):
 
 @pytest.fixture
 def client(loop, aiohttp_client):
-    app = identification_app(settings_file="tests/test-settings.toml")
+    app = identification_app(settings=load_conf("tests/test-settings.toml"))
     app.on_startup.append(load_fake_data)
     return loop.run_until_complete(aiohttp_client(app))
 
