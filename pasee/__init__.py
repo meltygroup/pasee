@@ -1,7 +1,7 @@
 """HTTP server managing users.
 """
 
-__version__ = "19.7.0"
+__version__ = "19.11.0"
 
 
 class PaseeException(Exception):
