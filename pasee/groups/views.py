@@ -4,10 +4,10 @@
 import logging
 from typing import List
 
-import coreapi
 from aiohttp import web
 
 from pasee import utils
+from pasee.vendor import coreapi
 from pasee.serializers import serialize
 from pasee.groups.utils import (
     is_authorized_for_group,

@@ -7,13 +7,13 @@ import logging
 from typing import List
 from urllib.parse import parse_qs
 
-import coreapi
 from aiohttp import web
 
 from pasee import Unauthorized, Unauthenticated
 from pasee.serializers import serialize
 from pasee.identity_providers.utils import get_identity_provider_with_capability
 from pasee.groups.utils import is_root
+from pasee.vendor import coreapi
 from pasee import utils
 
 logger = logging.getLogger(__name__)

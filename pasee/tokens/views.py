@@ -6,13 +6,13 @@
 import logging
 from typing import List
 
-import coreapi
 from aiohttp import web
 
 from pasee.serializers import serialize
 from pasee.tokens.handlers import generate_access_token_and_refresh_token_pairs
 from pasee.tokens.handlers import authenticate_with_identity_provider
 from pasee.tokens.handlers import handle_oauth_callback
+from pasee.vendor import coreapi
 from pasee import utils, Unauthorized
 
 

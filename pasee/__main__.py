@@ -41,7 +41,7 @@ def main():  # pragma: no cover
     except pasee.MissingSettings as err:
         print(err, file=sys.stderr)
         parser.print_help()
-        exit(1)
+        sys.exit(1)
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 
 

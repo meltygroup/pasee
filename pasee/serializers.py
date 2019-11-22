@@ -2,12 +2,13 @@
 various representations of our resources like mason, json-ld, hal, ...
 
 """
-import coreapi
 from aiohttp import web
+
+from pasee.vendor import coreapi
 
 
 def serialize(
-    request: web.Request, document: dict, status=200, headers=None
+    request: web.Request, document: coreapi.Document, status=200, headers=None
 ) -> web.Response:
     """Serialize the given document according to the Accept header of the
     given request.
