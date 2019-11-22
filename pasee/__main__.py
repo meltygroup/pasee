@@ -23,7 +23,12 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
         description="Pasee Identity Manager",
         epilog="All options, if given, take precedence over settings file.",
     )
-    parser.add_argument("--settings-file", default="settings.toml")
+    parser.add_argument("--settings-file")
+    parser.add_argument(
+        "--settings",
+        help="Compatibility option for --settings-file",
+        default="settings.toml",
+    )
     parser.add_argument("--host", help="Hostname to bind to.")
     parser.add_argument("--port", help="Port to bind to.")
     return parser
@@ -37,7 +42,10 @@ def main():  # pragma: no cover
 
     parser = pasee_arg_parser()
     try:
-        app = identification_app(**vars(parser.parse_args()))
+        args = parser.parse_args()
+        app = identification_app(
+            args.settings_file or args.settings, args.host, args.port
+        )
     except pasee.MissingSettings as err:
         print(err, file=sys.stderr)
         parser.print_help()
