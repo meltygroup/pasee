@@ -3,11 +3,12 @@
 - GET /users/
 - POST /users/
 """
+import functools
 import logging
 from typing import List
 from urllib.parse import parse_qs
 
-from aiohttp import web
+from aiohttp import web, ClientSession
 
 from pasee import Unauthorized, Unauthenticated
 from pasee.serializers import serialize
@@ -19,14 +20,48 @@ from pasee import utils
 logger = logging.getLogger(__name__)
 
 
+def cached():  # pragma: no cover  # needs a running kisee
+    """Simply cache the result of a coroutine.
+    """
+    _cache = None
+
+    def wrapper(func):
+        @functools.wraps(func)
+        async def _cached(*args, **kwargs):
+            nonlocal _cache
+            if _cache is None:
+                _cache = await func(*args, **kwargs)
+            return _cache
+
+        return _cached
+
+    return wrapper
+
+
+@cached()
+async def find_register_user_provider(
+    request: web.Request,
+):  # pragma: no cover  # needs a running kisee
+    """If an identity provider has the capability "register-user", hit its
+    "register-user" action and returns its "register-user" link.
+    """
+    identity_provider = get_identity_provider_with_capability(
+        request.app.settings, "register-user"
+    )
+    if identity_provider:
+        register_user_endpoint = await identity_provider.get_endpoint("register-user")
+        async with ClientSession() as session:
+            async with session.get(register_user_endpoint) as resp:
+                return {
+                    **(await resp.json())["register_user"],
+                    **{"url": register_user_endpoint},
+                }
+
+
 async def get_users(request: web.Request) -> web.Response:
     """Handlers for GET /users/, just describes that a POST is possible.
     """
     hostname = request.app.settings["hostname"]
-    identity_provider = get_identity_provider_with_capability(
-        request.app.settings, "register-user"
-    )
-    register_user_endpoint = await identity_provider.get_endpoint("register-user")
 
     users: List[str] = []
     errors: List[coreapi.Error] = []
@@ -50,14 +85,12 @@ async def get_users(request: web.Request) -> web.Response:
             )
             for user in users
         ],
-        "Self service registration": coreapi.Link(
-            action="get",
-            title="Self service registration for identity provider",
-            description="Get more information on how to self register",
-            url=register_user_endpoint,
-        ),
         "errors": errors,
     }
+
+    register_user = await find_register_user_provider(request)
+    if register_user:  # pragma: no cover  # Needs a running kisee.
+        content["register_user"] = register_user
 
     if last_element:
         if request.rel_url.query:
