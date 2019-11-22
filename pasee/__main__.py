@@ -89,17 +89,16 @@ def load_conf(
 def main():  # pragma: no cover
     """Command line entry point.
     """
-    if sentry_sdk:
-        sentry_sdk.init()
-
     parser = pasee_arg_parser()
     args = parser.parse_args()
     try:
-        settings = load_conf(args.settings_file or args.settings, args.host, args.port,)
+        settings = load_conf(args.settings_file or args.settings, args.host, args.port)
     except pasee.MissingSettings as err:
         print(err, file=sys.stderr)
         parser.print_help()
         sys.exit(1)
+    if sentry_sdk:
+        sentry_sdk.init(settings.get("SENTRY_DSN"))
     app = identification_app(settings)
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 
