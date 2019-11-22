@@ -11,7 +11,7 @@ import pytoml as toml
 
 try:
     import sentry_sdk
-    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+    from sentry_sdk.integrations.aiohttp import AioHttpIntegration  # pragma: no cover
 except ImportError:
     sentry_sdk = None
 
