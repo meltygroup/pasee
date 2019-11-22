@@ -11,6 +11,7 @@ import pytoml as toml
 
 try:
     import sentry_sdk
+    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 except ImportError:
     sentry_sdk = None
 
@@ -98,7 +99,7 @@ def main():  # pragma: no cover
         parser.print_help()
         sys.exit(1)
     if sentry_sdk:
-        sentry_sdk.init(settings.get("SENTRY_DSN"))
+        sentry_sdk.init(settings.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
     app = identification_app(settings)
     web.run_app(app, host=app.settings["host"], port=app.settings["port"])
 

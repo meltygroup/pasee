@@ -45,3 +45,7 @@ dev = [
     "pytest-asyncio",
     "pytest-cov",
 ]
+sentry = [
+    "sentry-sdk>=0.13.2",
+    "aiocontextvars",
+]
