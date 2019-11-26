@@ -53,7 +53,7 @@ async def find_register_user_provider(
         async with ClientSession() as session:
             async with session.get(register_user_endpoint) as resp:
                 return {
-                    **(await resp.json())["register_user"],
+                    **(await resp.json())["register-user"],
                     **{"url": register_user_endpoint},
                 }
 
