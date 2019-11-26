@@ -34,20 +34,20 @@ def identification_app(settings,):
         ]
     )
 
-    app.settings = settings
-    app.storage_backend = import_class(settings["storage_backend"]["class"])(
+    app["settings"] = settings
+    app["storage_backend"] = import_class(settings["storage_backend"]["class"])(
         settings["storage_backend"]["options"]
     )
 
     async def on_startup_wrapper(app):
         """Wrapper to call __aenter__.
         """
-        await app.storage_backend.__aenter__()
+        await app["storage_backend"].__aenter__()
 
     async def on_cleanup_wrapper(app):
         """Wrapper to call __exit__.
         """
-        await app.storage_backend.__aexit__(None, None, None)
+        await app["storage_backend"].__aexit__(None, None, None)
 
     app.on_startup.append(on_startup_wrapper)
     app.on_cleanup.append(on_cleanup_wrapper)

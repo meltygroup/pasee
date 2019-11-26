@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def get_tokens(request: web.Request) -> web.Response:
     """Handlers for GET /token/, just describes that a POST is possible.
     """
-    hostname = request.app.settings["hostname"]
+    hostname = request.app["settings"]["hostname"]
     access_token, refresh_token = None, None
     identity_provider_input = request.rel_url.query.get("idp", None)
     if identity_provider_input:
@@ -33,7 +33,7 @@ async def get_tokens(request: web.Request) -> web.Response:
         refresh_token = refresh_token.decode("utf-8")
 
     idps = {}
-    for idp_name, idp_conf in request.app.settings["idps"].items():
+    for idp_name, idp_conf in request.app["settings"]["idps"].items():
         fields: List[coreapi.Field] = []
         if idp_conf.get("input_fields"):
             fields = [
@@ -71,7 +71,7 @@ async def post_token(request: web.Request) -> web.Response:
             raise web.HTTPBadRequest(
                 reason="Missing Authorization header for refreshing access token"
             )
-        claims = utils.enforce_authorization(request.headers, request.app.settings)
+        claims = utils.enforce_authorization(request.headers, request.app["settings"])
         if not claims.get("refresh_token", False):
             raise Unauthorized("Token is not a refresh token")
     else:
@@ -93,7 +93,7 @@ async def post_token(request: web.Request) -> web.Response:
     }
 
     if "sub" in claims:
-        storage_backend = request.app.storage_backend
+        storage_backend = request.app["storage_backend"]
         if not await storage_backend.user_exists(claims["sub"]):
             await storage_backend.create_user(claims["sub"])
 
@@ -102,8 +102,8 @@ async def post_token(request: web.Request) -> web.Response:
         )
         access_token, refresh_token = generate_access_token_and_refresh_token_pairs(
             claims,
-            request.app.settings["private_key"],
-            algorithm=request.app.settings["algorithm"],
+            request.app["settings"]["private_key"],
+            algorithm=request.app["settings"]["algorithm"],
         )
         response_content["access_token"] = access_token.decode("utf-8")
         response_content["refresh_token"] = refresh_token.decode("utf-8")

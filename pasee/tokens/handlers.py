@@ -48,13 +48,15 @@ async def authenticate_with_identity_provider(request: web.Request) -> Claims:
         raise web.HTTPBadRequest(
             reason="Identity provider not provided in query string"
         )
-    if identity_provider_input not in request.app.settings["idps"]:
+    if identity_provider_input not in request.app["settings"]["idps"]:
         raise web.HTTPBadRequest(reason="Identity provider not implemented")
 
-    identity_provider_path = request.app.settings["idps"][identity_provider_input][
+    identity_provider_path = request.app["settings"]["idps"][identity_provider_input][
         "implementation"
     ]
-    identity_provider_settings = request.app.settings["idps"][identity_provider_input]
+    identity_provider_settings = request.app["settings"]["idps"][
+        identity_provider_input
+    ]
     identity_provider = import_class(identity_provider_path)(identity_provider_settings)
 
     return await identity_provider.authenticate_user(input_data)
@@ -66,7 +68,9 @@ async def handle_oauth_callback(identity_provider_input: str, request: web.Reque
     if identity_provider_input not in identity_providers.BACKENDS:
         raise web.HTTPBadRequest(reason="Identity provider not implemented")
     identity_provider_path = identity_providers.BACKENDS[identity_provider_input]
-    identity_provider_settings = request.app.settings["idps"][identity_provider_input]
+    identity_provider_settings = request.app["settings"]["idps"][
+        identity_provider_input
+    ]
     identity_provider = import_class(identity_provider_path)(identity_provider_settings)
     idp_claims = await identity_provider.authenticate_user(
         {
@@ -77,17 +81,17 @@ async def handle_oauth_callback(identity_provider_input: str, request: web.Reque
     )
 
     sub = f"{identity_provider_input}-{idp_claims['sub']}"
-    if not await request.app.storage_backend.user_exists(sub):
-        await request.app.storage_backend.create_user(sub)
-    groups = await request.app.storage_backend.get_authorizations_for_user(sub)
+    if not await request.app["storage_backend"].user_exists(sub):
+        await request.app["storage_backend"].create_user(sub)
+    groups = await request.app["storage_backend"].get_authorizations_for_user(sub)
 
     pasee_claims = {
-        "iss": request.app.settings["jwt"]["iss"],
+        "iss": request.app["settings"]["jwt"]["iss"],
         "sub": sub,
         "groups": groups,
     }
     return generate_access_token_and_refresh_token_pairs(
         pasee_claims,
-        request.app.settings["private_key"],
-        algorithm=request.app.settings["algorithm"],
+        request.app["settings"]["private_key"],
+        algorithm=request.app["settings"]["algorithm"],
     )

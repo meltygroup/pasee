@@ -46,7 +46,7 @@ async def find_register_user_provider(
     "register-user" action and returns its "register-user" link.
     """
     identity_provider = get_identity_provider_with_capability(
-        request.app.settings, "register-user"
+        request.app["settings"], "register-user"
     )
     if identity_provider:
         register_user_endpoint = await identity_provider.get_endpoint("register-user")
@@ -61,16 +61,16 @@ async def find_register_user_provider(
 async def get_users(request: web.Request) -> web.Response:
     """Handlers for GET /users/, just describes that a POST is possible.
     """
-    hostname = request.app.settings["hostname"]
+    hostname = request.app["settings"]["hostname"]
 
     users: List[str] = []
     errors: List[coreapi.Error] = []
     last_element = None
     try:
-        claims = utils.enforce_authorization(request.headers, request.app.settings)
+        claims = utils.enforce_authorization(request.headers, request.app["settings"])
         if is_root(claims["groups"]):
             after = request.rel_url.query.get("after", "")
-            users = await request.app.storage_backend.get_users(after)
+            users = await request.app["storage_backend"].get_users(after)
             last_element = users[-1] if users else None
 
     except Unauthorized as unauthorized_error:
@@ -123,20 +123,20 @@ async def get_user(request: web.Request) -> web.Response:
     """Handlers for GET /users/{username}
     List groups of {username}
     """
-    hostname = request.app.settings["hostname"]
+    hostname = request.app["settings"]["hostname"]
     username = request.match_info["username"]
 
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
     if not is_root(claims["groups"]) and not claims["sub"] == username:  # is user
         raise web.HTTPForbidden(reason="Do not have rights to view user info")
 
     last_element = request.rel_url.query.get("last_element", "")
 
-    user = await request.app.storage_backend.get_user(username)
+    user = await request.app["storage_backend"].get_user(username)
     if not user:
         raise web.HTTPNotFound(reason="User does not exist")
 
-    groups = await request.app.storage_backend.get_groups_of_user(
+    groups = await request.app["storage_backend"].get_groups_of_user(
         username, last_element
     )
 
@@ -174,11 +174,11 @@ async def patch_user(request: web.Request) -> web.Response:
     """
     username = request.match_info["username"]
 
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
     if not is_root(claims["groups"]):
         raise web.HTTPForbidden(reason="Do not have rights to patch")
 
-    user = await request.app.storage_backend.get_user(username)
+    user = await request.app["storage_backend"].get_user(username)
     if not user:
         raise web.HTTPNotFound(reason="User does not exist")
 
@@ -187,7 +187,7 @@ async def patch_user(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(reason="can not patch username")
     if "is_banned" in input_data:
         ban = input_data["is_banned"]
-        await request.app.storage_backend.ban_user(username, ban)
+        await request.app["storage_backend"].ban_user(username, ban)
     return web.Response(status=204)
 
 
@@ -196,8 +196,8 @@ async def delete_user(request: web.Request) -> web.Response:
     Delete {username}
     """
     username = request.match_info["username"]
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
     if not is_root(claims["groups"]):
         raise web.HTTPForbidden(reason="Do not have rights to delete user")
-    await request.app.storage_backend.delete_user(username)
+    await request.app["storage_backend"].delete_user(username)
     return web.Response(status=204)

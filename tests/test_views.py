@@ -9,7 +9,7 @@ import mocks
 
 
 async def load_fake_data(app):
-    conn = app.storage_backend.connection
+    conn = app["storage_backend"].connection
     with conn:
         conn.execute(
             """

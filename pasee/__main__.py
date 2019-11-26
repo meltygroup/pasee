@@ -101,7 +101,7 @@ def main():  # pragma: no cover
     if sentry_sdk:
         sentry_sdk.init(settings.get("SENTRY_DSN"), integrations=[AioHttpIntegration()])
     app = identification_app(settings)
-    web.run_app(app, host=app.settings["host"], port=app.settings["port"])
+    web.run_app(app, host=app["settings"]["host"], port=app["settings"]["port"])
 
 
 if __name__ == "__main__":

@@ -22,19 +22,19 @@ logger = logging.getLogger(__name__)
 async def get_groups(request: web.Request) -> web.Response:
     """Handlers for GET /groups/
     """
-    hostname = request.app.settings["hostname"]
+    hostname = request.app["settings"]["hostname"]
     groups: List = []
     errors: List[coreapi.Error] = []
 
     try:
-        claims = utils.enforce_authorization(request.headers, request.app.settings)
+        claims = utils.enforce_authorization(request.headers, request.app["settings"])
         if is_root(claims["groups"]):
             user = request.rel_url.query.get("user")
             last_element = request.rel_url.query.get("last_element", "")
             if not user:
-                groups = await request.app.storage_backend.get_groups(last_element)
+                groups = await request.app["storage_backend"].get_groups(last_element)
             else:
-                groups = await request.app.storage_backend.get_groups_of_user(
+                groups = await request.app["storage_backend"].get_groups_of_user(
                     user, last_element
                 )
     except Unauthorized as unauthorized_error:
@@ -81,7 +81,7 @@ async def get_groups(request: web.Request) -> web.Response:
 async def post_groups(request: web.Request) -> web.Response:
     """Handler for POST /groups/
     """
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
     input_data = await request.json()
     if "group" not in input_data:
         raise web.HTTPBadRequest(reason="Missing group")
@@ -91,7 +91,7 @@ async def post_groups(request: web.Request) -> web.Response:
     if not is_authorized_for_group_create(claims["groups"], group_name):
         raise web.HTTPForbidden(reason="Not authorized to create group")
 
-    storage_backend = request.app.storage_backend
+    storage_backend = request.app["storage_backend"]
     staff_group_name = f"{group_name}.staff"
 
     if await storage_backend.group_exists(group_name):
@@ -108,9 +108,9 @@ async def post_groups(request: web.Request) -> web.Response:
 async def get_group(request: web.Request) -> web.Response:
     """Handler for GET /groups/{group_uid}
     """
-    hostname = request.app.settings["hostname"]
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
-    storage_backend = request.app.storage_backend
+    hostname = request.app["settings"]["hostname"]
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
+    storage_backend = request.app["storage_backend"]
     group = request.match_info["group_uid"]
 
     if not is_authorized_for_group(claims["groups"], group):
@@ -148,9 +148,9 @@ async def post_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
     input_data = await request.json()
-    storage_backend = request.app.storage_backend
+    storage_backend = request.app["storage_backend"]
     group = request.match_info["group_uid"]
 
     if not is_authorized_for_group(claims["groups"], group):
@@ -163,7 +163,7 @@ async def post_group(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(reason="Missing username in request body")
     username = input_data["username"]
     if not await storage_backend.user_exists(username):
-        await request.app.storage_backend.create_user(username)
+        await request.app["storage_backend"].create_user(username)
     if await storage_backend.is_user_in_group(username, group):
         raise web.HTTPBadRequest(reason="User already in group")
 
@@ -175,8 +175,8 @@ async def delete_group(request: web.Request) -> web.Response:
     """Handler for POST /groups/{group_id}/
     add a user to {group_id}
     """
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
-    storage_backend = request.app.storage_backend
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
+    storage_backend = request.app["storage_backend"]
     group = request.match_info["group_uid"]
 
     if not is_authorized_for_group(claims["groups"], "staff"):
@@ -193,8 +193,8 @@ async def delete_group(request: web.Request) -> web.Response:
 async def delete_group_member(request: web.Request) -> web.Response:
     """Delete group member of group
     """
-    claims = utils.enforce_authorization(request.headers, request.app.settings)
-    storage_backend = request.app.storage_backend
+    claims = utils.enforce_authorization(request.headers, request.app["settings"])
+    storage_backend = request.app["storage_backend"]
     group = request.match_info["group_uid"]
     username = request.match_info["username"]
 
