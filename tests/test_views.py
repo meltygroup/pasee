@@ -201,7 +201,7 @@ async def test_post_tokens(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -290,7 +290,7 @@ async def test_post_tokens__creates_new_user(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -358,7 +358,7 @@ async def test_get_users(client):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -408,7 +408,7 @@ async def test_get_users__corrupted_authorization_header(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -460,7 +460,7 @@ async def test_get_users__as_staff(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -515,7 +515,7 @@ async def test_get_users__as_staff_with_after_query_string(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -570,7 +570,7 @@ async def test_get_users__as_staff_with_random_query_string(client, monkeypatch)
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},
@@ -626,7 +626,7 @@ async def test_get_users__as_non_staff(client, monkeypatch):
                         }
                     },
                     "actions": {
-                        "register-user": {
+                        "register_user": {
                             "fields": [
                                 {"name": "username", "required": True},
                                 {"required": True, "name": "password"},

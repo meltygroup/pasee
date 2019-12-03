@@ -16,7 +16,7 @@ endpoint = "http://dump-kisee-endpoint/"
 title = "Login via login/password pair"
 description = "POSTing to this endpoint will identify you by login/password."
 protocol = "kisee"
-capabilities = ["register-user"]
+capabilities = ["register_user"]
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----
 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/WCqajmhfppNUB2uekSxX976fcWA3bb

@@ -50,7 +50,7 @@ endpoint = "http://127.0.0.1:8140/"
 protocol = "kisee"
 title = "Login via login/password pair"
 description = "POSTing to this endpoint will identify you by login/password."
-capabilities = ["register-user"]
+capabilities = ["register_user"]
 
 [identity_providers.settings]
 public_keys = ["""-----BEGIN PUBLIC KEY-----

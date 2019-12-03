@@ -25,7 +25,7 @@ def settings():
 [[identity_providers]]
 name = "Let's test with json"
 implementation = "json.dumps"
-capabilities = ["register-user"]
+capabilities = ["register_user"]
 
 [[identity_providers]]
 name = "twitter"
@@ -37,7 +37,7 @@ name = "twitter"
 
 def test_get_identity_provider_with_capability(settings):
     assert "Let's test with json" in get_identity_provider_with_capability(
-        settings, "register-user"
+        settings, "register_user"
     )
 
 

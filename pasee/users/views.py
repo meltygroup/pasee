@@ -42,18 +42,25 @@ def cached():  # pragma: no cover  # needs a running kisee
 async def find_register_user_provider(
     request: web.Request,
 ):  # pragma: no cover  # needs a running kisee
-    """If an identity provider has the capability "register-user", hit its
-    "register-user" action and returns its "register-user" link.
+    """If an identity provider has the capability "register_user", hit its
+    "register_user" action and returns its "register_user" link.
     """
     identity_provider = get_identity_provider_with_capability(
-        request.app["settings"], "register-user"
+        request.app["settings"], "register_user"
     )
     if identity_provider:
-        register_user_endpoint = await identity_provider.get_endpoint("register-user")
+        try:
+            register_user_endpoint = await identity_provider.get_endpoint(
+                "register-user"
+            )
+        except KeyError:
+            register_user_endpoint = await identity_provider.get_endpoint(
+                "register_user"
+            )
         async with ClientSession() as session:
             async with session.get(register_user_endpoint) as resp:
                 return {
-                    **(await resp.json())["register-user"],
+                    **(await resp.json())["register_user"],
                     **{"url": register_user_endpoint},
                 }
 

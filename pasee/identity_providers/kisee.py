@@ -24,7 +24,10 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
     async def _identify_to_kisee(self, data: LoginCredentials):
         """Async request to identify to kisee"""
-        create_token_endpoint = await self.get_endpoint("create-token")
+        try:
+            create_token_endpoint = await self.get_endpoint("create-token")
+        except KeyError:  # pragma: no cover
+            create_token_endpoint = await self.get_endpoint("create_token")
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 create_token_endpoint,
