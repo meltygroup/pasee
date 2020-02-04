@@ -31,7 +31,10 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 create_token_endpoint,
-                headers={"Content-Type": "application/json"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/vnd.coreapi+json",
+                },
                 json=data,
             ) as response:
 
@@ -84,7 +87,9 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(self.endpoint) as response:
+                async with session.get(
+                    self.endpoint, headers={"Accept": "application/json-home"}
+                ) as response:
                     root = await response.json()
             except aiohttp.client_exceptions.ClientConnectorError:
                 raise web.HTTPServiceUnavailable(reason="kisee not responding")
