@@ -3,14 +3,7 @@ from collections import OrderedDict
 from pasee.vendor.coreapi.codecs.base import BaseCodec
 from pasee.vendor.coreapi.compat import force_bytes, string_types, urlparse
 from pasee.vendor.coreapi.compat import COMPACT_SEPARATORS, VERBOSE_SEPARATORS
-from pasee.vendor.coreapi.document import (
-    Document,
-    Link,
-    Array,
-    Object,
-    Error,
-    Field,
-)
+from pasee.vendor.coreapi.document import Document, Link, Array, Object, Error, Field
 from pasee.vendor.coreapi.exceptions import ParseError
 from pasee.vendor import coreschema
 import json
@@ -255,7 +248,7 @@ def _primitive_to_document(data, base_url=None):
             url=url,
             title=title,
             description=description,
-            media_type="application/coreapi+json",
+            media_type="application/vnd.coreapi+json",
             content=content,
         )
 
@@ -311,7 +304,7 @@ def _primitive_to_document(data, base_url=None):
 
 
 class CoreJSONCodec(BaseCodec):
-    media_type = "application/coreapi+json"
+    media_type = "application/vnd.coreapi+json"
     format = "corejson"
 
     # The following is due to be deprecated...

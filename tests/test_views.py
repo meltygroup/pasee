@@ -195,7 +195,7 @@ async def test_post_tokens(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -284,7 +284,7 @@ async def test_post_tokens__creates_new_user(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -352,7 +352,7 @@ async def test_get_users(client):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -402,7 +402,7 @@ async def test_get_users__corrupted_authorization_header(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -454,7 +454,7 @@ async def test_get_users__as_staff(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -509,7 +509,7 @@ async def test_get_users__as_staff_with_after_query_string(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -564,7 +564,7 @@ async def test_get_users__as_staff_with_random_query_string(client, monkeypatch)
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
@@ -620,7 +620,7 @@ async def test_get_users__as_non_staff(client, monkeypatch):
                         "jwt": {
                             "hints": {
                                 "allow": ["GET", "POST"],
-                                "formats": {"application/coreapi+json": {}},
+                                "formats": {"application/vnd.coreapi+json": {}},
                             },
                             "href": "/jwt/",
                         }
