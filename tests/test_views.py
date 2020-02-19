@@ -210,7 +210,7 @@ async def test_post_tokens(client, monkeypatch):
                             "href": "http://dump-kisee-endpoint/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "http://dump-kisee-endpoint/jwt/",
                             "fields": [
@@ -299,7 +299,7 @@ async def test_post_tokens__creates_new_user(client, monkeypatch):
                             "href": "http://dump-kisee-endpoint/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "http://dump-kisee-endpoint/jwt/",
                             "fields": [
@@ -367,7 +367,7 @@ async def test_get_users(client):
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [
@@ -417,7 +417,7 @@ async def test_get_users__corrupted_authorization_header(client, monkeypatch):
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [
@@ -469,7 +469,7 @@ async def test_get_users__as_staff(client, monkeypatch):
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [
@@ -524,7 +524,7 @@ async def test_get_users__as_staff_with_after_query_string(client, monkeypatch):
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [
@@ -579,7 +579,7 @@ async def test_get_users__as_staff_with_random_query_string(client, monkeypatch)
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [
@@ -635,7 +635,7 @@ async def test_get_users__as_non_staff(client, monkeypatch):
                             "href": "/users/",
                             "method": "POST",
                         },
-                        "create-token": {
+                        "create_token": {
                             "method": "POST",
                             "href": "/jwt/",
                             "fields": [

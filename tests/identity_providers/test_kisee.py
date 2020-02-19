@@ -47,7 +47,7 @@ def fake_kisee():
             "http://kisee.example.com/",
             status=200,
             body=json.dumps(
-                {"actions": {"create-token": {"href": "http://kisee.example.com/jwt/"}}}
+                {"actions": {"create_token": {"href": "http://kisee.example.com/jwt/"}}}
             ),
         )
         yield mocked
@@ -58,7 +58,7 @@ async def test_endpoint_discovery(provider, fake_kisee):
     assert (await provider.get_endpoint()) == "http://kisee.example.com/"
     for _ in range(3):
         assert (
-            await provider.get_endpoint("create-token")
+            await provider.get_endpoint("create_token")
         ) == "http://kisee.example.com/jwt/"
 
 
