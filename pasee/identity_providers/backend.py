@@ -13,8 +13,7 @@ BACKENDS = {
 
 
 class IdentityProviderBackend(ABC):
-    """Abstract class for representing an Identity provider backend
-    """
+    """Abstract class for representing an Identity provider backend"""
 
     def __init__(self, settings, **kwargs) -> None:
         self.settings = settings
@@ -22,8 +21,7 @@ class IdentityProviderBackend(ABC):
 
     @abstractmethod
     async def authenticate_user(self, data: LoginCredentials, step: int = 1) -> Claims:
-        """Authenticate user
-        """
+        """Authenticate user"""
 
     @abstractmethod
     async def get_endpoint(self, action: Optional[str] = None):
@@ -33,5 +31,4 @@ class IdentityProviderBackend(ABC):
 
     @abstractmethod
     def get_name(self):
-        """Get identity backend name
-        """
+        """Get identity backend name"""

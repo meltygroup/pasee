@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def cached():  # pragma: no cover  # needs a running kisee
-    """Simply cache the result of a coroutine.
-    """
+    """Simply cache the result of a coroutine."""
     _cache = None
 
     def wrapper(func):
@@ -66,8 +65,7 @@ async def find_register_user_provider(
 
 
 async def get_users(request: web.Request) -> web.Response:
-    """Handlers for GET /users/, just describes that a POST is possible.
-    """
+    """Handlers for GET /users/, just describes that a POST is possible."""
     hostname = request.app["settings"]["hostname"]
 
     users: List[str] = []

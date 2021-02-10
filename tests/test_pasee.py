@@ -6,8 +6,7 @@ import mocks
 
 
 def test_load_conf():
-    """Test the configuration logging
-    """
+    """Test the configuration logging"""
     with pytest.raises(MissingSettings):
         load_conf("nonexistant.toml")
     config = load_conf("tests/test-settings.toml")

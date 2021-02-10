@@ -20,8 +20,8 @@ async def verify_input_body_is_json(
     if request.has_body:
         try:
             await request.json()
-        except json.decoder.JSONDecodeError:
-            raise web.HTTPBadRequest(reason="Malformed JSON.")
+        except json.decoder.JSONDecodeError as err:
+            raise web.HTTPBadRequest(reason="Malformed JSON.") from err
     return await handler(request)
 
 
@@ -35,7 +35,7 @@ async def transform_unauthorized(request: web.Request, handler: Callable) -> Cal
     except (Unauthorized, Unauthenticated) as err:
         raise web.HTTPBadRequest(
             reason=err.reason, headers={"WWW-Authenticate": "Bearer"}
-        )
+        ) from err
 
 
 @web.middleware
@@ -63,8 +63,7 @@ SECURITY_HEADERS = {
 
 @web.middleware
 async def security_headers(request, handler):
-    """Add some security headers like CSP, Referrer-Policy and so on.
-    """
+    """Add some security headers like CSP, Referrer-Policy and so on."""
     response = await handler(request)
     response.headers.update(SECURITY_HEADERS)
     return response

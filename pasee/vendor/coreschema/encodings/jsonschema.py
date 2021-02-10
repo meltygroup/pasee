@@ -60,15 +60,21 @@ jsonschema = coreschema.RefSpace(
             # dependancies=..., TODO
             default={},
         ),
-        "SchemaArray": coreschema.Array(items=coreschema.Ref("Schema"), min_items=1,),
+        "SchemaArray": coreschema.Array(
+            items=coreschema.Ref("Schema"),
+            min_items=1,
+        ),
         "SchemaMap": coreschema.Object(
-            additional_properties=coreschema.Ref("Schema"), default={},
+            additional_properties=coreschema.Ref("Schema"),
+            default={},
         ),
         "SimpleTypes": coreschema.Enum(
             enum=["array", "boolean", "integer", "null", "number", "object", "string"]
         ),
         "StringArray": coreschema.Array(
-            items=coreschema.String(), min_items=1, unique_items=True,
+            items=coreschema.String(),
+            min_items=1,
+            unique_items=True,
         ),
     },
     root="Schema",

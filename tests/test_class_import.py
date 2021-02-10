@@ -8,8 +8,7 @@ from pasee.utils import import_class
 
 
 def test_import_storage_backend():
-    """Test importing authorization backend
-    """
+    """Test importing authorization backend"""
     with pytest.raises(ImportError):
         import_class("helloworldxddd~~~")
     with pytest.raises(ImportError):

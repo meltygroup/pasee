@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 async def get_root(request: web.Request) -> web.Response:
-    """https://tools.ietf.org/html/draft-nottingham-json-home-06
-    """
+    """https://tools.ietf.org/html/draft-nottingham-json-home-06"""
     hostname = request.app["settings"]["hostname"]
     home = {
         "api": {
@@ -52,8 +51,7 @@ async def get_root(request: web.Request) -> web.Response:
 
 
 async def get_public_key(request: web.Request) -> web.Response:
-    """Get public key
-    """
+    """Get public key"""
     public_key = request.app["settings"]["public_key"]
     algorithm = request.app["settings"]["algorithm"]
     return web.Response(
