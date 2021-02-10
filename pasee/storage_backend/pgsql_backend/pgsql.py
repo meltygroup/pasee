@@ -8,8 +8,7 @@ from pasee.storage_interface import StorageBackend
 
 
 class PostgresStorage(StorageBackend):
-    """Exposing a simple backend that fetch authorizations from a dictionary.
-    """
+    """Exposing a simple backend that fetch authorizations from a dictionary."""
 
     def __init__(self, options: dict, **kwargs) -> None:
         super().__init__(options, **kwargs)  # type: ignore
@@ -37,8 +36,7 @@ class PostgresStorage(StorageBackend):
             pass
 
     async def get_authorizations_for_user(self, user: str) -> List[str]:
-        """Claim list of groups an user belongs to
-        """
+        """Claim list of groups an user belongs to"""
         async with self.pool.acquire() as connection:
 
             results = await connection.fetch(
@@ -59,8 +57,7 @@ class PostgresStorage(StorageBackend):
             return [elem[0] for elem in results]
 
     async def create_group(self, group_name):
-        """Staff member adds group method
-        """
+        """Staff member adds group method"""
         async with self.pool.acquire() as connection:
             await connection.execute("INSERT INTO groups(name) VALUES($1)", group_name)
 
@@ -138,15 +135,13 @@ class PostgresStorage(StorageBackend):
             return {"username": result["username"], "is_banned": result["is_banned"]}
 
     async def delete_group(self, group: str):
-        """Delete group
-        """
+        """Delete group"""
         await self.delete_members_in_group(group)
         async with self.pool.acquire() as connection:
             await connection.execute("DELETE FROM groups WHERE name = $1", group)
 
     async def get_members_of_group(self, group: str) -> List[str]:
-        """Get members of group
-        """
+        """Get members of group"""
         async with self.pool.acquire() as connection:
             results = await connection.fetch(
                 """
@@ -198,8 +193,7 @@ class PostgresStorage(StorageBackend):
         return bool(result)
 
     async def add_member_to_group(self, member, group):
-        """Staff adds member to group
-        """
+        """Staff adds member to group"""
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """
@@ -214,8 +208,7 @@ class PostgresStorage(StorageBackend):
             )
 
     async def is_user_in_group(self, user: str, group: str) -> bool:
-        """Verify that user is in group
-        """
+        """Verify that user is in group"""
         async with self.pool.acquire() as connection:
             result = await connection.fetch(
                 """
@@ -232,8 +225,7 @@ class PostgresStorage(StorageBackend):
             return bool(result)
 
     async def delete_member_in_group(self, member, group):
-        """Delete member in group
-        """
+        """Delete member in group"""
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """
@@ -259,8 +251,7 @@ class PostgresStorage(StorageBackend):
             )
 
     async def ban_user(self, username: str, ban: bool = True):
-        """Ban user
-        """
+        """Ban user"""
         async with self.pool.acquire() as connection:
             await connection.execute(
                 """

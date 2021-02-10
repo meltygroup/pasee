@@ -10,8 +10,7 @@ from pasee.identity_providers.backend import Claims, LoginCredentials
 
 
 class TwitterIdentityProvider(IdentityProviderBackend):
-    """Twitter Identity Provider
-    """
+    """Twitter Identity Provider"""
 
     def __init__(self, settings, **kwargs) -> None:
         super().__init__(settings, **kwargs)

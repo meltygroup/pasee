@@ -12,8 +12,7 @@ from pasee.identity_providers.backend import Claims, LoginCredentials
 
 
 class KiseeIdentityProvider(IdentityProviderBackend):
-    """Kisee Identity Provider
-    """
+    """Kisee Identity Provider"""
 
     def __init__(self, settings, **kwargs) -> None:
         super().__init__(settings, **kwargs)
@@ -48,11 +47,10 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         return kisee_response
 
     def _decode_token(self, token: str):
-        """Decode token with public keys.
-        """
+        """Decode token with public keys."""
         for public_key in self.public_keys:
             try:
-                decoded = jwt.decode(token, public_key, algorithms="ES256")
+                decoded = jwt.decode(token, public_key, algorithms=["ES256"])
                 return decoded
             except (ValueError, jwt.DecodeError):
                 pass
@@ -88,8 +86,8 @@ class KiseeIdentityProvider(IdentityProviderBackend):
                     self.endpoint, headers={"Accept": "application/json-home"}
                 ) as response:
                     root = await response.json()
-            except aiohttp.client_exceptions.ClientConnectorError:
-                raise web.HTTPServiceUnavailable(reason="kisee not responding")
+            except aiohttp.client_exceptions.ClientConnectorError as err:
+                raise web.HTTPServiceUnavailable(reason="kisee not responding") from err
 
         self.action_to_endpoint[action] = root["actions"][action]["href"]
         return self.action_to_endpoint[action]

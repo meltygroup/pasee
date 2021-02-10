@@ -26,13 +26,11 @@ def test_name(provider):
     assert provider.get_name() == "twitter"
 
 
-@pytest.mark.asyncio
 async def test_endpoint_discovery(provider):
     with pytest.raises(web.HTTPNotImplemented):
         assert await provider.get_endpoint()
 
 
-@pytest.mark.asyncio
 async def test_authenticate_user_step_one_returns_authorize_url(provider, monkeypatch):
     monkeypatch.setattr(
         "pasee.identity_providers.twitter.TwitterClient.get_request_token",
@@ -51,7 +49,6 @@ async def test_authenticate_user_step_one_returns_authorize_url(provider, monkey
     assert "access_token" in data
 
 
-@pytest.mark.asyncio
 async def test_authenticate_user_wrong_step_input(provider):
     with pytest.raises(ValueError):
         assert await provider.authenticate_user({}, step=3)

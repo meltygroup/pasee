@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 async def get_groups(request: web.Request) -> web.Response:
-    """Handlers for GET /groups/
-    """
+    """Handlers for GET /groups/"""
     hostname = request.app["settings"]["hostname"]
     groups: List = []
     errors: List[coreapi.Error] = []
@@ -79,8 +78,7 @@ async def get_groups(request: web.Request) -> web.Response:
 
 
 async def post_groups(request: web.Request) -> web.Response:
-    """Handler for POST /groups/
-    """
+    """Handler for POST /groups/"""
     claims = utils.enforce_authorization(request.headers, request.app["settings"])
     input_data = await request.json()
     if "group" not in input_data:
@@ -106,8 +104,7 @@ async def post_groups(request: web.Request) -> web.Response:
 
 
 async def get_group(request: web.Request) -> web.Response:
-    """Handler for GET /groups/{group_uid}
-    """
+    """Handler for GET /groups/{group_uid}"""
     hostname = request.app["settings"]["hostname"]
     claims = utils.enforce_authorization(request.headers, request.app["settings"])
     storage_backend = request.app["storage_backend"]
@@ -191,8 +188,7 @@ async def delete_group(request: web.Request) -> web.Response:
 
 
 async def delete_group_member(request: web.Request) -> web.Response:
-    """Delete group member of group
-    """
+    """Delete group member of group"""
     claims = utils.enforce_authorization(request.headers, request.app["settings"])
     storage_backend = request.app["storage_backend"]
     group = request.match_info["group_uid"]

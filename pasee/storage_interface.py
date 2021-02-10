@@ -8,8 +8,7 @@ from typing import AsyncContextManager, List, Any
 
 class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
     # (see https://github.com/PyCQA/pylint/issues/2472)
-    """Abstract class for representing an Storage backend
-    """
+    """Abstract class for representing an Storage backend"""
 
     def __init__(self, options: dict, **kwargs: Any) -> None:
         self.options = options
@@ -17,13 +16,11 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
 
     @abstractmethod
     async def get_authorizations_for_user(self, user) -> List[str]:
-        """get list the list of group a user identity belongs to
-        """
+        """get list the list of group a user identity belongs to"""
 
     @abstractmethod
     async def create_group(self, group_name):
-        """Add group
-        """
+        """Add group"""
 
     @abstractmethod
     async def get_groups(self, last_element: str = "") -> List[str]:
@@ -35,53 +32,43 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
 
     @abstractmethod
     async def get_groups_of_user(self, user: str, last_element: str = "") -> List[str]:
-        """Get groups of user
-        """
+        """Get groups of user"""
 
     @abstractmethod
     async def delete_group(self, group: str):
-        """Delete group
-        """
+        """Delete group"""
 
     @abstractmethod
     async def get_users(self, last_element: str = ""):
-        """Get users
-        """
+        """Get users"""
 
     @abstractmethod
     async def get_user(self, username: str = ""):
-        """Get user
-        """
+        """Get user"""
 
     @abstractmethod
     async def get_members_of_group(self, group) -> List[str]:
-        """Get members of group
-        """
+        """Get members of group"""
 
     @abstractmethod
     async def group_exists(self, group) -> bool:
-        """Assert group exists
-        """
+        """Assert group exists"""
 
     @abstractmethod
     async def user_exists(self, user) -> bool:
-        """Assert user exists
-        """
+        """Assert user exists"""
 
     @abstractmethod
     async def create_user(self, username):
-        """Create user
-        """
+        """Create user"""
 
     @abstractmethod
     async def delete_user(self, username):
-        """Delete user
-        """
+        """Delete user"""
 
     @abstractmethod
     async def is_user_in_group(self, user, group) -> bool:
-        """Verify that user is in group
-        """
+        """Verify that user is in group"""
 
     @abstractmethod
     async def add_member_to_group(self, member, group) -> bool:
@@ -91,15 +78,12 @@ class StorageBackend(AsyncContextManager):  # pylint: disable=inherit-non-class
 
     @abstractmethod
     async def delete_member_in_group(self, member, group):
-        """Delete member in group
-        """
+        """Delete member in group"""
 
     @abstractmethod
     async def delete_members_in_group(self, group):
-        """Delete all members of group
-        """
+        """Delete all members of group"""
 
     @abstractmethod
     async def ban_user(self, username: str, ban: bool = True):
-        """Ban user
-        """
+        """Ban user"""

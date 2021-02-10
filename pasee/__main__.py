@@ -21,8 +21,7 @@ from pasee.pasee import identification_app
 
 
 def pasee_arg_parser() -> argparse.ArgumentParser:
-    """Parses command line arguments.
-    """
+    """Parses command line arguments."""
     parser = argparse.ArgumentParser(
         prog="pasee",
         description="Pasee Identity Manager",
@@ -40,10 +39,11 @@ def pasee_arg_parser() -> argparse.ArgumentParser:
 
 
 def load_conf(
-    settings_path: Optional[str] = None, host: str = None, port: int = None,
+    settings_path: Optional[str] = None,
+    host: str = None,
+    port: int = None,
 ) -> Dict:
-    """Search for a settings.toml file and load it.
-    """
+    """Search for a settings.toml file and load it."""
     candidates: tuple
     if settings_path:
         candidates = (
@@ -88,8 +88,7 @@ def load_conf(
 
 
 def main():  # pragma: no cover
-    """Command line entry point.
-    """
+    """Command line entry point."""
     parser = pasee_arg_parser()
     args = parser.parse_args()
     try:

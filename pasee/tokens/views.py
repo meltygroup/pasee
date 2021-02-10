@@ -4,7 +4,7 @@
 - POST /tokens/
 """
 import logging
-from typing import List
+from typing import List, Dict, Any
 
 from aiohttp import web
 
@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 async def get_tokens(request: web.Request) -> web.Response:
-    """Handlers for GET /token/, just describes that a POST is possible.
-    """
+    """Handlers for GET /token/, just describes that a POST is possible."""
     hostname = request.app["settings"]["hostname"]
     access_token, refresh_token = None, None
     identity_provider_input = request.rel_url.query.get("idp", None)
@@ -29,8 +28,6 @@ async def get_tokens(request: web.Request) -> web.Response:
         access_token, refresh_token = await handle_oauth_callback(
             identity_provider_input, request
         )
-        access_token = access_token.decode("utf-8")
-        refresh_token = refresh_token.decode("utf-8")
 
     idps = {}
     for idp_name, idp_conf in request.app["settings"]["idps"].items():
@@ -63,8 +60,7 @@ async def get_tokens(request: web.Request) -> web.Response:
 
 
 async def post_token(request: web.Request) -> web.Response:
-    """Post to IDP to create a jwt token
-    """
+    """Post to IDP to create a jwt token"""
     # Proceed as a refresh token handler if query string refresh is available
     if "refresh" in request.rel_url.query:
         if not request.headers.get("Authorization"):
@@ -77,7 +73,7 @@ async def post_token(request: web.Request) -> web.Response:
     else:
         claims = await authenticate_with_identity_provider(request)
 
-    response_content = {
+    response_content: Dict[str, Any] = {
         "identify_to_kisee": coreapi.Link(
             action="post",
             title="Login via login/password pair",
@@ -105,8 +101,8 @@ async def post_token(request: web.Request) -> web.Response:
             request.app["settings"]["private_key"],
             algorithm=request.app["settings"]["algorithm"],
         )
-        response_content["access_token"] = access_token.decode("utf-8")
-        response_content["refresh_token"] = refresh_token.decode("utf-8")
+        response_content["access_token"] = access_token
+        response_content["refresh_token"] = refresh_token
     else:
         response_content["authorize_url"] = claims["authorize_url"]
 

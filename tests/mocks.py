@@ -2,27 +2,8 @@
 """
 
 
-def identify_to_kisee(self, data):
-    return {
-        "_type": "document",
-        "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
-        "tokens": ["somefaketoken"],
-        "add_token": {
-            "_type": "link",
-            "action": "post",
-            "title": "Create a new JWT",
-            "description": "POSTing to this endpoint create JWT tokens.",
-            "fields": [
-                {"name": "login", "required": True},
-                {"name": "password", "required": True},
-            ],
-        },
-    }
-
-
 def decode_token(self, token):
-    """Decode a token emitted by Kisee
-    """
+    """Decode a token emitted by Kisee"""
     return {
         "iss": "example.com",
         "sub": "toto",
@@ -89,10 +70,12 @@ async def twitter__authenticate_user(self, data, step=1):
         return {"authorize_url": "http://some-authorize-url.example.com"}
     elif step == 2:
         return {"access_token": "random-access-token", "sub": "newtwitteruser"}
-    raise ValueError("Step should be either 1 or 2")
+    raise ValueError("Step should be either 1 or 2")  # pragma: no cover
 
 
-async def twitter__authenticate_user__user_exists(self, data, step=1):
+async def twitter__authenticate_user__user_exists(
+    self, data, step=1
+):  # pragma: no cover
     if step == 1:
         return {"authorize_url": "http://some-authorize-url.example.com"}
     elif step == 2:

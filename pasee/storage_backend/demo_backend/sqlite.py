@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class DemoSqliteStorage(StorageBackend):
-    """Exposing a simple backend that fetch authorizations from a dictionary.
-    """
+    """Exposing a simple backend that fetch authorizations from a dictionary."""
 
     def __init__(self, options: dict, **kwargs) -> None:
         super().__init__(options, **kwargs)
@@ -83,8 +82,7 @@ class DemoSqliteStorage(StorageBackend):
         return [elem[0] for elem in results]
 
     async def create_group(self, group_name):
-        """Staff member adds group method
-        """
+        """Staff member adds group method"""
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
@@ -141,8 +139,7 @@ class DemoSqliteStorage(StorageBackend):
         return groups
 
     async def delete_group(self, group: str):
-        """Delete group
-        """
+        """Delete group"""
         await self.delete_members_in_group(group)
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
@@ -151,8 +148,7 @@ class DemoSqliteStorage(StorageBackend):
         self.connection.commit()
 
     async def get_users(self, last_element: str = ""):
-        """Get users
-        """
+        """Get users"""
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
@@ -180,8 +176,7 @@ class DemoSqliteStorage(StorageBackend):
         return {"username": result[0], "is_banned": result[1]}
 
     async def get_members_of_group(self, group: str) -> List[str]:
-        """Get members of group
-        """
+        """Get members of group"""
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
         cursor = self.connection.cursor()
@@ -254,8 +249,7 @@ class DemoSqliteStorage(StorageBackend):
         return bool(result)
 
     async def add_member_to_group(self, member, group):
-        """Staff adds member to group
-        """
+        """Staff adds member to group"""
         cursor = self.connection.cursor()
         cursor.execute(
             """
@@ -270,8 +264,7 @@ class DemoSqliteStorage(StorageBackend):
         self.connection.commit()
 
     async def delete_member_in_group(self, member, group):
-        """Delete member in group
-        """
+        """Delete member in group"""
         cursor = self.connection.cursor()
         cursor.execute(
             """
@@ -285,8 +278,7 @@ class DemoSqliteStorage(StorageBackend):
         self.connection.commit()
 
     async def delete_members_in_group(self, group):
-        """Delete all members of group
-        """
+        """Delete all members of group"""
         if self.connection is None:
             return
 
@@ -301,8 +293,7 @@ class DemoSqliteStorage(StorageBackend):
         self.connection.commit()
 
     async def ban_user(self, username: str, ban: bool = True):
-        """Ban user
-        """
+        """Ban user"""
         if self.connection is None:
             raise RuntimeError("This class should be used in a context manager.")
 

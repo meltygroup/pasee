@@ -2,6 +2,7 @@
 """
 import json
 from datetime import datetime, timedelta
+from typing import Tuple
 
 import jwt
 import shortuuid
@@ -13,14 +14,14 @@ from pasee.utils import import_class
 
 
 def create_jti_and_expiration_values(hours_to_add: int):
-    """Returns new uuid and expiration time
-    """
+    """Returns new uuid and expiration time"""
     return shortuuid.uuid(), datetime.utcnow() + timedelta(hours=hours_to_add)
 
 
-def generate_access_token_and_refresh_token_pairs(claims, private_key, algorithm):
-    """Create new access token with refresh token
-    """
+def generate_access_token_and_refresh_token_pairs(
+    claims, private_key, algorithm
+) -> Tuple[str, str]:
+    """Create new access token with refresh token"""
     claims["jti"], claims["exp"] = create_jti_and_expiration_values(  # type: ignore
         hours_to_add=1
     )
@@ -36,8 +37,7 @@ def generate_access_token_and_refresh_token_pairs(claims, private_key, algorithm
 
 
 async def authenticate_with_identity_provider(request: web.Request) -> Claims:
-    """Use identity provider provided by user to authenticate.
-    """
+    """Use identity provider provided by user to authenticate."""
     try:
         input_data = await request.json()
     except json.decoder.JSONDecodeError:
@@ -62,9 +62,10 @@ async def authenticate_with_identity_provider(request: web.Request) -> Claims:
     return await identity_provider.authenticate_user(input_data)
 
 
-async def handle_oauth_callback(identity_provider_input: str, request: web.Request):
-    """Callback handler for oauth protocol
-    """
+async def handle_oauth_callback(
+    identity_provider_input: str, request: web.Request
+) -> Tuple[str, str]:
+    """Callback handler for oauth protocol"""
     if identity_provider_input not in identity_providers.BACKENDS:
         raise web.HTTPBadRequest(reason="Identity provider not implemented")
     identity_provider_path = identity_providers.BACKENDS[identity_provider_input]

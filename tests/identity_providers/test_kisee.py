@@ -37,7 +37,7 @@ def provider():
 def test_token():
     return jwt.encode(
         {"iss": "test", "sub": "toto", "jti": "42"}, PRIVATE_KEY, algorithm="ES256"
-    ).decode("utf8")
+    )
 
 
 @pytest.fixture
@@ -53,7 +53,6 @@ def fake_kisee():
         yield mocked
 
 
-@pytest.mark.asyncio
 async def test_endpoint_discovery(provider, fake_kisee):
     assert (await provider.get_endpoint()) == "http://kisee.example.com/"
     for _ in range(3):
@@ -66,7 +65,6 @@ def test_name(provider):
     provider.get_name() == "kisee"
 
 
-@pytest.mark.asyncio
 async def test_kisee_idp_succeed(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
@@ -77,7 +75,6 @@ async def test_kisee_idp_succeed(provider, test_token, fake_kisee):
     assert claims["sub"] == "kisee-toto"
 
 
-@pytest.mark.asyncio
 async def test_kisee_idp_missing_field(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
@@ -88,7 +85,6 @@ async def test_kisee_idp_missing_field(provider, test_token, fake_kisee):
         await provider.authenticate_user({"login": "toto"})
 
 
-@pytest.mark.asyncio
 async def test_kisee_idp_bad_token(provider, test_token, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/",
@@ -99,7 +95,6 @@ async def test_kisee_idp_bad_token(provider, test_token, fake_kisee):
         await provider.authenticate_user({"login": "toto", "password": "toto"})
 
 
-@pytest.mark.asyncio
 async def test_kisee_idp_bad_password(provider, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/", status=403, body=json.dumps({"_type": "error"})
@@ -108,7 +103,6 @@ async def test_kisee_idp_bad_password(provider, fake_kisee):
         await provider.authenticate_user({"login": "toto", "password": "toto"})
 
 
-@pytest.mark.asyncio
 async def test_kisee_idp_service_failure(provider, fake_kisee):
     fake_kisee.post(
         "http://kisee.example.com/jwt/", status=500, body=json.dumps({"_type": "error"})
