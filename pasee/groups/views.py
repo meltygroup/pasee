@@ -2,7 +2,7 @@
 """
 
 import logging
-from typing import List
+from typing import List, Tuple
 
 from aiohttp import web
 
@@ -12,22 +12,15 @@ from pasee.serializers import serialize
 from pasee.groups.utils import (
     is_authorized_for_group,
     is_authorized_for_group_create,
-    is_root,
 )
-from pasee import Unauthorized, Unauthenticated
+from pasee import Unauthorized
 
 logger = logging.getLogger(__name__)
 
 
-async def get_groups(request: web.Request) -> web.Response:
-    """Handlers for GET /groups/"""
-    hostname = request.app["settings"]["hostname"]
-    groups: List = []
-    errors: List[coreapi.Error] = []
-
+async def _get_groups(request: web.Request) -> Tuple[List[coreapi.Error], List]:
     try:
-        claims = utils.enforce_authorization(request.headers, request.app["settings"])
-        if is_root(claims["groups"]):
+        if utils.is_root(request):
             user = request.rel_url.query.get("user")
             last_element = request.rel_url.query.get("last_element", "")
             if not user:
@@ -36,11 +29,16 @@ async def get_groups(request: web.Request) -> web.Response:
                 groups = await request.app["storage_backend"].get_groups_of_user(
                     user, last_element
                 )
-    except Unauthorized as unauthorized_error:
-        errors.append(coreapi.Error(content={"reason": unauthorized_error.reason}))
-    except Unauthenticated:
-        pass
+            return [], groups
+    except Unauthorized as err:
+        return [coreapi.Error(content={"reason": err.reason})], []
+    return [], []
 
+
+async def get_groups(request: web.Request) -> web.Response:
+    """Handlers for GET /groups/"""
+    hostname = request.app["settings"]["hostname"]
+    errors, groups = await _get_groups(request)
     content = {
         "groups": [
             coreapi.Document(

@@ -5,17 +5,17 @@
 """
 import functools
 import logging
-from typing import List
+from typing import List, Tuple
 from urllib.parse import parse_qs
 
 from aiohttp import web, ClientSession
 
-from pasee import Unauthorized, Unauthenticated
+from pasee import Unauthorized
 from pasee.serializers import serialize
 from pasee.identity_providers.utils import get_identity_provider_with_capability
-from pasee.groups.utils import is_root
 from pasee.vendor import coreapi
 from pasee import utils
+from pasee.groups.utils import is_root
 
 logger = logging.getLogger(__name__)
 
@@ -64,25 +64,22 @@ async def find_register_user_provider(
                 }
 
 
+async def _get_users(request: web.Request) -> Tuple[List[coreapi.Error], List[str]]:
+    """Get users, if requester is root."""
+    try:
+        if utils.is_root(request):
+            after = request.rel_url.query.get("after", "")
+            return [], await request.app["storage_backend"].get_users(after)
+    except Unauthorized as err:
+        return [coreapi.Error(content={"reason": err.reason})], []
+    return [], []
+
+
 async def get_users(request: web.Request) -> web.Response:
     """Handlers for GET /users/, just describes that a POST is possible."""
     hostname = request.app["settings"]["hostname"]
-
-    users: List[str] = []
-    errors: List[coreapi.Error] = []
-    last_element = None
-    try:
-        claims = utils.enforce_authorization(request.headers, request.app["settings"])
-        if is_root(claims["groups"]):
-            after = request.rel_url.query.get("after", "")
-            users = await request.app["storage_backend"].get_users(after)
-            last_element = users[-1] if users else None
-
-    except Unauthorized as unauthorized_error:
-        errors.append(coreapi.Error(content={"reason": unauthorized_error.reason}))
-    except Unauthenticated:
-        pass
-
+    errors, users = await _get_users(request)
+    last_element = users[-1] if users else None
     content = {
         "users": [
             coreapi.Document(
