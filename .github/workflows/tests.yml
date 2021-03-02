@@ -30,8 +30,10 @@ jobs:
             python-version: '3.7'
           - env: py38,coverage
             python-version: '3.8'
+          - env: py39,coverage
+            python-version: '3.9'
           - env: black,flake8,pylint,bandit,mypy,docs
-            python-version: '3.8'
+            python-version: '3.9'
 
     name: ${{ matrix.tox.env }}
     runs-on: ubuntu-latest
