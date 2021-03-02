@@ -7,6 +7,7 @@ from importlib import import_module
 import jwt
 
 from pasee import Unauthorized, Unauthenticated
+import pasee.groups.utils
 
 Claims = MutableMapping[str, Union[Any]]
 RequestHeaders = Mapping[str, Union[Any]]
@@ -57,3 +58,16 @@ def enforce_authorization(headers: RequestHeaders, settings: Settings) -> Claims
         raise Unauthorized("Expired signature") from err
     except jwt.InvalidTokenError as err:
         raise Unauthorized("Invalid token") from err
+
+
+def is_root(request) -> bool:
+    """Check if requester is root.
+
+    Can raise an Unauthorized exception (Expired signature, Invalid
+    token, ...).
+    """
+    try:
+        claims = enforce_authorization(request.headers, request.app["settings"])
+    except Unauthenticated:
+        return False
+    return pasee.groups.utils.is_root(claims["groups"])
