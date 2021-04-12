@@ -168,7 +168,10 @@ async def test_post_tokens(client, monkeypatch):
             body=json.dumps(
                 {
                     "_type": "document",
-                    "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
+                    "_meta": {
+                        "url": "http://dump-kisee-endpoint/jwt/",
+                        "title": "JSON Web Tokens",
+                    },
                     "tokens": [
                         "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmNvbSIsInN1YiI6InRvdG8iLCJleHAiOjE1MzQxNzM3MjMsImp0aSI6ImoyQ01SZVhTVXdjbnZQZmhxcTdjU2cifQ.Gy_ooIE-Bx85elJWXcRmZEtOT4Bbqg3TqSu23F3cHVWrhihm_kwTG1ICVXSGxLkl1AJR1QIwcvosA70CZSnOaQ"
                     ],
@@ -197,27 +200,8 @@ async def test_post_tokens(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
-                        }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "http://dump-kisee-endpoint/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
                             "href": "http://dump-kisee-endpoint/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
+                        }
                     },
                     "api": {
                         "links": {
@@ -257,7 +241,10 @@ async def test_post_tokens__creates_new_user(client, monkeypatch):
             body=json.dumps(
                 {
                     "_type": "document",
-                    "_meta": {"url": "/jwt/", "title": "JSON Web Tokens"},
+                    "_meta": {
+                        "url": "http://dump-kisee-endpoint/jwt/",
+                        "title": "JSON Web Tokens",
+                    },
                     "tokens": [
                         "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLmNvbSIsInN1YiI6InRvdG8iLCJleHAiOjE1MzQxNzM3MjMsImp0aSI6ImoyQ01SZVhTVXdjbnZQZmhxcTdjU2cifQ.Gy_ooIE-Bx85elJWXcRmZEtOT4Bbqg3TqSu23F3cHVWrhihm_kwTG1ICVXSGxLkl1AJR1QIwcvosA70CZSnOaQ"
                     ],
@@ -286,27 +273,8 @@ async def test_post_tokens__creates_new_user(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
-                        }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "http://dump-kisee-endpoint/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
                             "href": "http://dump-kisee-endpoint/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
+                        }
                     },
                     "api": {
                         "links": {
@@ -354,27 +322,8 @@ async def test_get_users(client):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
@@ -404,27 +353,8 @@ async def test_get_users__corrupted_authorization_header(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
@@ -456,27 +386,8 @@ async def test_get_users__as_staff(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
@@ -511,27 +422,8 @@ async def test_get_users__as_staff_with_after_query_string(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
@@ -566,27 +458,8 @@ async def test_get_users__as_staff_with_random_query_string(client, monkeypatch)
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
@@ -622,27 +495,8 @@ async def test_get_users__as_non_staff(client, monkeypatch):
                                 "allow": ["GET", "POST"],
                                 "formats": {"application/vnd.coreapi+json": {}},
                             },
-                            "href": "/jwt/",
+                            "href": "http://dump-kisee-endpoint/jwt/",
                         }
-                    },
-                    "actions": {
-                        "register_user": {
-                            "fields": [
-                                {"name": "username", "required": True},
-                                {"required": True, "name": "password"},
-                                {"name": "email", "required": True},
-                            ],
-                            "href": "/users/",
-                            "method": "POST",
-                        },
-                        "create_token": {
-                            "method": "POST",
-                            "href": "/jwt/",
-                            "fields": [
-                                {"name": "login", "required": True},
-                                {"name": "password", "required": True},
-                            ],
-                        },
                     },
                     "api": {
                         "links": {
