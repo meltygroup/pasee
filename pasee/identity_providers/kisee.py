@@ -23,7 +23,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
 
     async def _identify_to_kisee(self, data: LoginCredentials):
         """Async request to identify to kisee"""
-        create_token_endpoint = await self.get_endpoint("create_token")
+        create_token_endpoint = await self.get_endpoint("jwt")
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 create_token_endpoint,
@@ -89,7 +89,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
             except aiohttp.client_exceptions.ClientConnectorError as err:
                 raise web.HTTPServiceUnavailable(reason="kisee not responding") from err
 
-        self.action_to_endpoint[action] = root["actions"][action]["href"]
+        self.action_to_endpoint[action] = root["resources"][action]["href"]
         return self.action_to_endpoint[action]
 
     def get_name(self):
