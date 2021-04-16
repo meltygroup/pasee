@@ -24,9 +24,9 @@ class IdentityProviderBackend(ABC):
         """Authenticate user"""
 
     @abstractmethod
-    async def get_endpoint(self, action: Optional[str] = None):
-        """Get identity backend endpoint for specific action
-        Returns root endpoint if action is None
+    async def get_endpoint(self, resource: Optional[str] = None):
+        """Get identity backend endpoint for specific resource
+        Returns root endpoint if resource is None
         """
 
     @abstractmethod
