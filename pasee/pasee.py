@@ -12,7 +12,7 @@ from pasee.middlewares import (
     coreapi_error_middleware,
     security_headers,
 )
-from pasee import views
+from pasee import views, openid_connect_views
 from pasee.groups import views as group_views
 from pasee.tokens import views as token_views
 from pasee.users import views as user_views
@@ -69,6 +69,10 @@ def identification_app(
             web.delete(
                 "/groups/{group_uid}/{username}/", group_views.delete_group_member
             ),
+            web.get("/oidc/authorize", openid_connect_views.authorize),
+            web.post("/oidc/authorize", openid_connect_views.authorize),
+            web.post("/oidc/token", openid_connect_views.post_token),
+            web.get("/oidc/introspect", openid_connect_views.get_introspect),
         ]
     )
 
