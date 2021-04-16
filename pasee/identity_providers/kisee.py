@@ -19,7 +19,7 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         self.public_keys = self.settings["settings"]["public_keys"]
         self.endpoint = self.settings["endpoint"]
         self.name = self.settings["name"]
-        self.action_to_endpoint: Dict = dict()
+        self.resource_to_endpoint: Dict = dict()
 
     async def _identify_to_kisee(self, data: LoginCredentials):
         """Async request to identify to kisee"""
@@ -72,13 +72,13 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         decoded["sub"] = f"{self.name}-{decoded['sub']}"
         return decoded
 
-    async def get_endpoint(self, action: Optional[str] = None):
+    async def get_endpoint(self, resource: Optional[str] = None):
 
-        if not action:
+        if not resource:
             return self.endpoint
 
-        if action in self.action_to_endpoint:
-            return self.action_to_endpoint[action]
+        if resource in self.resource_to_endpoint:
+            return self.resource_to_endpoint[resource]
 
         async with aiohttp.ClientSession() as session:
             try:
@@ -89,8 +89,8 @@ class KiseeIdentityProvider(IdentityProviderBackend):
             except aiohttp.client_exceptions.ClientConnectorError as err:
                 raise web.HTTPServiceUnavailable(reason="kisee not responding") from err
 
-        self.action_to_endpoint[action] = root["resources"][action]["href"]
-        return self.action_to_endpoint[action]
+        self.resource_to_endpoint[resource] = root["resources"][resource]["href"]
+        return self.resource_to_endpoint[resource]
 
     def get_name(self):
         return self.name
