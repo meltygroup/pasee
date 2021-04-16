@@ -1,7 +1,9 @@
 """HTTP server managing users.
 """
 
-__version__ = "21.3.16"
+
+# Version format is: YY.MM[.PATCH] (no leading 0s).
+__version__ = "21.4"
 
 
 class PaseeException(Exception):
