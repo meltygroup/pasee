@@ -41,7 +41,7 @@ class TwitterIdentityProvider(IdentityProviderBackend):
         else:
             raise ValueError("only step 1 or 2 is available")
 
-    async def get_endpoint(self, action: Optional[str] = None):
+    async def get_endpoint(self, resource: Optional[str] = None):
 
         raise web.HTTPNotImplemented(
             reason="No other action possible in twitter but authentication"
