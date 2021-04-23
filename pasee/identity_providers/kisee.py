@@ -77,6 +77,9 @@ class KiseeIdentityProvider(IdentityProviderBackend):
         if not resource:
             return self.endpoint
 
+        if resource == "register_user":
+            resource = "users"
+
         if resource in self.resource_to_endpoint:
             return self.resource_to_endpoint[resource]
 
