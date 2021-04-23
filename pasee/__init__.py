@@ -3,7 +3,7 @@
 
 
 # Version format is: YY.MM[.PATCH] (no leading 0s).
-__version__ = "21.4"
+__version__ = "21.4.1"
 
 
 class PaseeException(Exception):
