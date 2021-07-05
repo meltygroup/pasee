@@ -1,3 +1,4 @@
+-r requirements.txt
 aioresponses
 bandit
 black
@@ -15,4 +16,5 @@ setuptools
 sphinx
 sphinx_rtd_theme
 tox
+types-requests
 wheel
