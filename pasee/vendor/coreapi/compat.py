@@ -47,4 +47,4 @@ except ImportError:
 try:
     from tempfile import _TemporaryFileWrapper  # type: ignore
 except ImportError:
-    _TemporaryFileWrapper = None
+    _TemporaryFileWrapper = None  # type: ignore

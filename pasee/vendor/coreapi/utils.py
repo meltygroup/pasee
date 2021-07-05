@@ -7,7 +7,6 @@ from pasee.vendor.coreapi.compat import (
 )
 from collections import namedtuple
 import os
-import pkg_resources
 import tempfile
 from typing import Any
 
@@ -24,14 +23,6 @@ def domain_matches(request, domain):
     if domain.startswith("*"):
         return host.endswith(domain[1:])
     return host == domain
-
-
-def get_installed_codecs():
-    packages = [
-        (package, package.load())
-        for package in pkg_resources.iter_entry_points(group="coreapi.codecs")
-    ]
-    return {package.name: cls() for (package, cls) in packages}
 
 
 # File utilities for upload and download support.
