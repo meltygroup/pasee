@@ -8,11 +8,10 @@ import logging
 from typing import List, Tuple
 from urllib.parse import parse_qs
 
-from aiohttp import web, ClientSession
+from aiohttp import web
 
 from pasee import Unauthorized
 from pasee.serializers import serialize
-from pasee.identity_providers.utils import get_identity_provider_with_capability
 from pasee.vendor import coreapi
 from pasee import utils
 from pasee.groups.utils import is_root
@@ -35,33 +34,6 @@ def cached():  # pragma: no cover  # needs a running kisee
         return _cached
 
     return wrapper
-
-
-@cached()
-async def find_register_user_provider(
-    request: web.Request,
-):  # pragma: no cover  # needs a running kisee
-    """If an identity provider has the capability "register_user", hit its
-    "register_user" action and returns its "register_user" link.
-    """
-    identity_provider = get_identity_provider_with_capability(
-        request.app["settings"], "register_user"
-    )
-    if identity_provider:
-        try:
-            register_user_endpoint = await identity_provider.get_endpoint(
-                "register-user"
-            )
-        except KeyError:
-            register_user_endpoint = await identity_provider.get_endpoint(
-                "register_user"
-            )
-        async with ClientSession() as session:
-            async with session.get(register_user_endpoint) as resp:
-                return {
-                    **(await resp.json())["register_user"],
-                    **{"url": register_user_endpoint},
-                }
 
 
 async def _get_users(request: web.Request) -> Tuple[List[coreapi.Error], List[str]]:
@@ -89,10 +61,6 @@ async def get_users(request: web.Request) -> web.Response:
         ],
         "errors": errors,
     }
-
-    register_user = await find_register_user_provider(request)
-    if register_user:  # pragma: no cover  # Needs a running kisee.
-        content["register_user"] = register_user
 
     if last_element:
         if request.rel_url.query:
