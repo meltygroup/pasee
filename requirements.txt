@@ -20,7 +20,7 @@ asyncpg==0.23.0
     # via pasee (pyproject.toml)
 attrs==21.2.0
     # via aiohttp
-certifi==2021.5.30
+certifi==2022.12.7
     # via httpx
 cffi==1.14.5
     # via cryptography
